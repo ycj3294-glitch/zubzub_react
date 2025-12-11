@@ -5,7 +5,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/main-auction" element={<MainAuction />}></Route>
+        <Route path="/"></Route>
       </Routes>
     </Router>
   );
