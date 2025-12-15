@@ -1,14 +1,25 @@
-import styled from "styled-components";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AxiosAPI from "../api/AxiosAPI";
 import { useAuth } from "../context/AuthContext";
+import styled from "styled-components";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [pwd, setPwd] = useState("");
+  const [error, setError] = useState({
+    email: "",
+    pwd: "",
+  });
+
   const { login } = useAuth();
   const nav = useNavigate();
+
+  const ErrorText = styled.div`
+    color: red;
+    font-size: 12px;
+    margin-top: 4px;
+  `;
 
   const loginHandler = async () => {
     if (!email || !pwd) {
@@ -41,7 +52,6 @@ const Login = () => {
           onChange={(e) => setEmail(e.target.value)}
         />
       </div>
-
       <div>
         비밀번호
         <input
@@ -50,7 +60,6 @@ const Login = () => {
           onChange={(e) => setPwd(e.target.value)}
         />
       </div>
-
       <button onClick={loginHandler}>로그인</button>
     </>
   );

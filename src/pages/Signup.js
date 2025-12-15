@@ -3,10 +3,6 @@ import { useState } from "react";
 import AxiosAPI from "../api/AxiosAPI";
 import { emailRegex, passwordRegex, nicknameRegex } from "../utils/validators";
 
-/* =========================
-   styles
-========================= */
-
 const Container = styled.div`
   max-width: 420px;
   margin: 100px auto;
@@ -32,25 +28,17 @@ const SuccessText = styled.div`
   margin-top: 4px;
 `;
 
-/* =========================
-   Component
-========================= */
-
 const Signup = () => {
-  /* ---------- email ---------- */
   const [email, setEmail] = useState("");
   const [emailCode, setEmailCode] = useState("");
   const [emailVerified, setEmailVerified] = useState(false);
 
-  /* ---------- password ---------- */
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
 
-  /* ---------- nickname ---------- */
   const [nickname, setNickname] = useState("");
   const [nicknameChecked, setNicknameChecked] = useState(false);
 
-  /* ---------- errors ---------- */
   const [errors, setErrors] = useState({
     email: "",
     emailCode: "",
@@ -59,9 +47,7 @@ const Signup = () => {
     nickname: "",
   });
 
-  /* =========================
-     이메일 인증
-  ========================= */
+  // 이메일 인증
 
   const sendEmailCode = async () => {
     if (!emailRegex.test(email)) {
@@ -103,9 +89,7 @@ const Signup = () => {
     }
   };
 
-  /* =========================
-     닉네임 중복 확인
-  ========================= */
+  // 닉네임 중복 확인
 
   const checkNickname = async () => {
     if (!nicknameRegex.test(nickname)) {
@@ -137,9 +121,7 @@ const Signup = () => {
     }
   };
 
-  /* =========================
-     회원가입
-  ========================= */
+  // 회원가입
 
   const signupHandler = async () => {
     let valid = true;
@@ -178,10 +160,6 @@ const Signup = () => {
       alert("회원가입 실패");
     }
   };
-
-  /* =========================
-     Render
-  ========================= */
 
   return (
     <Container>
@@ -279,7 +257,7 @@ const Signup = () => {
           value={nickname}
           onChange={(e) => {
             setNickname(e.target.value);
-            setNicknameChecked(false); // ⭐ 값 변경 시 다시 확인
+            setNicknameChecked(false); //  값 변경 시 다시 확인
             setErrors((p) => ({ ...p, nickname: "" }));
           }}
         />
