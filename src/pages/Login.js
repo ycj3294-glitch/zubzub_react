@@ -98,10 +98,10 @@ const Login = () => {
 
       {/* 이메일 */}
       <Row>
-        이메일
         <input
           type="text"
           value={email}
+          placeholder="이메일"
           onChange={(e) => {
             setEmail(e.target.value);
             setErrors((p) => ({ ...p, email: "", common: "" }));
@@ -112,10 +112,10 @@ const Login = () => {
 
       {/* 비밀번호 */}
       <Row>
-        비밀번호
         <input
           type="password"
           value={pwd}
+          placeholder="비밀번호"
           onChange={(e) => {
             setPwd(e.target.value);
             setErrors((p) => ({ ...p, pwd: "", common: "" }));
