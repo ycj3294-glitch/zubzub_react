@@ -52,15 +52,20 @@ AxiosAPI.verifyEmailCode = async (email, code) => {
   });
 };
 
-/* =========================
-   회원가입
-========================= */
+// 회원가입
 
 AxiosAPI.signup = async (email, password, nickname) => {
   return await AxiosAPI.post("/auth/signup", {
     email,
     password,
     nickname,
+  });
+};
+
+// 닉네임 중복 확인
+AxiosAPI.checkNickname = async (nickname) => {
+  return await AxiosAPI.get("/auth/nickname/exists", {
+    params: { nickname },
   });
 };
 
