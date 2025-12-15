@@ -5,6 +5,8 @@ import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute";
 import Main from "./pages/Main";
 import Layout from "./components/Layout";
+import MinorAuctionDetail from "./pages/MinorAuctionDetail";
+import MajorAuctionDetail from "./pages/MajorAuctionDetail";
 
 function App() {
   return (
@@ -15,6 +17,8 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/" element={<Main />} />
+            <Route path="/auction/minor/:id" element={<MinorAuctionDetail />} />
+            <Route path="/auction/major/:id" element={<MajorAuctionDetail />} />
           </Routes>
         </Layout>
       </Router>

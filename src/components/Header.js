@@ -2,14 +2,11 @@ import styled from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-/* =========================
-   styles
-========================= */
-
 const HeaderWrap = styled.header`
   width: 100%;
   border-bottom: 1px solid #e5e5e5;
   background: #fff;
+  position: sticky;
 `;
 
 const Inner = styled.div`
@@ -23,6 +20,7 @@ const Inner = styled.div`
 `;
 
 const Logo = styled(Link)`
+  margin-left: 10px;
   font-size: 20px;
   font-weight: 700;
   color: #111;
@@ -31,6 +29,7 @@ const Logo = styled(Link)`
 
 const Nav = styled.nav`
   display: flex;
+  margin-right: 10px;
   align-items: center;
   gap: 20px;
 `;
