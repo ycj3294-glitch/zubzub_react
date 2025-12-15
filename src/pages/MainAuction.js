@@ -179,7 +179,12 @@ const MainAuction = () => {
       </div>
 
       <div>
-        <form onSubmit={(e) => e.preventDefault && sendAuction()}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            sendAuction();
+          }}
+        >
           {auctionFields.map((field) => (
             <div key={field.name} style={{ marginBottom: "15px" }}>
               <label>
@@ -206,7 +211,12 @@ const MainAuction = () => {
       </div>
 
       <div>
-        <form onSubmit={(e) => e.preventDefault && sendBid()}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            sendBid();
+          }}
+        >
           {bidFields.map((field) => (
             <div key={field.name} style={{ marginBottom: "15px" }}>
               <label>
