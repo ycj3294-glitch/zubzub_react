@@ -100,6 +100,7 @@ const Login = () => {
       <Row>
         <input
           type="text"
+          style={{ width: "100%", height: "22px" }}
           value={email}
           placeholder="이메일"
           onChange={(e) => {
@@ -114,6 +115,7 @@ const Login = () => {
       <Row>
         <input
           type="password"
+          style={{ width: "100%", height: "22px" }}
           value={pwd}
           placeholder="비밀번호"
           onChange={(e) => {
