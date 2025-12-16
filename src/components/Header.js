@@ -72,7 +72,8 @@ const Header = () => {
 
         {/* 네비게이션 */}
         <Nav>
-          <NavLink to="/auction">경매</NavLink>
+          <NavLink to="/auction/major">대규모 경매</NavLink>
+          <NavLink to="/auction/minor">소규모 경매</NavLink>
           <NavLink to="/notice">공지사항</NavLink>
 
           {isLogin ? (
