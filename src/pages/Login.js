@@ -4,6 +4,7 @@ import AxiosAPI from "../api/AxiosAPI";
 import { useAuth } from "../context/AuthContext";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
+import FindPwdModal from "./FindPwd";
 
 const LinkRow = styled.div`
   display: flex;
@@ -51,6 +52,7 @@ const Login = () => {
     pwd: "",
     common: "", // 아이디/비밀번호 틀림
   });
+  const [showFindPwd, setShowFindPwd] = useState(false);
 
   const { login } = useAuth();
   const nav = useNavigate();
@@ -129,11 +131,18 @@ const Login = () => {
       {errors.common && <ErrorText>{errors.common}</ErrorText>}
 
       <LinkRow>
-        <Link to="/find-password">비밀번호 찾기</Link>
+        <span
+          style={{ cursor: "pointer", color: "#555" }}
+          onClick={() => setShowFindPwd(true)}
+        >
+          비밀번호 찾기
+        </span>
+
         <Link to="/signup">회원가입</Link>
       </LinkRow>
 
       <Button onClick={loginHandler}>로그인</Button>
+      {showFindPwd && <FindPwdModal onClose={() => setShowFindPwd(false)} />}
     </Container>
   );
 };
