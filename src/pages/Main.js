@@ -13,6 +13,10 @@ const Section = styled.section`
   max-width: 1100px;
   margin: 60px auto;
   padding: 0 16px;
+
+  @media (max-width: 768px) {
+    margin: 40px auto;
+  }
 `;
 
 const Title = styled.h2`
@@ -22,24 +26,46 @@ const Title = styled.h2`
 
 /* --- 메인 배너 --- */
 const Hero = styled.div`
-  width: 1100px;
+  max-width: 1100px;
+  width: 100%;
   height: 700px;
   margin: 40px auto;
   border-radius: 20px;
   background-image: url("/images/mainpic1.svg");
   background-size: cover;
   background-position: center;
+
+  @media (max-width: 1024px) {
+    height: 500px;
+  }
+
+  @media (max-width: 768px) {
+    height: 320px;
+    border-radius: 14px;
+    margin: 24px auto;
+  }
 `;
 
 // 하단 배너
 const Billan = styled.div`
-  width: 1100px;
+  max-width: 1100px;
+  width: 100%;
   height: 700px;
   margin: 40px auto;
   border-radius: 20px;
   background-image: url("/images/mainpic2.svg");
   background-size: cover;
   background-position: center;
+
+  @media (max-width: 1024px) {
+    height: 500px;
+  }
+
+  @media (max-width: 768px) {
+    height: 320px;
+    border-radius: 14px;
+    margin: 24px auto;
+  }
 `;
 
 /* --- 대규모 경매 --- */
