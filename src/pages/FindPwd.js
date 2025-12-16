@@ -44,7 +44,7 @@ const Row = styled.div`
 `;
 
 const Input = styled.input`
-  width: 100%;
+  width: 93%;
   height: 42px;
   padding: 0 12px;
   border-radius: 8px;

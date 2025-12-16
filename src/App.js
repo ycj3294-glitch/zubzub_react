@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import { AuthProvider } from "./context/AuthContext";
-import PrivateRoute from "./components/PrivateRoute";
 import Main from "./pages/Main";
 import Layout from "./components/Layout";
 import MinorAuctionDetail from "./pages/MinorAuctionDetail";
