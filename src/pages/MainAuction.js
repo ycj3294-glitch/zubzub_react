@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import SockJS from "sockjs-client";
 import { Client } from "@stomp/stompjs";
 import { useParams } from "react-router-dom";
+import { getAuction, createAuction, createBid } from "../api/auctionApi";
 
 const MainAuction = () => {
   const { id } = useParams();
@@ -55,8 +55,8 @@ const MainAuction = () => {
     // 최초 계산
     updateRemaining();
 
-    // 1초마다 갱신
-    const timer = setInterval(updateRemaining, 1000);
+    // 0.1초마다 갱신
+    const timer = setInterval(updateRemaining, 100);
 
     return () => clearInterval(timer); // endTime 바뀔 때마다 기존 타이머 정리
   }, [auction]);
@@ -66,39 +66,9 @@ const MainAuction = () => {
   const minutes = Math.floor((remaining % 3600) / 60);
   const seconds = remaining % 60;
 
-  const reseiveAuction = async () => {
-    const res = await axios.get("http://localhost:8111/auctions/" + id);
-    console.log(res);
-    setAuction(res.data);
-  };
-
-  const sendAuction = async () => {
-    console.log(auctionFormData);
-
-    const res = await axios.post(
-      "http://localhost:8111/auctions",
-      auctionFormData,
-      {
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-    console.log(res);
-  };
-
-  const sendBid = async () => {
-    const res = await axios.post(
-      "http://localhost:8111/auctions/" + id + "/bids",
-      bidFormData,
-      {
-        headers: { "Content-Type": "application/json" },
-      }
-    );
-    console.log(res);
-  };
-
   useEffect(() => {
     const reseiveBroadcast = () => {
-      const socket = new SockJS("http://localhost:8111/ws"); // 서버 엔드포인트
+      const socket = new SockJS("http://192.168.0.93:8111/ws"); // 서버 엔드포인트
       const stompClient = new Client({
         webSocketFactory: () => socket,
         reconnectDelay: 5000, // 자동 재연결
@@ -118,9 +88,13 @@ const MainAuction = () => {
       };
       stompClient.activate();
     };
-
-    reseiveAuction();
     reseiveBroadcast();
+
+    const async = async () => {
+      const tmp = await getAuction(id);
+      setAuction(tmp);
+    };
+    async();
   }, []);
 
   const handleAuctionFormChange = (e) => {
@@ -182,7 +156,7 @@ const MainAuction = () => {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            sendAuction();
+            createAuction(auctionFormData);
           }}
         >
           {auctionFields.map((field) => (
@@ -214,7 +188,7 @@ const MainAuction = () => {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            sendBid();
+            createBid(id, bidFormData);
           }}
         >
           {bidFields.map((field) => (
