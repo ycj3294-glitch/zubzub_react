@@ -7,13 +7,12 @@ import { useNavigate } from "react-router-dom";
 
 const Container = styled.div`
   width: 100%;
-  margin: 0 auto;
 `;
 
 const Section = styled.section`
-  max-width: 1280px;
-  width: 1100px;
+  max-width: 1100px;
   margin: 60px auto;
+  padding: 0 16px;
 `;
 
 const Title = styled.h2`
@@ -73,6 +72,7 @@ const MinorCard = styled.div`
     height: 180px;
     object-fit: cover;
     border-radius: 12px;
+    display: block;
   }
 
   p {

@@ -25,6 +25,9 @@ const Logo = styled(Link)`
   font-weight: 700;
   color: #111;
   text-decoration: none;
+
+  img {
+  }
 `;
 
 const Nav = styled.nav`
@@ -70,11 +73,12 @@ const Header = () => {
         {/* 네비게이션 */}
         <Nav>
           <NavLink to="/auction">경매</NavLink>
-          <NavLink to="/about">서비스 소개</NavLink>
+          <NavLink to="/notice">공지사항</NavLink>
 
           {isLogin ? (
             <>
               <span>{user?.email}</span>
+              <NavLink to="/mypage">마이페이지</NavLink>
               <Button onClick={logoutHandler}>로그아웃</Button>
             </>
           ) : (
