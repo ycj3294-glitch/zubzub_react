@@ -6,8 +6,9 @@ function App() {
   return (
     <>
       <Router>
-        <Routes></Routes>
-        <Route path="/component-test" element={<ComponentTest />}></Route>
+        <Routes>
+          <Route path="/component-test" element={<ComponentTest />}></Route>
+        </Routes>
       </Router>
       <GetList />
     </>
