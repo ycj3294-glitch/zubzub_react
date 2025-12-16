@@ -2,8 +2,8 @@ import axios from "axios";
 
 const BASE_URL = "http://192.168.0.93:8111/api/auctions";
 
-export const getAuction = async (id) => {
-  const res = await axios.get(`${BASE_URL}/${id}`);
+export const getAuction = async (auctionId) => {
+  const res = await axios.get(`${BASE_URL}/${auctionId}`);
   return res.data;
 };
 

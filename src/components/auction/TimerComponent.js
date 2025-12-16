@@ -27,14 +27,14 @@ const Value = styled.p`
 const TimerComponent = ({ end }) => {
   const [remaining, setRemaining] = useState(0);
 
-  const updateRemaining = () => {
-    const endTime = new Date(end).getTime();
-    const now = Date.now();
-    const diff = Math.max(0, Math.floor((endTime - now) / 1000));
-    setRemaining(diff);
-  };
-
   useEffect(() => {
+    const updateRemaining = () => {
+      const endTime = new Date(end).getTime();
+      const now = Date.now();
+      const diff = Math.max(0, Math.floor((endTime - now) / 1000));
+      setRemaining(diff);
+    };
+
     if (!end) return;
     updateRemaining();
 
