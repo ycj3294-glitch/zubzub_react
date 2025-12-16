@@ -120,6 +120,12 @@ const MinorCard = styled.div`
     display: block;
   }
 
+  @media (max-width: 768px) {
+    img {
+      height: 140px;
+    }
+  }
+
   p {
     margin-top: 6px;
     font-size: 14px;
