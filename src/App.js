@@ -9,6 +9,7 @@ import MinorAuction from "./pages/MinorAuction";
 import MinorAuctionDetail from "./pages/MinorAuctionDetail";
 import MajorAuctionDetail from "./pages/MajorAuctionDetail";
 import MyPage from "./pages/MyPage";
+import Notice from "./pages/Notice";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             <Route path="/auction/major" element={<MajorAuction />} />
             <Route path="/auction/minor/:id" element={<MinorAuctionDetail />} />
             <Route path="/auction/major/:id" element={<MajorAuctionDetail />} />
+            <Route path="/notice" element={<Notice />} />
           </Routes>
         </Layout>
       </Router>
