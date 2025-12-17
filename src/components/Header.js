@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import LogoImage1 from "../LogoImage1.png";
+import LogoImage1 from "../Images/LogoImage1.png";
 
 /* =========================
    Styled Components
@@ -9,7 +10,6 @@ import LogoImage1 from "../LogoImage1.png";
 const HeaderContainer = styled.header`
   width: 100%;
   background: #fff;
-  /* ✅ 상단 여백 30px -> 15px로 축소, 하단 여백 15px -> 25px로 확대 */
   padding: 15px 0 25px 0;
   font-family: "dnf bitbit v2", sans-serif;
   font-weight: normal;
@@ -28,11 +28,9 @@ const Logo = styled.img`
   width: 110px;
   height: auto;
   cursor: pointer;
-  /* ✅ 상단 여백이 줄어든 만큼 로고 위치 미세 조정 */
   margin-top: 0;
 `;
 
-/* --- 중앙 영역 --- */
 const CenterSection = styled.div`
   flex: 1;
   max-width: 550px;
@@ -115,10 +113,12 @@ const MenuRow = styled.div`
       height: 10px;
       background: #ccc;
     }
+    &:hover {
+      color: #555;
+    }
   }
 `;
 
-/* --- 우측 영역 --- */
 const RightSection = styled.div`
   display: flex;
   flex-direction: column;
@@ -198,12 +198,11 @@ const StartAuctionBtn = styled.div`
   white-space: nowrap;
 `;
 
-/* ✅ 메인페이지와 구분하는 연한 회색 하단 구분선 */
 const BottomDivider = styled.div`
   width: 1150px;
   height: 1px;
-  background-color: #eee; /* 연한 회색 */
-  margin: 0 auto; /* 중앙 배치 */
+  background-color: #eee;
+  margin: 0 auto;
 `;
 
 /* =========================
@@ -211,43 +210,82 @@ const BottomDivider = styled.div`
 ========================= */
 
 const Header = () => {
+  const navigate = useNavigate();
+
+  // ✅ 로그인 상태를 관리하는 State (true로 바꾸면 로그인된 화면 확인 가능)
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    alert("로그아웃 되었습니다.");
+    navigate("/");
+  };
+
   return (
     <>
       <HeaderContainer>
         <TopSection>
-          <Logo src={LogoImage1} alt="ZubZub Logo" />
+          {/* 로고 클릭 시 메인 이동 */}
+          <Logo
+            src={LogoImage1}
+            alt="ZubZub Logo"
+            onClick={() => navigate("/")}
+          />
 
           <CenterSection>
             <SearchBox>
-              <SearchInput type="text" />
+              <SearchInput type="text" placeholder="검색어를 입력하세요" />
               <SearchIconWrapper>
                 <SearchIcon />
               </SearchIconWrapper>
             </SearchBox>
+
             <MenuRow>
-              <span>대규모 경매</span>
-              <span>소규모 경매</span>
-              <span>경매 일정</span>
-              <span>공지사항</span>
+              <span onClick={() => navigate("/auction/major")}>
+                대규모 경매
+              </span>
+              <span onClick={() => navigate("/auction/minor")}>
+                소규모 경매
+              </span>
+              <span onClick={() => navigate("/schedule")}>경매 일정</span>
+              <span onClick={() => navigate("/notice")}>공지사항</span>
             </MenuRow>
           </CenterSection>
 
           <RightSection>
             <TopRightRow>
-              <MailIcon title="쪽지함" />
+              {/* ✅ 로그인 시에만 쪽지함 아이콘 노출 */}
+              {isLoggedIn && (
+                <MailIcon
+                  title="쪽지함"
+                  onClick={() => navigate("/messages")}
+                />
+              )}
+
               <AuthBox>
-                <span>로그인</span>
-                <div className="divider" />
-                <span>회원가입</span>
+                {!isLoggedIn ? (
+                  <>
+                    <span onClick={() => navigate("/login")}>로그인</span>
+                    <div className="divider" />
+                    <span onClick={() => navigate("/signup")}>회원가입</span>
+                  </>
+                ) : (
+                  <>
+                    <span onClick={() => navigate("/mypage")}>마이페이지</span>
+                    <div className="divider" />
+                    <span onClick={handleLogout}>로그아웃</span>
+                  </>
+                )}
               </AuthBox>
             </TopRightRow>
             <StartAuctionBtnWrapper>
-              <StartAuctionBtn>나만의 경매 시작하기</StartAuctionBtn>
+              <StartAuctionBtn onClick={() => navigate("/create-auction")}>
+                나만의 경매 시작하기
+              </StartAuctionBtn>
             </StartAuctionBtnWrapper>
           </RightSection>
         </TopSection>
       </HeaderContainer>
-      {/* ✅ 헤더 외부에 구분선 배치 */}
       <BottomDivider />
     </>
   );
