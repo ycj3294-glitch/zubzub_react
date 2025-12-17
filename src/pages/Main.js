@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 import Frame1 from "../Images/Frame1.png";
 import Frame2 from "../Images/Frame2.png";
 
@@ -9,11 +10,12 @@ import Frame2 from "../Images/Frame2.png";
 
 const MainContainer = styled.main`
   width: 100%;
-  max-width: 1200px;
+  max-width: 1200px; /* 웹 사이즈 절대 유지 */
   margin: 0 auto;
-  padding: 20px 20px 40px 20px;
+  padding: 20px;
   font-family: "dnf bitbit v2", sans-serif;
   font-weight: normal;
+  box-sizing: border-box; /* 패딩으로 인한 가로 스크롤 방지 */
 `;
 
 const SectionTitle = styled.h2`
@@ -21,20 +23,28 @@ const SectionTitle = styled.h2`
   margin-bottom: 20px;
   color: #000;
   font-weight: normal;
+  @media (max-width: 768px) {
+    font-size: 18px; /* 모바일 제목 살짝 축소 */
+  }
 `;
 
 /* --- 섹션 1: 상단 그리드 --- */
 const TopGrid = styled.section`
   display: grid;
-  grid-template-columns: 1fr 1.5fr;
+  grid-template-columns: 1fr 1.6fr; /* 웹 비율 유지 */
   gap: 20px;
-  margin-bottom: 50px;
+  margin-bottom: 60px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr; /* 모바일 세로 정렬 */
+    margin-bottom: 40px;
+  }
 `;
 
 const MainBanner = styled.div`
-  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+  background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
     url(${Frame1}) no-repeat center/cover;
-  height: 320px;
+  height: 350px;
   border-radius: 15px;
   display: flex;
   flex-direction: column;
@@ -42,97 +52,133 @@ const MainBanner = styled.div`
   align-items: center;
   color: #fff;
   text-align: center;
+  padding: 0 20px;
+
   h3 {
-    font-size: 18px;
-    margin-bottom: 10px;
-    font-weight: normal;
+    font-size: 24px;
+    margin-bottom: 15px;
+    font-weight: bold;
   }
   p {
-    font-size: 13px;
-    opacity: 0.8;
+    font-size: 14px;
+    opacity: 0.9;
+    line-height: 1.6;
+    word-break: keep-all;
+  }
+
+  @media (max-width: 768px) {
+    height: 250px;
+    h3 {
+      font-size: 20px;
+    }
+    p {
+      font-size: 12px;
+    }
   }
 `;
 
 const ScheduleCard = styled.div`
-  border: 1px solid #eee;
+  border: 1px solid #ddd;
   border-radius: 15px;
-  padding: 20px;
+  padding: 30px;
   background: #fff;
-  height: 320px;
+  height: 350px;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  @media (max-width: 768px) {
+    padding: 20px 15px;
+    height: auto;
+    min-height: 300px;
+  }
 `;
 
 const CalendarHeader = styled.div`
   display: flex;
   justify-content: center;
-  gap: 25px;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 12px;
-  margin-bottom: 20px;
+  gap: 30px;
+  border-bottom: 2px solid #f5f5f5;
+  padding-bottom: 15px;
+  margin-bottom: 25px;
+
+  /* 모바일 가로 스크롤 최적화 */
+  @media (max-width: 768px) {
+    gap: 20px;
+    justify-content: flex-start;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    padding-left: 5px;
+  }
 `;
 
 const DayItem = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  font-size: 14px;
-  color: ${(props) => (props.active ? "#000" : "#bbb")};
+  font-size: 15px;
+  color: ${(props) => (props.active ? "#000" : "#ccc")};
   cursor: pointer;
-  text-decoration: ${(props) => (props.active ? "underline" : "none")};
-  text-underline-offset: 4px;
-  transition: all 0.2s ease;
-  &:hover {
-    color: #000;
+  position: relative;
+  min-width: 45px;
+  &::after {
+    content: "";
+    display: ${(props) => (props.active ? "block" : "none")};
+    width: 100%;
+    height: 2px;
+    background: #000;
+    position: absolute;
+    bottom: -17px;
   }
 `;
 
 const ScheduleItems = styled.div`
   display: flex;
-  justify-content: space-between;
-  gap: 15px;
+  justify-content: space-around;
+  gap: 10px;
   flex: 1;
+  align-items: center;
 `;
 
 const ItemBox = styled.div`
   flex: 1;
+  max-width: 140px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  animation: fadeIn 0.3s ease-in-out;
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(5px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+  cursor: pointer;
+
   .img-wrapper {
     width: 100%;
     aspect-ratio: 1 / 1;
     background: #f8f8f8;
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 8px;
-    border: 1px solid #f0f0f0;
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+    border-radius: 12px;
+    border: 1px solid #eee;
+    transition: all 0.2s ease;
   }
+
+  &:hover .img-wrapper {
+    border-color: #000;
+    transform: translateY(-3px);
+  }
+
   p {
-    font-size: 12px;
-    color: #333;
-    margin: 0;
+    font-size: 13px;
+    color: #222;
+    margin-top: 8px;
+    text-align: center;
+  }
+  @media (max-width: 768px) {
+    p {
+      font-size: 11px;
+    }
   }
 `;
 
-/* --- 섹션 2: 대규모 경매 (에러 발생했던 스타일들) --- */
+/* --- 섹션 2: 대규모 경매 --- */
 const LargeAuctionContent = styled.div`
   display: flex;
   border: 1px solid #eee;
@@ -140,6 +186,18 @@ const LargeAuctionContent = styled.div`
   overflow: hidden;
   height: 350px;
   margin-bottom: 60px;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    height: auto;
+    margin-bottom: 40px;
+  }
 `;
 
 const LargeImageArea = styled.div`
@@ -149,99 +207,139 @@ const LargeImageArea = styled.div`
   justify-content: center;
   align-items: center;
   color: #fff;
-  font-size: 20px;
+  @media (max-width: 768px) {
+    height: 220px;
+  }
 `;
 
 const LargeInfoArea = styled.div`
   flex: 1;
   padding: 25px;
-  display: flex;
-  flex-direction: column;
-`;
-
-// ✅ 에러 해결: 컴포넌트 정의 확인
-const InfoLabel = styled.div`
-  font-size: 14px;
-  color: #666;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
-  margin-bottom: 20px;
-`;
-
-// ✅ 에러 해결: 컴포넌트 정의 확인
-const ChatPlaceholder = styled.div`
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #aaa;
-  text-align: center;
-  line-height: 1.6;
-  font-size: 14px;
+  background: #fff;
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
 `;
 
 /* --- 섹션 3: 소규모 경매 --- */
 const SmallAuctionGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, 1fr); /* 웹 5열 유지 */
   gap: 20px;
   margin-bottom: 80px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  @media (max-width: 600px) {
+    grid-template-columns: repeat(2, 1fr); /* 모바일 가로스크롤 방지 2열 */
+    gap: 15px;
+    margin-bottom: 50px;
+  }
 `;
 
 const SmallItemCard = styled.div`
   text-align: center;
+  cursor: pointer;
+
   .thumb {
     width: 100%;
     aspect-ratio: 1;
     border-radius: 12px;
     background: #f9f9f9;
     border: 1px solid #eee;
+    transition: all 0.2s ease;
   }
+
+  &:hover .thumb {
+    border-color: #000;
+    transform: translateY(-5px);
+  }
+
   p {
     margin-top: 10px;
     font-size: 12px;
-    color: #444;
   }
 `;
 
 /* --- 섹션 4: 안전거래 --- */
 const SafetySection = styled.section`
-  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
     url(${Frame2}) no-repeat center/cover;
-  padding: 60px 20px;
+  padding: 50px 20px;
   border-radius: 20px;
   text-align: center;
+  margin-top: 50px;
+  color: #fff;
+  @media (max-width: 768px) {
+    padding: 40px 15px;
+    margin-top: 30px;
+  }
 `;
 
 const SafetyTitleBox = styled.div`
-  background: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
   display: inline-block;
-  padding: 8px 25px;
-  border-radius: 30px;
-  font-size: 16px;
+  padding: 12px 40px;
+  border-radius: 5px;
+  font-size: 19px;
   margin-bottom: 40px;
+  font-weight: normal;
+  @media (max-width: 768px) {
+    font-size: 15px;
+    width: 90%;
+    padding: 10px 0;
+    box-sizing: border-box;
+  }
 `;
 
 const SafetyGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 15px;
+  max-width: 800px;
+  margin: 0 auto;
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
 `;
 
 const SafetyCard = styled.div`
-  background: rgba(255, 255, 255, 0.92);
-  padding: 25px 20px;
-  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 20px 15px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   text-align: left;
-  font-size: 11px;
-  line-height: 1.7;
+  display: flex;
+  flex-direction: column;
+  min-height: 200px;
+  @media (max-width: 768px) {
+    min-height: auto;
+  }
+
   .icon-title {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    font-size: 14px;
+    color: #fff;
     margin-bottom: 12px;
-    font-size: 13px;
-    color: #000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 8px;
+  }
+
+  p {
+    font-size: 12px;
+    color: #ddd;
+    line-height: 1.6;
+    margin: 0;
+  }
+  .footer-note {
+    margin-top: auto;
+    padding-top: 10px;
+    font-size: 10.5px;
+    color: #bbb;
+    border-top: 1px dashed rgba(255, 255, 255, 0.15);
   }
 `;
 
@@ -250,47 +348,47 @@ const SafetyCard = styled.div`
 ========================= */
 
 const MainPage = () => {
+  const navigate = useNavigate();
   const [activeDay, setActiveDay] = useState(14);
+  const days = [12, 13, 14, 15, 16, 17, 18];
 
   const auctionData = {
     12: [
-      { id: 1, name: "빈티지 시계", img: "" },
-      { id: 2, name: "LP 플레이어", img: "" },
-      { id: 3, name: "헤드폰", img: "" },
+      { id: "1", name: "빈티지 시계" },
+      { id: "2", name: "LP 플레이어" },
+      { id: "3", name: "헤드폰" },
     ],
     13: [
-      { id: 1, name: "노트북", img: "" },
-      { id: 2, name: "기계식 키보드", img: "" },
-      { id: 3, name: "마우스", img: "" },
+      { id: "4", name: "노트북" },
+      { id: "5", name: "기계식 키보드" },
+      { id: "6", name: "마우스" },
     ],
     14: [
-      { id: 1, name: "일렉기타", img: "" },
-      { id: 2, name: "카메라", img: "" },
-      { id: 3, name: "트럼펫", img: "" },
+      { id: "7", name: "일렉기타" },
+      { id: "8", name: "카메라" },
+      { id: "9", name: "트럼펫" },
     ],
     15: [
-      { id: 1, name: "스니커즈", img: "" },
-      { id: 2, name: "가죽 자켓", img: "" },
-      { id: 3, name: "선글라스", img: "" },
+      { id: "10", name: "스니커즈" },
+      { id: "11", name: "가죽 자켓" },
+      { id: "12", name: "선글라스" },
     ],
     16: [
-      { id: 1, name: "텐트", img: "" },
-      { id: 2, name: "캠핑 의자", img: "" },
-      { id: 3, name: "코벨", img: "" },
+      { id: "13", name: "텐트" },
+      { id: "14", name: "캠핑 의자" },
+      { id: "15", name: "코벨" },
     ],
     17: [
-      { id: 1, name: "소파", img: "" },
-      { id: 2, name: "무드등", img: "" },
-      { id: 3, name: "러그", img: "" },
+      { id: "16", name: "소파" },
+      { id: "17", name: "무드등" },
+      { id: "18", name: "러그" },
     ],
     18: [
-      { id: 1, name: "자전거", img: "" },
-      { id: 2, name: "스케이트보드", img: "" },
-      { id: 3, name: "전동휠", img: "" },
+      { id: "19", name: "자전거" },
+      { id: "20", name: "스케이트보드" },
+      { id: "21", name: "전동휠" },
     ],
   };
-
-  const days = [12, 13, 14, 15, 16, 17, 18];
 
   return (
     <MainContainer>
@@ -299,17 +397,7 @@ const MainPage = () => {
           <h3>“가치를 다시 줍다, 줍줍(ZubZub)”</h3>
           <p>안전하고 투명한 중고 경매 플랫폼을 지향합니다.</p>
         </MainBanner>
-
         <ScheduleCard>
-          <SectionTitle
-            style={{
-              fontSize: "18px",
-              marginBottom: "15px",
-              textAlign: "center",
-            }}
-          >
-            대규모 경매 일정
-          </SectionTitle>
           <CalendarHeader>
             {days.map((day) => (
               <DayItem
@@ -322,11 +410,12 @@ const MainPage = () => {
             ))}
           </CalendarHeader>
           <ScheduleItems>
-            {auctionData[activeDay].map((item) => (
-              <ItemBox key={item.id}>
-                <div className="img-wrapper">
-                  <img src={item.img} alt={item.name} />
-                </div>
+            {(auctionData[activeDay] || []).map((item) => (
+              <ItemBox
+                key={item.id}
+                onClick={() => navigate(`/auction/major/${item.id}`)}
+              >
+                <div className="img-wrapper"></div>
                 <p>{item.name}</p>
               </ItemBox>
             ))}
@@ -335,48 +424,49 @@ const MainPage = () => {
       </TopGrid>
 
       <SectionTitle>대규모 경매</SectionTitle>
-      <LargeAuctionContent>
-        <LargeImageArea>타이머</LargeImageArea>
+      <LargeAuctionContent onClick={() => navigate(`/auction/major/1`)}>
+        <LargeImageArea>실시간 경매 중</LargeImageArea>
         <LargeInfoArea>
-          {/* ✅ 에러가 났던 부분 */}
-          <InfoLabel>현재 입찰가</InfoLabel>
-          <ChatPlaceholder>
-            판매자와 구매자의
-            <br />
-            실시간 질의 응답
-          </ChatPlaceholder>
+          <p style={{ fontSize: "18px", marginBottom: "10px" }}>
+            실시간 입찰 가능 상품
+          </p>
+          <p style={{ fontSize: "14px", color: "#666" }}>
+            채팅참여 및 상세보기를 위해 클릭하세요.
+          </p>
         </LargeInfoArea>
       </LargeAuctionContent>
 
       <SectionTitle>소규모 경매</SectionTitle>
       <SmallAuctionGrid>
-        {[...Array(10)].map((_, i) => (
-          <SmallItemCard key={i}>
-            <div className="thumb"></div>
-            <p>최소 입찰가</p>
-          </SmallItemCard>
-        ))}
+        {[...Array(10)].map((_, i) => {
+          const itemId = i + 1; // 1부터 시작하는 ID
+          return (
+            <SmallItemCard
+              key={itemId}
+              onClick={() => navigate(`/auction/minor/${itemId}`)}
+            >
+              <div className="thumb"></div>
+              <p>최소 입찰가 10,000원</p>
+            </SmallItemCard>
+          );
+        })}
       </SmallAuctionGrid>
 
       <SafetySection>
-        <SafetyTitleBox>
-          3단계로 보는 <b>줍줍 안전거래</b>
-        </SafetyTitleBox>
+        <SafetyTitleBox>줍줍(ZubZub)의 신뢰를 위한 약속</SafetyTitleBox>
         <SafetyGrid>
           <SafetyCard>
-            <div className="icon-title">🛡️ 안전한 자산 관리</div>
-            <p>1. 은행 시스템 연동을 통한 입금 확인</p>
-            <p>2. 크레딧 즉시 지급 및 이력 관리</p>
+            <div className="icon-title">🛡️ 안전 자산 관리</div>
+            <p>운영팀이 모든 입금을 2단계 확인 후 크레딧으로 지급합니다.</p>
+            <p className="footer-note">[마이페이지]에서 확인 가능.</p>
           </SafetyCard>
           <SafetyCard>
             <div className="icon-title">✔️ 안전 거래 보장</div>
-            <p>1. 낙찰 대금 에스크로 안전 보관</p>
-            <p>2. 최종 확인 후 판매자 대금 정산</p>
+            <p>결제 대금은 구매 확정 시까지 에스크로에 안전하게 보관됩니다.</p>
           </SafetyCard>
           <SafetyCard>
-            <div className="icon-title">📜 엄격한 거래 규칙</div>
-            <p>1. 허위 매물 및 부정 행위 차단</p>
-            <p>2. 모든 경매 프로세스 투명 공개</p>
+            <div className="icon-title">📜 투명한 운영 규정</div>
+            <p>허위 매물 및 비매너 행위는 즉시 제재하며 투명하게 관리됩니다.</p>
           </SafetyCard>
         </SafetyGrid>
       </SafetySection>
