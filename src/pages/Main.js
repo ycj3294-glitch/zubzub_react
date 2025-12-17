@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 /* =========================
    styled
@@ -16,6 +17,22 @@ const Section = styled.section`
 
   @media (max-width: 768px) {
     margin: 40px auto;
+  }
+`;
+
+const AuctionHead = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 20px;
+  a {
+    font-size: 14px;
+    color: #555;
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
   }
 `;
 
@@ -132,10 +149,6 @@ const MinorCard = styled.div`
   }
 `;
 
-/* =========================
-   Component
-========================= */
-
 const Main = () => {
   const nav = useNavigate();
 
@@ -152,7 +165,10 @@ const Main = () => {
 
       {/* 대규모 경매 */}
       <Section>
-        <Title>대규모 경매</Title>
+        <AuctionHead>
+          <Title>대규모 경매</Title>
+          <Link to={"/auction/major"}>경매페이지로 이동</Link>
+        </AuctionHead>
 
         <MajorGrid>
           <MajorCard onClick={() => nav("/auction/major/1")}>
@@ -174,8 +190,11 @@ const Main = () => {
 
       {/* 소규모 경매 */}
       <Section>
-        <Title>소규모 경매</Title>
+        <AuctionHead>
+          <Title>소규모 경매</Title>
 
+          <Link to={"auction/minor"}>경매페이지 이동</Link>
+        </AuctionHead>
         <MinorGrid>
           {minorList.map((item) => (
             <MinorCard
