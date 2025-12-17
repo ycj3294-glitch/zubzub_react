@@ -1,3 +1,11 @@
 * {
   box-sizing: border-box;
+  /* src/index.css */
+  @font-face {
+    font-family: "dnf bitbit v2";
+    /* 경로가 src/fonts 폴더 안에 있다면 아래와 같이 작성 */
+    src: url("./fonts/DNFBitBitv2.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+  }
 }
