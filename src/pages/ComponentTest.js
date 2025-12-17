@@ -1,4 +1,4 @@
-import ChatComponent from "../components/common/ChatComponent";
+import ChatComponent from "../components/auction/ChatComponent";
 import AuctionInfoComponent from "../components/auction/AuctionInfoComponent";
 import CreateAuction from "../components/auction/CreateAuctionComponent";
 
@@ -35,7 +35,7 @@ const ComponentTest = () => {
           <AuctionInfoComponent auctionId={1}></AuctionInfoComponent>
         </Cell>
         <Cell>
-          <ChatComponent></ChatComponent>
+          <ChatComponent chatId={1}></ChatComponent>
         </Cell>
         <Cell>
           <CreateAuction></CreateAuction>

@@ -1,7 +1,7 @@
 // AuctionInfoComponent.tsx
 import { useEffect, useState } from "react";
 import { getAuction } from "../../api/auctionApi";
-import { connectBroadcast } from "../../api/broadcast";
+import { connectBidBroadcast } from "../../api/broadcast";
 import TimerComponent from "./TimerComponent";
 import styled from "styled-components";
 
@@ -51,7 +51,7 @@ const AuctionInfoComponent = ({ auctionId }) => {
     };
     loadAuction();
 
-    connectBroadcast(auctionId, (auction) => {
+    connectBidBroadcast(auctionId, (auction) => {
       setAuction((prev) => ({ ...prev, ...auction }));
       console.log("경매 업데이트:", auction);
     });

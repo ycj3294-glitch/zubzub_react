@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import GetList from "./page/List";
 import ComponentTest from "./pages/ComponentTest";
 
 function App() {
@@ -10,7 +9,6 @@ function App() {
           <Route path="/component-test" element={<ComponentTest />}></Route>
         </Routes>
       </Router>
-      <GetList />
     </>
   );
 }
