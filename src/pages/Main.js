@@ -413,7 +413,7 @@ const MainPage = () => {
             {(auctionData[activeDay] || []).map((item) => (
               <ItemBox
                 key={item.id}
-                onClick={() => navigate(`/auction/minor/${item.id}`)}
+                onClick={() => navigate(`/auction/major/${item.id}`)}
               >
                 <div className="img-wrapper"></div>
                 <p>{item.name}</p>
