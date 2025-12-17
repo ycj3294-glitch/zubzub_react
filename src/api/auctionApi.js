@@ -1,0 +1,22 @@
+import axios from "axios";
+
+const BASE_URL = "http://192.168.0.93:8111/api/auctions";
+
+export const getAuction = async (auctionId) => {
+  const res = await axios.get(`${BASE_URL}/${auctionId}`);
+  return res.data;
+};
+
+export const createAuction = async (auctionFormData) => {
+  const res = await axios.post(`${BASE_URL}`, auctionFormData, {
+    headers: { "Content-Type": "application/json" },
+  });
+  return res.statue === 200 || res.status === 201;
+};
+
+export const createBid = async (auctionId, bidFormData) => {
+  const res = await axios.post(`${BASE_URL}/${auctionId}/bids`, bidFormData, {
+    headers: { "Content-Type": "application/json" },
+  });
+  return res.statue === 200 || res.status === 201;
+};
