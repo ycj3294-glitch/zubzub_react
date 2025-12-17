@@ -22,7 +22,7 @@ const HeaderRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 32px;
+  margin-bottom: 50px;
   gap: 16px;
 
   @media (max-width: 768px) {
@@ -39,6 +39,9 @@ const SearchArea = styled.div`
   flex: 1;
   display: flex;
   justify-content: center;
+
+  button {
+  }
 
   @media (max-width: 768px) {
     justify-content: stretch;
@@ -148,16 +151,11 @@ const PageBtn = styled.button`
   }
 `;
 
-/* =========================
-   Component
-========================= */
-
 const ITEMS_PER_PAGE = 12;
 
 const MinorAuction = () => {
   const nav = useNavigate();
 
-  /* --- state --- */
   const [currentPage, setCurrentPage] = useState(1);
 
   /* --- dummy data (API로 교체 예정) --- */
@@ -191,6 +189,7 @@ const MinorAuction = () => {
 
           <SearchArea>
             <SearchBox placeholder="검색어를 입력하세요" />
+            <button>입력</button>
           </SearchArea>
 
           <CategorySelect>

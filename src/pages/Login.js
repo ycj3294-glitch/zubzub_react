@@ -4,7 +4,7 @@ import AxiosAPI from "../api/AxiosAPI";
 import { useAuth } from "../context/AuthContext";
 import styled from "styled-components";
 import { Link } from "react-router-dom";
-import FindPwdModal from "./FindPwd";
+import FindPwdModal from "./FindPassword";
 
 const LinkRow = styled.div`
   display: flex;

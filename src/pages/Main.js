@@ -194,9 +194,9 @@ const Main = () => {
       <Section>
         <AuctionHead>
           <Title>소규모 경매</Title>
-
           <Link to={"auction/minor"}>경매페이지 이동</Link>
         </AuctionHead>
+
         <MinorGrid>
           {minorList.map((item) => (
             <MinorCard

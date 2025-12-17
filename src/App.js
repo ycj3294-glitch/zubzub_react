@@ -15,7 +15,6 @@ function App() {
       <Router>
         <Layout>
           <Routes>
-            <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/" element={<Main />} />
             <Route path="/auction/minor" element={<MinorAuction />} />
