@@ -24,11 +24,13 @@ const AuctionHead = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 20px;
-  gap: 20px;
+  gap: 15px;
+
   a {
     font-size: 14px;
     color: #555;
     text-decoration: none;
+    margin-top: 10px;
   }
 
   a:hover {
