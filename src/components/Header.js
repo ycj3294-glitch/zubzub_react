@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import HeaderMessage from "./common/HeaderMessage";
 
 const HeaderWrap = styled.header`
   width: 100%;
@@ -78,6 +79,7 @@ const Header = () => {
 
           {isLogin ? (
             <>
+              <HeaderMessage />
               <span>{user?.email}</span>
               <NavLink to="/mypage">마이페이지</NavLink>
               <Button onClick={logoutHandler}>로그아웃</Button>
