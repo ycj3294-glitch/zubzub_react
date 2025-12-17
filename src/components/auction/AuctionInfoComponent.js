@@ -85,8 +85,8 @@ const AuctionInfoComponent = ({ auctionId }) => {
         <Value>{auction.finalPrice}</Value>
         <Label>상품 이미지</Label>
         <Value>{auction.itemImg}</Value>
-        <Label>상품 상태</Label>
-        <Value>{auction.itemStatus}</Value>
+        <Label>경매 상태</Label>
+        <Value>{auction.auctionStatus}</Value>
         <Label>시작 시간</Label>
         <Value>{auction.startTime}</Value>
         <Label>종료 시간</Label>

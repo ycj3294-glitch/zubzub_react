@@ -11,12 +11,12 @@ export const createAuction = async (auctionFormData) => {
   const res = await axios.post(`${BASE_URL}`, auctionFormData, {
     headers: { "Content-Type": "application/json" },
   });
-  return res.statue === 200 || res.status === 201;
+  return res.status === 200 || res.status === 201;
 };
 
 export const createBid = async (auctionId, bidFormData) => {
   const res = await axios.post(`${BASE_URL}/${auctionId}/bids`, bidFormData, {
     headers: { "Content-Type": "application/json" },
   });
-  return res.statue === 200 || res.status === 201;
+  return res.status === 200 || res.status === 201;
 };
