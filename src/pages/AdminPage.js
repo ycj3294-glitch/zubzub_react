@@ -148,7 +148,7 @@ const AdminPage = () => {
           active={activeTab === TABS.COIN}
           onClick={() => setActiveTab(TABS.COIN)}
         >
-          회원 줄코인 승인
+          회원 줍코인 승인
         </Tab>
         <Tab
           active={activeTab === TABS.AUCTION}
@@ -181,7 +181,7 @@ const AdminPage = () => {
           <TableHeader>
             <span>회원 닉네임</span>
             <span>이메일</span>
-            <span>보유 줄코인</span>
+            <span>보유 줍코인</span>
             <span>회원 상태</span>
           </TableHeader>
 
@@ -212,18 +212,18 @@ const AdminPage = () => {
         </Section>
       )}
 
-      {/* ================= 줄코인 승인 ================= */}
+      {/* ================= 줍코인 승인 ================= */}
       {activeTab === TABS.COIN && (
         <Section>
           <SectionHeader>
-            <SectionTitle>줄코인 승인</SectionTitle>
+            <SectionTitle>줍코인 승인</SectionTitle>
             <Search placeholder="검색" />
           </SectionHeader>
 
           <TableHeader>
             <span>회원 닉네임</span>
-            <span>신청 줄코인</span>
-            <span>보유 줄코인</span>
+            <span>신청 줍코인</span>
+            <span>보유 줍코인</span>
             <span>승인 대기</span>
           </TableHeader>
 
