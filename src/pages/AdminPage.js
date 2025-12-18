@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 
 /* =========================
-   Styled Components
+    Styled Components
 ========================= */
 
 const AdminContainer = styled.main`
@@ -11,156 +11,196 @@ const AdminContainer = styled.main`
   margin: 0 auto;
   padding: 40px 20px;
   font-family: "dnf bitbit v2", sans-serif;
-  background-color: #f9f9f9;
+  background-color: #fff;
   min-height: 100vh;
   box-sizing: border-box;
 `;
 
 const AdminHeader = styled.header`
-  margin-bottom: 30px;
+  margin-bottom: 40px;
   h1 {
-    font-size: 28px;
-    color: #000;
+    font-size: 30px;
+    color: #111;
+    letter-spacing: -0.5px;
   }
 `;
 
 const AdminNav = styled.nav`
   display: flex;
-  gap: 20px;
+  gap: 35px;
   margin-bottom: 30px;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 10px;
-
+  border-bottom: 2px solid #f0f0f0;
   button {
     background: none;
     border: none;
     font-family: inherit;
-    font-size: 16px;
+    font-size: 17px;
     cursor: pointer;
-    color: #888;
+    color: #aaa;
     position: relative;
-    padding-bottom: 8px;
+    padding-bottom: 15px;
+    transition: 0.2s;
     &.active {
       color: #000;
       font-weight: bold;
       &::after {
         content: "";
         position: absolute;
-        bottom: -11px;
+        bottom: -2px;
         left: 0;
         width: 100%;
         height: 2px;
         background: #000;
       }
     }
+    &:hover {
+      color: #666;
+    }
   }
 `;
 
-/* 컨텐츠 박스: 높이를 '고정(height)'하여 데이터 양에 상관없이 크기 유지 */
 const ContentBox = styled.section`
-  background: #fff;
-  border-radius: 15px;
-  border: 1px solid #eee;
-  padding: 30px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
-  height: 680px; /* 전체 박스 높이 절대 고정 */
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
-  animation: fadeIn 0.3s ease-in-out;
-
+  min-height: 750px;
   .box-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     h2 {
-      font-size: 20px;
+      font-size: 22px;
+      color: #111;
       margin: 0;
     }
   }
 `;
 
-/* 테이블 영역: 이 영역이 고정 높이를 가짐으로써 데이터가 없어도 공간을 차지함 */
+const SearchWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  background: #f8f8f8;
+  padding: 10px 18px;
+  border-radius: 30px;
+  border: 1px solid #eee;
+  svg {
+    color: #999;
+    margin-right: 12px;
+  }
+  input {
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 14px;
+    font-family: "Noto Sans KR";
+    width: 240px;
+  }
+`;
+
 const TableWrapper = styled.div`
-  flex: 1; /* 남은 공간을 다 차지함 */
+  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  min-height: 450px; /* 테이블 본문 영역 최소 높이 */
 `;
 
 const AdminTable = styled.table`
   width: 100%;
   border-collapse: collapse;
-  font-family: "Noto Sans KR", sans-serif;
-  font-size: 13px;
-
+  font-family: "Noto Sans KR";
+  table-layout: fixed;
   th {
-    text-align: left;
-    padding: 8px 12px;
-    border-bottom: 2px solid #f5f5f5;
-    color: #666;
-    font-family: "dnf bitbit v2", sans-serif;
-    font-weight: normal;
-  }
-
-  td {
-    padding: 6px 12px; /* 패딩을 더 줄여서 촘촘하게 만듦 */
-    border-bottom: 1px solid #f9f9f9;
+    text-align: center;
+    padding: 15px;
+    border-bottom: 1px solid #111;
     color: #333;
-    height: 35px; /* 행 높이를 작게 고정 */
-    vertical-align: middle;
+    font-size: 13px;
+    font-family: "dnf bitbit v2";
   }
-
-  .link-text {
-    color: #007bff;
+  td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    color: #444;
+    font-size: 14px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .title-link {
+    text-align: left;
+    color: #000;
+    font-weight: 600;
     cursor: pointer;
     text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: #ddd;
     &:hover {
-      color: #0056b3;
+      color: #555;
     }
-  }
-
-  select,
-  .row-btn {
-    font-family: "Noto Sans KR", sans-serif;
-    padding: 2px 6px;
-    font-size: 11px;
-    border-radius: 3px;
-    border: 1px solid #ddd;
-    cursor: pointer;
   }
 `;
 
-const Pagination = styled.div`
+/* ✅ 높이 정렬 수정: 체크박스와 버튼을 감싸는 영역 */
+const ApprovalArea = styled.div`
   display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  margin-top: auto; /* 박스 바닥에 딱 붙게 함 */
-  padding-top: 20px;
-  font-family: "Noto Sans KR", sans-serif;
+  align-items: center; /* 수직 중앙 정렬 */
+  justify-content: center; /* 수평 중앙 정렬 */
+  gap: 12px;
+  height: 100%;
+`;
 
-  button {
+const CustomCheckbox = styled.label`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  input {
+    display: none;
+  }
+  .checkmark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
     background: #fff;
-    border: 1px solid #eee;
-    padding: 4px 10px;
-    cursor: pointer;
-    border-radius: 4px;
-    font-size: 13px;
-    min-width: 32px;
-    &.active {
-      background: #000;
-      color: #fff;
-      border-color: #000;
-      font-weight: bold;
-    }
-    &:disabled {
-      color: #ccc;
-      cursor: not-allowed;
-      border-color: #f1f1f1;
-    }
+    position: relative;
+    transition: 0.2s;
+    display: block; /* 높이 영향 방지 */
+  }
+  input:checked + .checkmark {
+    background: #000;
+    border-color: #000;
+  }
+  input:checked + .checkmark::after {
+    content: "✓";
+    position: absolute;
+    color: #fff;
+    font-size: 14px;
+    left: 50%;
+    top: 45%;
+    transform: translate(-50%, -50%);
+  }
+`;
+
+const ActionBtn = styled.button`
+  font-family: "dnf bitbit v2";
+  padding: 7px 16px;
+  font-size: 12px;
+  border-radius: 8px;
+  border: 1px solid #111;
+  background: #fff;
+  cursor: pointer;
+  transition: 0.2s;
+  line-height: 1.2; /* 텍스트 높이 보정 */
+  &:disabled {
+    background: #fff;
+    color: #ccc;
+    border-color: #eee;
+    cursor: not-allowed;
+  }
+  &:not(:disabled):hover {
+    background: #000;
+    color: #fff;
   }
 `;
 
@@ -169,186 +209,208 @@ const CalendarGrid = styled.div`
   grid-template-columns: repeat(7, 1fr);
   border-top: 1px solid #eee;
   border-left: 1px solid #eee;
-  font-family: "Noto Sans KR", sans-serif;
-
   .day-header {
-    background: #fdfdfd;
-    padding: 10px;
+    padding: 15px;
     text-align: center;
-    border: 1px solid #eee;
-    border-top: none;
-    border-left: none;
-    font-size: 11px;
-    color: #888;
-    font-family: "dnf bitbit v2", sans-serif;
+    border-right: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    font-size: 12px;
+    color: #111;
+    font-family: "dnf bitbit v2";
   }
   .day-cell {
-    height: 85px;
-    padding: 6px;
-    border: 1px solid #eee;
-    border-top: none;
-    border-left: none;
+    height: 110px;
+    padding: 12px;
+    border-right: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    overflow-y: auto; /* 내용 많아지면 스크롤 */
     .date {
-      font-weight: bold;
-      color: #555;
-      margin-bottom: 4px;
-      font-size: 12px;
+      font-family: "Noto Sans KR";
+      font-weight: 700;
+      font-size: 13px;
+      color: #bbb;
+      margin-bottom: 8px;
     }
-    .event {
-      background: #eef2ff;
-      color: #3b82f6;
-      padding: 2px 5px;
-      border-radius: 3px;
-      font-size: 10px;
-      margin-top: 2px;
-      cursor: pointer;
-      border: 1px solid #dbeafe;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      &:hover {
-        background: #dbeafe;
+  }
+`;
+
+const EventItem = styled.div`
+  background: #000;
+  color: #fff;
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  font-family: "Noto Sans KR";
+  font-weight: 500;
+  margin-bottom: 4px;
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
+const DetailPanel = styled.div`
+  padding: 30px;
+  border: 2px solid #000;
+  border-radius: 15px;
+  background: #fff;
+  h3 {
+    font-size: 26px;
+    margin-bottom: 25px;
+    border-bottom: 4px solid #000;
+    display: inline-block;
+    padding-bottom: 5px;
+  }
+  .info-list {
+    list-style: none;
+    padding: 0;
+    font-family: "Noto Sans KR";
+    li {
+      display: flex;
+      padding: 15px 0;
+      border-bottom: 1px solid #eee;
+      .label {
+        width: 140px;
+        font-weight: bold;
+        color: #888;
+      }
+      .value {
+        color: #111;
       }
     }
   }
-`;
-
-const ActionBtn = styled.button`
-  padding: 8px 18px;
-  border-radius: 5px;
-  font-family: "dnf bitbit v2", sans-serif;
-  cursor: pointer;
-  border: none;
-  font-size: 13px;
-  background: ${(props) => (props.black ? "#000" : "#eee")};
-  color: ${(props) => (props.black ? "#fff" : "#333")};
-`;
-
-const DetailView = styled.div`
-  font-family: "Noto Sans KR", sans-serif;
-  .info-row {
+  .actions {
+    margin-top: 40px;
     display: flex;
-    padding: 12px 0;
-    border-bottom: 1px solid #f0f0f0;
-    .label {
-      width: 140px;
+    gap: 15px;
+  }
+`;
+
+const Pagination = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 30px;
+  button {
+    padding: 5px 12px;
+    border: 1px solid #eee;
+    background: #fff;
+    cursor: pointer;
+    font-family: "Noto Sans KR";
+    font-size: 14px;
+    &.active {
+      border-color: #000;
       font-weight: bold;
-      color: #666;
-    }
-    .value {
-      color: #111;
+      color: #000;
     }
   }
 `;
 
 /* =========================
-   Main Component
+    Main Component
 ========================= */
 
 const AdminPage = () => {
   const [activeMenu, setActiveMenu] = useState("회원관리");
-  const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState("list");
   const [selectedItem, setSelectedItem] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [confirmedIds, setConfirmedIds] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // 데이터 보강
+  // ⚠️ 더미데이터 완전 복구 및 경매 일정 추가 데이터
   const members = [...Array(32)].map((_, i) => ({
-    id: i + 1,
+    id: `m${i}`,
     name: `유저_${i + 1}`,
     email: `user${i + 1}@zubzub.com`,
     coin: "250,000 ZC",
   }));
   const coins = [...Array(12)].map((_, i) => ({
-    id: i + 1,
+    id: `c${i}`,
     name: `입금자_${i + 1}`,
-    amount: "100,000 ZC",
+    title: `[충전] 100,000 ZC 신청 건`,
     price: "100,000원",
+    date: "2023-12-18",
   }));
   const auctions = [...Array(18)].map((_, i) => ({
-    id: i + 1,
-    seller: `판매자_${i + 1}`,
-    title: `[대규모] 레어 콜렉션 #${i + 1}`,
+    id: `a${i}`,
+    name: `판매자_${i + 1}`,
+    title: `[대규모] 레어 콜렉션 #${i + 1} 경매`,
     price: "500,000 ZC",
-    desc: "이 상품은 특별 한정판으로 제작된 상품입니다.",
+    desc: "검수 완료 상품",
+    date: "2023-12-20",
   }));
   const notices = [...Array(14)].map((_, i) => ({
     id: 14 - i,
-    title: `공지사항 테스트입니다 ${14 - i}`,
+    title: `줍줍 서비스 공지사항 #${14 - i}`,
     date: "2023-12-18",
   }));
 
-  // 캘린더 데이터 대폭 추가
+  // ✅ 일정 데이터 대폭 추가
   const calendarEvents = {
-    1: { title: "새해 첫 한정판 경매", seller: "ZubZub_KR" },
-    3: { title: "샤넬 팝업 경매", seller: "Luxury_H" },
-    5: { title: "빈티지 롤렉스", seller: "WatchMan" },
-    7: { title: "나이키 오프화이트", seller: "SneakerHead" },
-    12: { title: "애플 빈티지 맥북", seller: "TechCollector" },
-    14: { title: "다이아몬드 반지", seller: "Jewelry_King" },
-    15: { title: "대규모 연말결산", seller: "Admin" },
-    20: { title: "레고 스타워즈", seller: "BrickMania" },
-    24: { title: "크리스마스 경매", seller: "Santa_Zub" },
-    25: { title: "연휴 특별 물품", seller: "ZubZub" },
-    28: { title: "럭키박스 이벤트", seller: "Admin_Box" },
-    31: { title: "카운트다운 옥션", seller: "ZubZub" },
+    1: [{ title: "신년 한정판 옥션" }],
+    5: [{ title: "구찌 빈티지 백" }, { title: "루이비통 지갑" }],
+    12: [{ title: "나이키 조던 오프화이트" }],
+    18: [
+      {
+        title: "연말 결산 럭키박스",
+        name: "관리자",
+        price: "0 ZC",
+        desc: "비동기 상세 내용",
+      },
+    ],
+    20: [{ title: "롤렉스 서브마리너" }],
+    24: [{ title: "이브 특별 나눔" }],
+    25: [
+      {
+        title: "성탄절 한정판 옥션",
+        name: "ZubZub",
+        price: "1,000,000 ZC",
+        desc: "이벤트 경매",
+      },
+    ],
+    31: [{ title: "카운트다운 이벤트" }],
   };
 
-  useEffect(() => {
-    setCurrentPage(1);
-    setViewMode("list");
-  }, [activeMenu]);
-
-  const renderPagination = (totalItems) => {
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-    const pageRange = 5;
-    const currentGroup = Math.ceil(currentPage / pageRange);
-    const startPage = (currentGroup - 1) * pageRange + 1;
-    const endPage = Math.min(startPage + pageRange - 1, totalPages);
-
-    const pages = [];
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <button
-          key={i}
-          className={currentPage === i ? "active" : ""}
-          onClick={() => setCurrentPage(i)}
-        >
-          {i}
-        </button>
-      );
-    }
-
-    return (
-      <Pagination>
-        <button
-          onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-          disabled={currentPage === 1}
-        >
-          이전
-        </button>
-        {pages}
-        <button
-          onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-          disabled={currentPage === totalPages}
-        >
-          다음
-        </button>
-      </Pagination>
-    );
+  const getFilteredData = () => {
+    let base =
+      activeMenu === "회원관리"
+        ? members
+        : activeMenu === "회원 줍코인 승인"
+        ? coins
+        : activeMenu === "대규모 경매 승인"
+        ? auctions
+        : notices;
+    if (!searchTerm) return base;
+    return base.filter((d) => (d.name || d.title || "").includes(searchTerm));
   };
 
-  const getPaginatedData = (data) =>
-    data.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-  const openDetail = (item) => {
+  const currentData = getFilteredData();
+  const paginatedData = currentData.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handleOpenDetail = (item) => {
     setSelectedItem(item);
     setViewMode("detail");
   };
 
+  useEffect(() => {
+    setViewMode("list");
+    setSearchTerm("");
+    setCurrentPage(1);
+  }, [activeMenu]);
+
   return (
     <AdminContainer>
       <AdminHeader>
-        <h1>줍줍 관리자 페이지</h1>
+        <h1>줍줍 관리자 서비스</h1>
       </AdminHeader>
       <AdminNav>
         {[
@@ -357,26 +419,41 @@ const AdminPage = () => {
           "대규모 경매 승인",
           "대규모 일정 관리",
           "공지 사항",
-        ].map((menu) => (
+        ].map((m) => (
           <button
-            key={menu}
-            className={activeMenu === menu ? "active" : ""}
-            onClick={() => setActiveMenu(menu)}
+            key={m}
+            className={activeMenu === m ? "active" : ""}
+            onClick={() => setActiveMenu(m)}
           >
-            {menu}
+            {m}
           </button>
         ))}
       </AdminNav>
 
       <ContentBox>
-        {viewMode === "list" && (
+        {viewMode === "list" ? (
           <>
             <div className="box-header">
               <h2>{activeMenu}</h2>
-              {activeMenu === "공지 사항" && (
-                <ActionBtn black onClick={() => setViewMode("write")}>
-                  공지 작성
-                </ActionBtn>
+              {activeMenu !== "대규모 일정 관리" && (
+                <SearchWrapper>
+                  <svg
+                    width="18"
+                    height="18"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="M21 21l-4.35-4.35"></path>
+                  </svg>
+                  <input
+                    placeholder="검색어를 입력해 주세요"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </SearchWrapper>
               )}
             </div>
 
@@ -393,21 +470,14 @@ const AdminPage = () => {
                   {[...Array(31)].map((_, i) => (
                     <div key={i} className="day-cell">
                       <div className="date">{i + 1}</div>
-                      {calendarEvents[i + 1] && (
-                        <div
-                          className="event"
-                          onClick={() =>
-                            openDetail({
-                              title: calendarEvents[i + 1].title,
-                              seller: calendarEvents[i + 1].seller,
-                              price: "상세문의",
-                              desc: "캘린더 전용 경매 물품입니다.",
-                            })
-                          }
+                      {calendarEvents[i + 1]?.map((ev, idx) => (
+                        <EventItem
+                          key={idx}
+                          onClick={() => handleOpenDetail(ev)}
                         >
-                          {calendarEvents[i + 1].title}
-                        </div>
-                      )}
+                          {ev.title}
+                        </EventItem>
+                      ))}
                     </div>
                   ))}
                 </CalendarGrid>
@@ -420,141 +490,153 @@ const AdminPage = () => {
                           <th>닉네임</th>
                           <th>이메일</th>
                           <th>보유코인</th>
-                          <th>상태</th>
+                          <th>상태변경</th>
                         </tr>
                       )}
-                      {activeMenu === "회원 줍코인 승인" && (
+                      {(activeMenu === "회원 줍코인 승인" ||
+                        activeMenu === "대규모 경매 승인") && (
                         <tr>
                           <th>신청자</th>
-                          <th>코인</th>
-                          <th>입금액</th>
-                          <th>처리</th>
-                        </tr>
-                      )}
-                      {activeMenu === "대규모 경매 승인" && (
-                        <tr>
-                          <th>판매자</th>
-                          <th>상품명</th>
-                          <th>가격</th>
-                          <th>관리</th>
+                          <th>제목</th>
+                          <th>금액</th>
+                          <th>승인관리</th>
                         </tr>
                       )}
                       {activeMenu === "공지 사항" && (
                         <tr>
-                          <th>번호</th>
+                          <th>No</th>
                           <th>제목</th>
-                          <th>날짜</th>
+                          <th>게시일</th>
                           <th>관리</th>
                         </tr>
                       )}
                     </thead>
                     <tbody>
-                      {activeMenu === "회원관리" &&
-                        getPaginatedData(members).map((m) => (
-                          <tr key={m.id}>
-                            <td>{m.name}</td>
-                            <td>{m.email}</td>
-                            <td>{m.coin}</td>
-                            <td>
-                              <select>
-                                <option>정상</option>
-                                <option>정지</option>
-                              </select>
-                            </td>
-                          </tr>
-                        ))}
-                      {activeMenu === "회원 줍코인 승인" &&
-                        getPaginatedData(coins).map((c) => (
-                          <tr key={c.id}>
-                            <td>{c.name}</td>
-                            <td>{c.amount}</td>
-                            <td>{c.price}</td>
-                            <td>
-                              <button className="row-btn">승인</button>
-                            </td>
-                          </tr>
-                        ))}
-                      {activeMenu === "대규모 경매 승인" &&
-                        getPaginatedData(auctions).map((a) => (
-                          <tr key={a.id}>
-                            <td>{a.seller}</td>
-                            <td
-                              className="link-text"
-                              onClick={() => openDetail(a)}
-                            >
-                              {a.title}
-                            </td>
-                            <td>{a.price}</td>
-                            <td>
-                              <button className="row-btn">승인</button>
-                            </td>
-                          </tr>
-                        ))}
-                      {activeMenu === "공지 사항" &&
-                        getPaginatedData(notices).map((n) => (
-                          <tr key={n.id}>
-                            <td>{n.id}</td>
-                            <td>{n.title}</td>
-                            <td>{n.date}</td>
-                            <td>
-                              <button
-                                style={{
-                                  color: "red",
-                                  background: "none",
-                                  border: "none",
-                                  cursor: "pointer",
-                                }}
+                      {paginatedData.map((item) => (
+                        <tr key={item.id}>
+                          {activeMenu === "회원관리" && (
+                            <>
+                              <td>{item.name}</td>
+                              <td>{item.email}</td>
+                              <td>{item.coin}</td>
+                              <td>
+                                <select>
+                                  <option>정상</option>
+                                  <option>정지</option>
+                                </select>
+                              </td>
+                            </>
+                          )}
+                          {(activeMenu === "회원 줍코인 승인" ||
+                            activeMenu === "대규모 경매 승인") && (
+                            <>
+                              <td>{item.name}</td>
+                              <td
+                                className="title-link"
+                                onClick={() => handleOpenDetail(item)}
                               >
-                                삭제
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
+                                {item.title}
+                              </td>
+                              <td>{item.price}</td>
+                              <td>
+                                {/* ✅ 높이 정렬 보정된 영역 */}
+                                <ApprovalArea>
+                                  <CustomCheckbox>
+                                    <input
+                                      type="checkbox"
+                                      checked={!!confirmedIds[item.id]}
+                                      onChange={() =>
+                                        setConfirmedIds((prev) => ({
+                                          ...prev,
+                                          [item.id]: !prev[item.id],
+                                        }))
+                                      }
+                                    />
+                                    <span className="checkmark"></span>
+                                  </CustomCheckbox>
+                                  <ActionBtn
+                                    disabled={!confirmedIds[item.id]}
+                                    onClick={() => alert("처리 완료")}
+                                  >
+                                    승인
+                                  </ActionBtn>
+                                </ApprovalArea>
+                              </td>
+                            </>
+                          )}
+                          {activeMenu === "공지 사항" && (
+                            <>
+                              <td>{item.id}</td>
+                              <td className="title-link">{item.title}</td>
+                              <td>{item.date}</td>
+                              <td>
+                                <ActionBtn
+                                  style={{ color: "red", borderColor: "red" }}
+                                >
+                                  삭제
+                                </ActionBtn>
+                              </td>
+                            </>
+                          )}
+                        </tr>
+                      ))}
                     </tbody>
                   </AdminTable>
-                  {renderPagination(
-                    activeMenu === "회원관리"
-                      ? members.length
-                      : activeMenu === "회원 줍코인 승인"
-                      ? coins.length
-                      : activeMenu === "대규모 경매 승인"
-                      ? auctions.length
-                      : notices.length
-                  )}
+                  <Pagination>
+                    {[
+                      ...Array(Math.ceil(currentData.length / itemsPerPage)),
+                    ].map((_, i) => (
+                      <button
+                        key={i}
+                        className={currentPage === i + 1 ? "active" : ""}
+                        onClick={() => setCurrentPage(i + 1)}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+                  </Pagination>
                 </>
               )}
             </TableWrapper>
           </>
-        )}
-
-        {viewMode === "detail" && selectedItem && (
-          <DetailView>
-            <div className="box-header">
-              <h2>상세 정보</h2>
+        ) : (
+          <DetailPanel>
+            <h3>상세 정보</h3>
+            <ul className="info-list">
+              <li>
+                <span className="label">항목</span>
+                <span className="value">{selectedItem.title}</span>
+              </li>
+              <li>
+                <span className="label">이름</span>
+                <span className="value">{selectedItem.name || "시스템"}</span>
+              </li>
+              <li>
+                <span className="label">금액</span>
+                <span className="value">
+                  {selectedItem.price || "별도 표기"}
+                </span>
+              </li>
+              <li>
+                <span className="label">상세</span>
+                <span className="value">
+                  {selectedItem.desc || "상세 정보가 없습니다."}
+                </span>
+              </li>
+            </ul>
+            <div className="actions">
               <ActionBtn onClick={() => setViewMode("list")}>닫기</ActionBtn>
-            </div>
-            <div className="info-row">
-              <div className="label">상품명</div>
-              <div className="value">{selectedItem.title}</div>
-            </div>
-            <div className="info-row">
-              <div className="label">판매자</div>
-              <div className="value">{selectedItem.seller}</div>
-            </div>
-            <div className="info-row">
-              <div className="label">시작 가격</div>
-              <div className="value">{selectedItem.price}</div>
-            </div>
-            <div className="info-row">
-              <div className="label">설명</div>
-              <div className="value">{selectedItem.desc}</div>
-            </div>
-            <div style={{ marginTop: "30px", display: "flex", gap: "10px" }}>
-              <ActionBtn black onClick={() => setViewMode("list")}>
+              <ActionBtn
+                style={{ background: "#000", color: "#fff" }}
+                onClick={() => {
+                  alert("최종 승인!");
+                  setViewMode("list");
+                }}
+              >
                 최종 승인
               </ActionBtn>
             </div>
-          </DetailView>
+          </DetailPanel>
         )}
       </ContentBox>
     </AdminContainer>
