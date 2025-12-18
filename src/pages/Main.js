@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import Frame1 from "../Images/Frame1.png";
-import Frame2 from "../Images/Frame2.png";
+import Frame1 from "../images/Frame1.png";
+import Frame2 from "../images/Frame2.png";
 
 /* =========================
    Styled Components

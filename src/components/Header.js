@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import LogoImage1 from "../Images/LogoImage1.png";
+import LogoImage1 from "../images/LogoImage1.png";
 
 /* =========================
    Styled Components
