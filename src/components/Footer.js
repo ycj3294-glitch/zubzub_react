@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import React from "react";
-import LogoImage2 from "../images/LogoImage2.png";
+import LogoImage2 from "../Images/LogoImage2.png";
 
 /* =========================
    Styled Components
