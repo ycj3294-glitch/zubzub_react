@@ -1,10 +1,10 @@
+// Grid.tsx
+import styled from "styled-components";
 import ChatComponent from "../components/auction/ChatComponent";
 import AuctionInfoComponent from "../components/auction/AuctionInfoComponent";
 import CreateAuction from "../components/auction/CreateAuctionComponent";
-
-// Grid.tsx
-import styled from "styled-components";
 import CreateBidComponent from "../components/auction/CreateBidComponent";
+import BidHistoryComponent from "../components/auction/BidHistoryComponent";
 
 export const Grid = styled.div`
   display: flex;
@@ -42,6 +42,9 @@ const ComponentTest = () => {
         </Cell>
         <Cell>
           <CreateBidComponent auctionId={1}></CreateBidComponent>
+        </Cell>
+        <Cell>
+          <BidHistoryComponent auctionId={1}></BidHistoryComponent>
         </Cell>
       </Grid>
     </>
