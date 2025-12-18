@@ -11,6 +11,7 @@ import MajorAuctionDetail from "./pages/MajorAuctionDetail";
 import MyPage from "./pages/MyPage";
 import Notice from "./pages/Notice";
 import AdminPage from "./pages/AdminPage";
+import AuctionSchedule from "./pages/AuctionSchedule";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
             <Route path="/auction/minor/:id" element={<MinorAuctionDetail />} />
             <Route path="/auction/major/:id" element={<MajorAuctionDetail />} />
             <Route path="/notice" element={<Notice />} />
+            <Route path="/schedule" element={<AuctionSchedule />} />
           </Routes>
         </Layout>
       </Router>
