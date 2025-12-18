@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 /* =========================
-   styled
+    styled
 ========================= */
 
 const Container = styled.div`
   width: 100%;
+  background-color: #fff; /* 배경 화이트로 통일 */
 `;
 
 const Inner = styled.div`
@@ -23,49 +24,83 @@ const HeaderRow = styled.div`
   align-items: center;
   justify-content: space-between;
   margin-bottom: 50px;
-  gap: 16px;
+  gap: 20px;
 
   @media (max-width: 768px) {
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-start;
   }
 `;
 
 const Title = styled.h2`
-  font-size: 24px;
+  font-size: 26px;
+  font-family: "dnf bitbit v2", sans-serif; /* 폰트 통일 */
+  color: #111;
+  white-space: nowrap;
 `;
 
+/* ✅ 관리자 페이지와 통일된 검색바 스타일 */
 const SearchArea = styled.div`
-  flex: 1;
   display: flex;
-  justify-content: center;
+  align-items: center;
+  background: #f8f8f8;
+  padding: 10px 18px;
+  border-radius: 30px;
+  border: 1px solid #eee;
+  flex: 1;
+  max-width: 450px;
+  transition: 0.2s;
 
-  button {
+  &:focus-within {
+    background: #fff;
+    border-color: #000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  svg {
+    color: #999;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+
+  input {
+    border: none;
+    background: none;
+    outline: none;
+    font-size: 14px;
+    font-family: "Noto Sans KR", sans-serif;
+    width: 100%;
+    color: #333;
+
+    &::placeholder {
+      color: #bbb;
+    }
   }
 
   @media (max-width: 768px) {
-    justify-content: stretch;
+    max-width: 100%;
+    width: 100%;
   }
 `;
 
-const SearchBox = styled.input`
-  width: 100%;
-  max-width: 360px;
-  height: 40px;
-  padding: 0 14px;
-  border-radius: 20px;
-  border: 1px solid #ccc;
-`;
-
 const CategorySelect = styled.select`
-  height: 40px;
-  padding: 0 12px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  background-color: #fff;
+  font-family: "Noto Sans KR", sans-serif;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  outline: none;
+
+  &:hover {
+    border-color: #ccc;
+  }
 `;
 
-/* --- grid --- */
-
+/* --- grid (기존 유지) --- */
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -82,7 +117,6 @@ const Grid = styled.div`
 
 const Card = styled.div`
   cursor: pointer;
-
   &:hover img {
     transform: scale(1.05);
   }
@@ -91,6 +125,7 @@ const Card = styled.div`
 const ImageWrap = styled.div`
   overflow: hidden;
   border-radius: 16px;
+  background-color: #f0f0f0;
 `;
 
 const Image = styled.img`
@@ -105,25 +140,29 @@ const Image = styled.img`
 `;
 
 const Info = styled.div`
-  margin-top: 10px;
-  font-size: 13px;
+  margin-top: 12px;
+  font-family: "Noto Sans KR", sans-serif;
 `;
 
 const Name = styled.div`
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 15px;
   margin-bottom: 6px;
+  color: #111;
 `;
 
 const Price = styled.div`
   font-weight: 700;
+  font-size: 16px;
+  color: #000;
 `;
 
 const SubInfo = styled.div`
   display: flex;
   justify-content: space-between;
-  color: #777;
+  color: #888;
   font-size: 12px;
-  margin-top: 4px;
+  margin-top: 6px;
 `;
 
 /* --- pagination --- */
@@ -131,22 +170,29 @@ const SubInfo = styled.div`
 const Pagination = styled.div`
   display: flex;
   justify-content: center;
-  gap: 6px;
-  margin: 40px 0 20px;
-  flex-wrap: wrap;
+  gap: 8px;
+  margin: 60px 0 20px;
 `;
 
 const PageBtn = styled.button`
-  min-width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
+  min-width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid #eee;
   background: ${({ active }) => (active ? "#111" : "#fff")};
   color: ${({ active }) => (active ? "#fff" : "#111")};
+  font-family: "Noto Sans KR", sans-serif;
+  font-weight: 600;
   cursor: pointer;
+  transition: 0.2s;
+
+  &:hover:not(:disabled) {
+    background: ${({ active }) => (active ? "#111" : "#f8f8f8")};
+    border-color: #ccc;
+  }
 
   &:disabled {
-    opacity: 0.4;
+    opacity: 0.3;
     cursor: not-allowed;
   }
 `;
@@ -155,27 +201,24 @@ const ITEMS_PER_PAGE = 12;
 
 const MinorAuction = () => {
   const nav = useNavigate();
-
   const [currentPage, setCurrentPage] = useState(1);
+  const [search, setSearch] = useState("");
 
-  /* --- dummy data (API로 교체 예정) --- */
   const list = Array.from({ length: 32 }, (_, i) => ({
     id: i + 1,
-    name: "물품 이름",
-    price: "₩ 12,000",
-    bidCount: 3,
+    name: `소규모 경매 물품 ${i + 1}`,
+    price: `₩ ${(12000 + i * 1000).toLocaleString()}`,
+    bidCount: Math.floor(Math.random() * 10),
     remain: "2일",
-    img: `/images/minor${(i % 5) + 1}.jpg`,
+    img: `https://via.placeholder.com/300x220?text=Item+${i + 1}`,
   }));
 
-  /* --- pagination calc --- */
   const totalPages = Math.ceil(list.length / ITEMS_PER_PAGE);
   const pagedList = list.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
   );
 
-  /* --- page change scroll --- */
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentPage]);
@@ -188,8 +231,23 @@ const MinorAuction = () => {
           <Title>소규모 경매</Title>
 
           <SearchArea>
-            <SearchBox placeholder="검색어를 입력하세요" />
-            <button>입력</button>
+            {/* 돋보기 아이콘 추가 */}
+            <svg
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              viewBox="0 0 24 24"
+            >
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="M21 21l-4.35-4.35"></path>
+            </svg>
+            <input
+              placeholder="관심 있는 물품을 검색해 보세요"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
           </SearchArea>
 
           <CategorySelect>
@@ -213,7 +271,7 @@ const MinorAuction = () => {
 
               <Info>
                 <Name>{item.name}</Name>
-                <Price>현재 입찰가 {item.price}</Price>
+                <Price>현재가 {item.price}</Price>
                 <SubInfo>
                   <span>입찰 {item.bidCount}회</span>
                   <span>남은 기간 {item.remain}</span>
