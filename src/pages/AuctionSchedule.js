@@ -15,7 +15,6 @@ const PageWrapper = styled.div`
 const TitleSection = styled.div`
   text-align: center;
   margin-bottom: 50px;
-
   h1 {
     font-family: "dnf bitbit v2", sans-serif;
     font-size: 32px;
@@ -29,19 +28,17 @@ const TitleSection = styled.div`
 
 const Layout = styled.div`
   display: grid;
-  grid-template-columns: 1fr 350px; /* 왼쪽 달력, 오른쪽 상세정보 */
+  grid-template-columns: 1fr 350px;
   gap: 30px;
-
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
   }
 `;
 
-/* 캘린더 스타일 */
 const CalendarCard = styled.div`
   background: white;
   border-radius: 25px;
-  padding: 30px;
+  padding: 20px;
   border: 1px solid #eee;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 `;
@@ -59,12 +56,15 @@ const CalendarGrid = styled.div`
   }
 
   .date-cell {
-    height: 100px;
+    /* 박스 사이즈 절대 고정 */
+    height: 110px;
     border-top: 1px solid #f0f0f0;
-    padding: 10px;
+    padding: 8px;
     cursor: pointer;
-    transition: background 0.2s;
-    position: relative;
+    transition: all 0.2s;
+    overflow: hidden; /* 박스 밖으로 나가는 내용 숨김 */
+    display: flex;
+    flex-direction: column;
 
     &:hover {
       background: #f9f9f9;
@@ -75,40 +75,46 @@ const CalendarGrid = styled.div`
     &.selected {
       background: #f0f0f0;
       border: 2px solid #000;
-      border-radius: 10px;
+      border-radius: 12px;
     }
 
     .date-num {
       font-weight: bold;
       font-size: 14px;
-      margin-bottom: 5px;
+      margin-bottom: 4px;
     }
   }
 `;
 
-/* 경매 이벤트 점(Dot) 또는 태그 */
+/* 텍스트 말줄임표(...) 처리 핵심 스타일 */
 const EventTag = styled.div`
   background: #000;
   color: #fff;
-  font-size: 10px;
-  padding: 4px 6px;
+  font-size: 11px; /* 너무 작지 않은 폰트 유지 */
+  padding: 4px 8px;
   border-radius: 6px;
   margin-top: 4px;
+  font-family: "dnf bitbit v2", sans-serif;
+
+  /* 한 줄 말줄임 설정 */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-family: "dnf bitbit v2", sans-serif;
+
+  width: 100%;
+  box-sizing: border-box;
 `;
 
-/* 오른쪽 사이드바: 선택한 날짜의 경매 정보 */
 const InfoCard = styled.div`
   background: #fff;
   border-radius: 25px;
   padding: 30px;
   border: 1px solid #eee;
-  height: fit-content;
+  height: 600px; /* 높이 고정으로 통일감 부여 */
   position: sticky;
   top: 20px;
+  display: flex;
+  flex-direction: column;
 
   h3 {
     font-family: "dnf bitbit v2", sans-serif;
@@ -117,12 +123,18 @@ const InfoCard = styled.div`
     border-bottom: 2px solid #000;
     padding-bottom: 10px;
   }
+
+  .event-list {
+    flex: 1;
+    overflow-y: auto; /* 내용 많아지면 스크롤 */
+  }
 `;
 
 const AuctionItem = styled.div`
   margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #eee;
+  padding: 15px;
+  background: #fafafa;
+  border-radius: 15px;
 
   .time {
     font-size: 12px;
@@ -133,6 +145,10 @@ const AuctionItem = styled.div`
     font-size: 16px;
     font-weight: bold;
     margin: 5px 0;
+    /* 사이드바에서도 제목이 너무 길면 말줄임 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .seller {
     font-size: 13px;
@@ -144,13 +160,13 @@ const AuctionItem = styled.div`
     padding: 10px;
     margin-top: 10px;
     border-radius: 10px;
-    border: 1px solid #000;
-    background: #fff;
+    border: none;
+    background: #000;
+    color: #fff;
     font-family: "dnf bitbit v2", sans-serif;
     cursor: pointer;
     &:hover {
-      background: #000;
-      color: #fff;
+      background: #333;
     }
   }
 `;
@@ -160,45 +176,46 @@ const AuctionItem = styled.div`
 ========================= */
 
 const AuctionSchedule = () => {
-  const [selectedDate, setSelectedDate] = useState(18); // 기본값 오늘 날짜
+  const [selectedDate, setSelectedDate] = useState(18);
 
-  // 관리자 페이지에서 썼던 데이터와 유사한 유저용 더미데이터
   const events = {
     1: [
       {
         id: 101,
-        title: "새해 첫 한정판 경매",
+        title: "새해 첫 한정판 경매 대공개",
         seller: "ZubZub_KR",
         time: "14:00",
       },
     ],
     3: [
-      { id: 102, title: "샤넬 팝업 경매", seller: "Luxury_H", time: "18:00" },
-    ],
-    7: [
       {
-        id: 103,
-        title: "나이키 오프화이트",
-        seller: "SneakerHead",
-        time: "20:00",
+        id: 102,
+        title: "샤넬 팝업 초특가 경매 세일",
+        seller: "Luxury_H",
+        time: "18:00",
       },
     ],
     18: [
       {
         id: 104,
-        title: "맥북 프로 M3 미개봉",
+        title: "맥북 프로 M3 미개봉 풀박스",
         seller: "Tech_Master",
         time: "15:00",
       },
       {
         id: 105,
-        title: "레트로 게임기 모음",
+        title: "레트로 게임기 닌텐도 모음집",
         seller: "Retro_King",
         time: "21:00",
       },
     ],
     24: [
-      { id: 106, title: "크리스마스 경매", seller: "Santa_Zub", time: "12:00" },
+      {
+        id: 106,
+        title: "크리스마스 이브 특별 옥션 이벤트",
+        seller: "Santa_Zub",
+        time: "12:00",
+      },
     ],
   };
 
@@ -206,11 +223,10 @@ const AuctionSchedule = () => {
     <PageWrapper>
       <TitleSection>
         <h1>대규모 경매 일정</h1>
-        <p>줍줍이 보증하는 프리미엄 경매 일정을 확인하세요!</p>
+        <p>엄격한 심사를 통과한 프리미엄 경매 리스트입니다.</p>
       </TitleSection>
 
       <Layout>
-        {/* 왼쪽: 달력 */}
         <CalendarCard>
           <CalendarGrid>
             {["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"].map((d) => (
@@ -231,7 +247,9 @@ const AuctionSchedule = () => {
                   <div className="date-num">{date}</div>
                   {events[date] &&
                     events[date].map((ev) => (
-                      <EventTag key={ev.id}>{ev.title}</EventTag>
+                      <EventTag key={ev.id} title={ev.title}>
+                        {ev.title}
+                      </EventTag>
                     ))}
                 </div>
               );
@@ -239,31 +257,36 @@ const AuctionSchedule = () => {
           </CalendarGrid>
         </CalendarCard>
 
-        {/* 오른쪽: 상세 정보 */}
         <InfoCard>
           <h3>12월 {selectedDate}일 경매</h3>
-          {events[selectedDate] ? (
-            events[selectedDate].map((ev) => (
-              <AuctionItem key={ev.id}>
-                <div className="time">시작 시간 : {ev.time}</div>
-                <div className="name">{ev.title}</div>
-                <div className="seller">판매자: {ev.seller}</div>
-                <button
-                  onClick={() => alert(`${ev.title} 경매장으로 이동합니다!`)}
-                >
-                  입장하기
-                </button>
-              </AuctionItem>
-            ))
-          ) : (
-            <div
-              style={{ color: "#999", textAlign: "center", paddingTop: "20px" }}
-            >
-              해당 날짜에는 예정된
-              <br />
-              대규모 경매가 없습니다.
-            </div>
-          )}
+          <div className="event-list">
+            {events[selectedDate] ? (
+              events[selectedDate].map((ev) => (
+                <AuctionItem key={ev.id}>
+                  <div className="time">{ev.time} 시작 예정</div>
+                  <div className="name">{ev.title}</div>
+                  <div className="seller">판매자: {ev.seller}</div>
+                  <button
+                    onClick={() =>
+                      alert(`${ev.title} 입찰 페이지로 이동합니다.`)
+                    }
+                  >
+                    입장하기
+                  </button>
+                </AuctionItem>
+              ))
+            ) : (
+              <div
+                style={{
+                  color: "#999",
+                  textAlign: "center",
+                  marginTop: "100px",
+                }}
+              >
+                예정된 경매 일정이 없습니다.
+              </div>
+            )}
+          </div>
         </InfoCard>
       </Layout>
     </PageWrapper>
