@@ -12,6 +12,8 @@ import MyPage from "./pages/MyPage";
 import Notice from "./pages/Notice";
 import AdminPage from "./pages/AdminPage";
 import AuctionSchedule from "./pages/AuctionSchedule";
+import CreateAuction from "./pages/CreateAuction";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
   return (
@@ -30,6 +32,7 @@ function App() {
             <Route path="/auction/major/:id" element={<MajorAuctionDetail />} />
             <Route path="/notice" element={<Notice />} />
             <Route path="/schedule" element={<AuctionSchedule />} />
+            <Route path="/create-auction" element={<CreateAuction />} />
           </Routes>
         </Layout>
       </Router>
