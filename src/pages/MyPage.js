@@ -1,217 +1,188 @@
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 
 /* =====================
-   Dummy Data
+    styled
 ===================== */
-
-const USER = {
-  email: "55029564@gmail.com",
-  name: "이태수",
-  nickname: "LeeTS",
-  coin: 100000,
-};
-
-const HISTORY = Array.from({ length: 5 }, () => ({
-  title: "WHY? 책 상태 A급 20권 묶음 판매",
-  date: "25.12.15 - 17:03:42",
-}));
-
-/* =====================
-   styled
-===================== */
-
 const Container = styled.div`
-  max-width: 850px;
-  margin: 40px auto;
-  padding: 40px;
-  border: 1px solid #ddd;
-  border-radius: 20px;
+  max-width: 900px;
+  margin: 60px auto;
+  padding: 0 20px;
+  font-family: "Noto Sans KR", sans-serif;
 `;
 
-const ProfileRow = styled.div`
+const ProfileSection = styled.div`
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 30px;
+  padding: 40px;
   display: flex;
-  gap: 48px;
+  gap: 40px;
   align-items: center;
-  justify-content: center;
-
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
   @media (max-width: 768px) {
     flex-direction: column;
-    gap: 24px;
+    text-align: center;
   }
 `;
 
 const ProfileImgWrap = styled.div`
   position: relative;
+  width: 150px;
+  height: 150px;
+  cursor: pointer;
 `;
 
 const ProfileImg = styled.img`
-  width: 170px;
-  height: 170px;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid #ccc;
+  border: 4px solid #f8f8f8;
 `;
 
-const EditIcon = styled.button`
+const EditBadge = styled.div`
   position: absolute;
-  bottom: 4px;
-  right: 4px;
+  bottom: 5px;
+  right: 5px;
+  background: #000;
+  color: #fff;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  border: none;
-  padding: 6px;
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  border: 3px solid #fff;
 `;
 
 const InfoBox = styled.div`
-  flex: 0 0 520px;
-  max-width: 520px;
-  border: 1px solid #ccc;
-  border-radius: 16px;
-  padding: 20px;
+  flex: 1;
+`;
 
-  @media (max-width: 768px) {
-    width: 100%;
-    max-width: 100%;
+const Nickname = styled.h2`
+  font-family: "dnf bitbit v2", sans-serif;
+  font-size: 26px;
+  margin-bottom: 15px;
+  span {
+    font-size: 14px;
+    color: #999;
+    font-family: "Noto Sans KR";
+    margin-left: 8px;
   }
 `;
 
-const InfoRow = styled.div`
+const CoinRow = styled.div`
+  background: #f9f9f9;
+  padding: 15px 20px;
+  border-radius: 15px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 6px 0;
-  font-size: 14px;
+  align-items: center;
+  margin-bottom: 20px;
+  .label {
+    font-weight: 700;
+    color: #666;
+  }
+  .value {
+    font-family: "dnf bitbit v2", sans-serif;
+    font-size: 18px;
+  }
 `;
 
-const CoinRow = styled(InfoRow)`
-  gap: 8px;
-`;
-
-const CoinValue = styled.span`
-  font-weight: bold;
-`;
-
-const ChargeBtn = styled.button`
-  margin-left: 8px;
-  padding: 4px 10px;
-  border-radius: 12px;
-  border: none;
-  background: #555;
-  color: white;
-  font-size: 12px;
-  cursor: pointer;
+const BtnGroup = styled.div`
+  display: flex;
+  gap: 10px;
 `;
 
 const Button = styled.button`
-  padding: 6px 14px;
+  flex: 1;
+  padding: 12px;
   border-radius: 12px;
   border: none;
-  background: #555;
-  color: white;
+  font-weight: 700;
   cursor: pointer;
+  background: ${(props) => (props.black ? "#000" : "#eee")};
+  color: ${(props) => (props.black ? "#fff" : "#333")};
+  transition: 0.2s;
+  &:hover {
+    opacity: 0.8;
+  }
 `;
 
-const EditBtn = styled(Button)`
-  margin-top: 10px;
-  background: #888;
+const Section = styled.div`
+  margin-top: 50px;
+  h3 {
+    font-family: "dnf bitbit v2", sans-serif;
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
 `;
 
-const Divider = styled.hr`
-  margin: 40px 0;
-  border: none;
-  border-top: 1px solid #ddd;
+const List = styled.div`
+  border-top: 2px solid #000;
 `;
 
-/* ===== History ===== */
-
-const Section = styled.section`
-  margin-bottom: 40px;
-`;
-
-const SectionTitle = styled.h2`
-  margin-bottom: 16px;
-`;
-
-const HistoryRow = styled.div`
+const ListItem = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 10px 0;
+  padding: 20px;
   border-bottom: 1px solid #eee;
-  font-size: 14px;
-`;
-
-const MoreBtn = styled.button`
-  margin-top: 10px;
-  background: none;
-  border: none;
-  text-decoration: underline;
-  cursor: pointer;
-  font-size: 13px;
+  .title {
+    font-weight: 600;
+  }
+  .date {
+    color: #bbb;
+    font-size: 13px;
+  }
 `;
 
 /* =====================
-   Component
+    Component
 ===================== */
-
 const MyPage = () => {
+  const navigate = useNavigate();
+
   return (
     <Container>
-      {/* 프로필 */}
-      <ProfileRow>
-        <ProfileImgWrap>
-          <ProfileImg src="/images/profile.jpg" />
-          <EditIcon>✎</EditIcon>
+      <ProfileSection>
+        <ProfileImgWrap onClick={() => navigate("/edit-profile")}>
+          <ProfileImg src="https://via.placeholder.com/150" />
+          <EditBadge>✎</EditBadge>
         </ProfileImgWrap>
 
         <InfoBox>
-          <InfoRow>
-            <strong>이메일</strong>
-            <span>{USER.email}</span>
-          </InfoRow>
-          <InfoRow>
-            <strong>이름</strong>
-            <span>{USER.name}</span>
-          </InfoRow>
-          <InfoRow>
-            <strong>닉네임</strong>
-            <span>{USER.nickname}</span>
-          </InfoRow>
-          <InfoRow>
-            <strong>보유 줍코인</strong>
-            <div>
-              <CoinValue>{USER.coin.toLocaleString()} 줍코인</CoinValue>
-              <ChargeBtn>충전</ChargeBtn>
-            </div>
-          </InfoRow>
-
-          <EditBtn>개인정보 수정</EditBtn>
+          <Nickname>
+            LeeTS <span>이태수님</span>
+          </Nickname>
+          <CoinRow>
+            <span className="label">보유 줍코인</span>
+            <span className="value">100,000 ZC</span>
+          </CoinRow>
+          <BtnGroup>
+            <Button onClick={() => navigate("/edit-profile")}>
+              회원정보 수정
+            </Button>
+            <Button black onClick={() => alert("충전 팝업")}>
+              코인 충전
+            </Button>
+          </BtnGroup>
         </InfoBox>
-      </ProfileRow>
+      </ProfileSection>
 
-      <Divider />
-
-      {/* 구매내역 */}
       <Section>
-        <SectionTitle>구매내역</SectionTitle>
-        {HISTORY.map((item, idx) => (
-          <HistoryRow key={idx}>
-            <span>{item.title}</span>
-            <span>{item.date}</span>
-          </HistoryRow>
-        ))}
-      </Section>
-
-      {/* 판매내역 */}
-      <Section>
-        <SectionTitle>판매내역</SectionTitle>
-        {HISTORY.map((item, idx) => (
-          <HistoryRow key={idx}>
-            <span>{item.title}</span>
-            <span>{item.date}</span>
-          </HistoryRow>
-        ))}
-
-        <MoreBtn>나의 판매 기록 자세히 보기</MoreBtn>
+        <h3>최근 구매 내역</h3>
+        <List>
+          <ListItem>
+            <span className="title">상태 좋은 중고 자전거</span>
+            <span className="date">2025.12.18</span>
+          </ListItem>
+          <ListItem>
+            <span className="title">레트로 게임기 모음</span>
+            <span className="date">2025.12.15</span>
+          </ListItem>
+        </List>
       </Section>
     </Container>
   );

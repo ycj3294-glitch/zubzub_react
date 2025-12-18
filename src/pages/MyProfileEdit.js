@@ -1,242 +1,216 @@
-// MyProfileEdit.js (마이페이지 - 회원정보 수정)
-
 import styled from "styled-components";
-import React, { useState } from "react";
+import React from "react";
+import { useNavigate } from "react-router-dom";
 
-/* =========================
-   Styled Components (이미지 디자인 반영)
-========================= */
-
+/* =====================
+    styled
+===================== */
 const Container = styled.div`
-  max-width: 1000px;
-  margin: 50px auto;
-  padding: 0 16px;
+  max-width: 900px;
+  margin: 60px auto;
+  padding: 0 20px;
+  font-family: "Noto Sans KR", sans-serif;
+`;
+
+const Header = styled.div`
   text-align: center;
-`;
-
-const HeaderImage = styled.div`
-  /* 이미지의 '줍줍' 텍스트와 망치 아이콘을 표현 */
-  font-size: 80px;
-  font-weight: 900;
-  margin-bottom: 40px;
-  color: #000;
-  letter-spacing: 5px;
-
-  /* 망치 아이콘을 간단히 텍스트/이모지로 대체하거나, 실제 이미지를 사용해야 함 */
-  &:after {
-    content: " 🔨";
-    font-size: 50px;
-    display: inline-block;
-    vertical-align: top;
-    line-height: 1;
+  margin-bottom: 50px;
+  h1 {
+    font-family: "dnf bitbit v2", sans-serif;
+    font-size: 32px;
+    letter-spacing: -0.5px;
   }
 `;
 
-const WhiteBox = styled.div`
-  border: 4px solid #000;
-  border-radius: 20px;
-  padding: 30px;
-  display: flex;
-  justify-content: space-around;
-  gap: 30px;
-  background: white;
+const Grid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  align-items: stretch;
 
-  @media (max-width: 768px) {
-    flex-direction: column;
-    padding: 20px;
-    gap: 20px;
+  @media (max-width: 850px) {
+    grid-template-columns: 1fr;
   }
 `;
 
-/* --- 개별 수정 영역 (닉네임/비밀번호) --- */
-
-const EditSection = styled.div`
-  flex: 1;
-  padding: 30px 20px;
+const Card = styled.div`
   background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-
-  &:first-child {
-    margin-right: 15px;
-  }
-
-  @media (max-width: 768px) {
-    margin: 0 !important;
-  }
+  border: 1px solid #eee;
+  border-radius: 24px;
+  padding: 35px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
 `;
 
-const SectionTitle = styled.h3`
-  font-size: 24px;
-  font-weight: 900;
+const CardTitle = styled.h3`
+  font-family: "dnf bitbit v2", sans-serif;
+  font-size: 20px;
   margin-bottom: 30px;
-  color: #000;
-`;
-
-/* --- 폼 요소 --- */
-
-const FormRow = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 15px;
-  font-size: 16px;
-  font-weight: 500;
-  padding: 0 10px;
-
-  /* 비밀번호 수정 폼의 레이블 너비 확보 */
-  & > span:first-child {
-    min-width: 100px;
-    text-align: left;
-    font-weight: bold;
-    color: #333;
+  gap: 10px;
+  &:before {
+    content: "";
+    width: 4px;
+    height: 18 as px;
+    background: #000;
+    border-radius: 2px;
   }
 `;
 
+const FormRow = styled.div`
+  margin-bottom: 20px;
+  label {
+    display: block;
+    font-weight: 700;
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 10px;
+  }
+`;
+
+/* ✅ 이메일 입력창과 버튼의 높이 및 정렬 보정 */
 const InputGroup = styled.div`
-  flex: 1;
   display: flex;
-  gap: 5px;
+  gap: 8px;
+  width: 100%; /* 전체 너비 사용 */
 `;
 
 const Input = styled.input`
   flex: 1;
-  padding: 10px;
-  border: 1px solid #000;
-  border-radius: 0;
+  padding: 13px 15px;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  background: #fdfdfd;
   font-size: 14px;
-  text-align: center;
-  font-weight: bold;
-`;
-
-const AuthButton = styled.button`
-  padding: 10px 15px;
-  border: none;
-  background: #333;
-  color: white;
-  font-size: 12px;
-  font-weight: bold;
-  cursor: pointer;
-  white-space: nowrap;
-  border-radius: 0;
-  height: 40px;
-`;
-
-/* --- 버튼 --- */
-
-const SubmitButton = styled.button`
-  width: 150px;
-  padding: 12px 0;
-  margin-top: 30px;
-  border: 2px solid #000;
-  background: #e0e0e0;
-  color: #000;
-  font-size: 16px;
-  font-weight: 900;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background 0.2s;
-
-  &:hover {
-    background: #ccc;
+  outline: none;
+  box-sizing: border-box; /* 패딩 포함 크기 계산 */
+  width: 100%;
+  transition: 0.2s;
+  &:focus {
+    border-color: #000;
+    background: #fff;
+  }
+  &:disabled {
+    background: #f5f5f5;
+    color: #bbb;
   }
 `;
 
-/* =========================
-   Component
-========================= */
+const MiniBtn = styled.button`
+  width: 100px; /* ✅ 버튼 너비 고정으로 인풋과 합쳐졌을 때 규격 유지 */
+  height: 45px; /* ✅ 인풋 높이와 일치시킴 */
+  border-radius: 12px;
+  border: 1px solid #000;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0; /* 크기 줄어듦 방지 */
+  &:hover {
+    background: #000;
+    color: #fff;
+  }
+`;
 
+const SaveBtn = styled.button`
+  width: 100%;
+  padding: 16px;
+  margin-top: auto;
+  border-radius: 14px;
+  border: none;
+  background: #000;
+  color: #fff;
+  font-family: "dnf bitbit v2", sans-serif;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.2s;
+  &:hover {
+    transform: translateY(-2px);
+  }
+`;
+
+const CancelBtn = styled.button`
+  margin-top: 40px;
+  background: none;
+  border: none;
+  color: #bbb;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 14px;
+`;
+
+/* =====================
+    Component
+===================== */
 const MyProfileEdit = () => {
-  // 폼 상태 관리 (더미)
-  const [nickname, setNickname] = useState({
-    current: "NICKNAME TEXT",
-    new: "",
-  });
-  const [password, setPassword] = useState({});
-
-  const handleNicknameSubmit = (e) => {
-    e.preventDefault();
-    alert(`닉네임 변경 요청: ${nickname.new}`);
-  };
-
-  const handlePasswordSubmit = (e) => {
-    e.preventDefault();
-    alert("비밀번호 변경 요청 (인증 로직 필요)");
-  };
+  const navigate = useNavigate();
 
   return (
     <Container>
-      <HeaderImage>줍줍</HeaderImage>
+      <Header>
+        <h1>정보 수정</h1>
+      </Header>
 
-      <WhiteBox>
-        {/* 1. 닉네임 수정 섹션 */}
-        <EditSection>
-          <SectionTitle>닉네임 수정</SectionTitle>
-          <form onSubmit={handleNicknameSubmit}>
-            <FormRow>
-              <span>기존 닉네임</span>
-              <Input
-                type="text"
-                value={nickname.current}
-                readOnly
-                style={{ background: "#f0f0f0" }}
-              />
-            </FormRow>
-            <FormRow>
-              <span>새로운 닉네임</span>
-              <Input
-                type="text"
-                value={nickname.new}
-                onChange={(e) =>
-                  setNickname({ ...nickname, new: e.target.value })
-                }
-                placeholder="NICKNAME TEXT"
-              />
-            </FormRow>
-            <SubmitButton type="submit">닉네임 변경</SubmitButton>
-          </form>
-        </EditSection>
+      <Grid>
+        {/* 닉네임 섹션 */}
+        <Card>
+          <CardTitle>닉네임 설정</CardTitle>
+          <FormRow>
+            <label>현재 닉네임</label>
+            <Input value="LeeTS" disabled />
+          </FormRow>
+          <FormRow>
+            <label>새로운 닉네임</label>
+            <Input placeholder="변경할 닉네임을 입력하세요" />
+          </FormRow>
+          <div style={{ flex: 1, minHeight: "85px" }}></div>{" "}
+          {/* 높이 균형 조절 */}
+          <SaveBtn
+            onClick={() => {
+              alert("닉네임 변경 완료!");
+              navigate("/mypage");
+            }}
+          >
+            닉네임 저장하기
+          </SaveBtn>
+        </Card>
 
-        {/* 2. 비밀번호 수정 섹션 */}
-        <EditSection>
-          <SectionTitle>비밀번호 수정</SectionTitle>
-          <form onSubmit={handlePasswordSubmit}>
-            <FormRow>
-              <span>이메일</span>
-              <InputGroup>
-                <Input type="email" placeholder="EMAIL TEXT" />
-                <AuthButton>인증번호 전송</AuthButton>
-              </InputGroup>
-            </FormRow>
+        {/* 비밀번호 섹션 */}
+        <Card>
+          <CardTitle>비밀번호 보안</CardTitle>
+          <FormRow>
+            <label>이메일 인증</label>
+            <InputGroup>
+              <Input placeholder="55029564@gmail.com" />
+              <MiniBtn>코드전송</MiniBtn>
+            </InputGroup>
+          </FormRow>
+          <FormRow>
+            <label>기존 비밀번호</label>
+            <Input type="password" placeholder="현재 비밀번호 입력" />
+          </FormRow>
+          <FormRow>
+            <label>새 비밀번호</label>
+            <Input type="password" placeholder="새 비밀번호 입력" />
+          </FormRow>
+          <SaveBtn
+            onClick={() => {
+              alert("비밀번호 변경 완료!");
+              navigate("/mypage");
+            }}
+          >
+            비밀번호 변경하기
+          </SaveBtn>
+        </Card>
+      </Grid>
 
-            <FormRow>
-              <span>인증번호</span>
-              <InputGroup>
-                <Input type="text" placeholder="TEXT" />
-                <AuthButton>인증번호 확인</AuthButton>
-              </InputGroup>
-            </FormRow>
-
-            <FormRow>
-              <span>기존 비밀번호</span>
-              <Input type="password" placeholder="PW TEXT" />
-            </FormRow>
-
-            <FormRow>
-              <span>새로운 비밀번호</span>
-              <Input type="password" placeholder="PW TEXT" />
-            </FormRow>
-
-            <FormRow>
-              <span>새로운 비밀번호 확인</span>
-              <Input type="password" placeholder="PW TEXT" />
-            </FormRow>
-
-            <SubmitButton type="submit">비밀번호 변경</SubmitButton>
-          </form>
-        </EditSection>
-      </WhiteBox>
+      <div style={{ textAlign: "center" }}>
+        <CancelBtn onClick={() => navigate("/mypage")}>
+          수정 취소하고 마이페이지로 돌아가기
+        </CancelBtn>
+      </div>
     </Container>
   );
 };
