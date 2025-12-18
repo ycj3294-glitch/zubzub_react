@@ -58,6 +58,7 @@ const AuctionInfoComponent = ({ auctionId }) => {
   }, [auctionId]);
 
   useEffect(() => {
+    if (!auction) return;
     if (new Date() < new Date(auction.startTime)) setEnd(auction.startTime);
     else if (auction.extendedEndTime) setEnd(auction.extendedEndTime);
     else setEnd(auction.endTime);
@@ -66,36 +67,46 @@ const AuctionInfoComponent = ({ auctionId }) => {
   return (
     <Container>
       <Title>메인 경매 페이지</Title>
-      <InfoGrid>
-        <Label>ID</Label>
-        <Value>{auction.id}</Value>
-        <Label>경매 유형</Label>
-        <Value>{auction.auctionType}</Value>
-        <Label>카테고리</Label>
-        <Value>{auction.category}</Value>
-        <Label>판매자 ID</Label>
-        <Value>{auction.sellerId}</Value>
-        <Label>상품명</Label>
-        <Value>{auction.itemName}</Value>
-        <Label>상품 설명</Label>
-        <Value>{auction.itemDesc}</Value>
-        <Label>시작가</Label>
-        <Value>{auction.startPrice}</Value>
-        <Label>최종가</Label>
-        <Value>{auction.finalPrice}</Value>
-        <Label>상품 이미지</Label>
-        <Value>{auction.itemImg}</Value>
-        <Label>경매 상태</Label>
-        <Value>{auction.auctionStatus}</Value>
-        <Label>시작 시간</Label>
-        <Value>{auction.startTime}</Value>
-        <Label>종료 시간</Label>
-        <Value>{auction.endTime}</Value>
-        <Label>연장 종료</Label>
-        <Value>{auction.extendedEndTime}</Value>
-        <Label>낙찰자 ID</Label>
-        <Value>{auction.winnerId}</Value>
-      </InfoGrid>
+      {
+        <InfoGrid>
+          <Label>ID</Label>
+          <Value>{auction && auction.id}</Value>
+          <Label>경매 유형</Label>
+          <Value>{auction && auction.auctionType}</Value>
+          <Label>카테고리</Label>
+          <Value>{auction && auction.category}</Value>
+          <Label>판매자 ID</Label>
+          <Value>{auction && auction.sellerId}</Value>
+          <Label>상품명</Label>
+          <Value>{auction && auction.itemName}</Value>
+          <Label>상품 설명</Label>
+          <Value>{auction && auction.itemDesc}</Value>
+          <Label>시작가</Label>
+          <Value>{auction && auction.startPrice}</Value>
+          <Label>최종가</Label>
+          <Value>{auction && auction.finalPrice}</Value>
+          <Label>상품 이미지</Label>
+          <Value>
+            {auction && (
+              <img
+                src={auction.itemImg}
+                alt="상품 이미지"
+                style={{ width: "100px", height: "100px" }}
+              ></img>
+            )}
+          </Value>
+          <Label>경매 상태</Label>
+          <Value>{auction && auction.auctionStatus}</Value>
+          <Label>시작 시간</Label>
+          <Value>{auction && auction.startTime}</Value>
+          <Label>종료 시간</Label>
+          <Value>{auction && auction.endTime}</Value>
+          <Label>연장 종료</Label>
+          <Value>{auction && auction.extendedEndTime}</Value>
+          <Label>낙찰자 ID</Label>
+          <Value>{auction && auction.winnerId}</Value>
+        </InfoGrid>
+      }
       <div style={{ marginTop: "1.5rem" }}>
         <TimerComponent end={end} />
       </div>

@@ -1,10 +1,11 @@
 // Grid.tsx
 import styled from "styled-components";
-import ChatComponent from "../components/auction/ChatComponent";
 import AuctionInfoComponent from "../components/auction/AuctionInfoComponent";
 import CreateAuction from "../components/auction/CreateAuctionComponent";
 import CreateBidComponent from "../components/auction/CreateBidComponent";
 import BidHistoryComponent from "../components/auction/BidHistoryComponent";
+import ChatComponent from "../components/ChatComponent";
+import ImageUploader from "../components/ImageUploader";
 
 export const Grid = styled.div`
   display: flex;

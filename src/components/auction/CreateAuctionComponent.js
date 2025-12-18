@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createAuction } from "../../api/auctionApi";
+import ImageUploader from "../ImageUploader";
 
 const CreateAuction = () => {
   const [auctionFormData, setAuctionFormData] = useState({
@@ -11,6 +12,7 @@ const CreateAuction = () => {
     startPrice: "",
     startTime: "",
     endTime: "",
+    itemImg: "",
   });
 
   const auctionFields = [
@@ -34,6 +36,7 @@ const CreateAuction = () => {
         <form
           onSubmit={async (e) => {
             e.preventDefault();
+            console.log("폼데이터", auctionFormData);
             const result = await createAuction(auctionFormData);
             alert(result);
           }}
@@ -59,6 +62,11 @@ const CreateAuction = () => {
               </label>
             </div>
           ))}
+          <ImageUploader
+            name={"itemImg"}
+            value={auctionFormData["itemImg"]}
+            onChange={handleAuctionFormChange}
+          ></ImageUploader>
           <button type="submit">등록하기</button>
         </form>
       </div>
