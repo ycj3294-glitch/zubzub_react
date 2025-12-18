@@ -3,16 +3,21 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import LogoImage1 from "../Images/LogoImage1.png";
 
-/* =========================
-   Styled Components
-========================= */
+const HeaderWrapper = styled.div`
+  width: 100%;
+  height: 135px;
+`;
 
 const HeaderContainer = styled.header`
   width: 100%;
   background: #fff;
-  padding: 15px 0 25px 0;
+  padding: 15px 0 0 0;
   font-family: "dnf bitbit v2", sans-serif;
   font-weight: normal;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
 `;
 
 const TopSection = styled.div`
@@ -22,13 +27,13 @@ const TopSection = styled.div`
   align-items: flex-start;
   justify-content: space-between;
   padding: 0 20px;
+  margin-bottom: 20px;
 `;
 
 const Logo = styled.img`
   width: 110px;
   height: auto;
   cursor: pointer;
-  margin-top: 0;
 `;
 
 const CenterSection = styled.div`
@@ -102,7 +107,6 @@ const MenuRow = styled.div`
     text-align: center;
     flex: 1;
     position: relative;
-
     &:not(:last-child)::after {
       content: "";
       position: absolute;
@@ -113,9 +117,6 @@ const MenuRow = styled.div`
       height: 10px;
       background: #ccc;
     }
-    &:hover {
-      color: #555;
-    }
   }
 `;
 
@@ -123,8 +124,8 @@ const RightSection = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 200px;
-  height: 75px;
+  width: 220px;
+  height: 80px;
 `;
 
 const TopRightRow = styled.div`
@@ -132,43 +133,26 @@ const TopRightRow = styled.div`
   align-items: center;
   justify-content: flex-end;
   gap: 12px;
-  width: 100%;
-`;
-
-const MailIcon = styled.div`
-  width: 24px;
-  height: 15px;
-  border: 1.5px solid #333;
-  position: relative;
-  cursor: pointer;
-  flex-shrink: 0;
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 7px;
-    border-bottom: 1px solid #333;
-    border-left: 11px solid transparent;
-    border-right: 11px solid transparent;
-  }
 `;
 
 const AuthBox = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
   border: 1px solid #eee;
   background: #fafafa;
   border-radius: 2px;
-  height: 30px;
-  flex: 1;
+  height: 32px;
+  width: 100%;
 
   span {
+    flex: 1; /* ✅ 로그인과 회원가입이 50:50으로 공간을 나눠가짐 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 12px;
     color: #555;
     cursor: pointer;
+    line-height: 1;
     &:hover {
       color: #000;
     }
@@ -176,9 +160,9 @@ const AuthBox = styled.div`
 
   .divider {
     width: 1px;
-    height: 10px;
+    height: 12px;
     background: #ddd;
-    margin: 0 8px;
+    flex-shrink: 0;
   }
 `;
 
@@ -194,44 +178,25 @@ const StartAuctionBtn = styled.div`
   font-size: 16px;
   cursor: pointer;
   color: #000;
-  letter-spacing: -0.5px;
   white-space: nowrap;
 `;
 
 const BottomDivider = styled.div`
-  width: 1150px;
+  width: 100%;
   height: 1px;
   background-color: #eee;
-  margin: 0 auto;
+  margin: 0;
 `;
-
-/* =========================
-   Component
-========================= */
 
 const Header = () => {
   const navigate = useNavigate();
-
-  // ✅ 로그인 상태를 관리하는 State (true로 바꾸면 로그인된 화면 확인 가능)
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    alert("로그아웃 되었습니다.");
-    navigate("/");
-  };
-
   return (
-    <>
+    <HeaderWrapper>
       <HeaderContainer>
         <TopSection>
-          {/* 로고 클릭 시 메인 이동 */}
-          <Logo
-            src={LogoImage1}
-            alt="ZubZub Logo"
-            onClick={() => navigate("/")}
-          />
-
+          <Logo src={LogoImage1} alt="Logo" onClick={() => navigate("/")} />
           <CenterSection>
             <SearchBox>
               <SearchInput type="text" placeholder="검색어를 입력하세요" />
@@ -239,7 +204,6 @@ const Header = () => {
                 <SearchIcon />
               </SearchIconWrapper>
             </SearchBox>
-
             <MenuRow>
               <span onClick={() => navigate("/auction/major")}>
                 대규모 경매
@@ -251,17 +215,8 @@ const Header = () => {
               <span onClick={() => navigate("/notice")}>공지사항</span>
             </MenuRow>
           </CenterSection>
-
           <RightSection>
             <TopRightRow>
-              {/* ✅ 로그인 시에만 쪽지함 아이콘 노출 */}
-              {isLoggedIn && (
-                <MailIcon
-                  title="쪽지함"
-                  onClick={() => navigate("/messages")}
-                />
-              )}
-
               <AuthBox>
                 {!isLoggedIn ? (
                   <>
@@ -270,11 +225,7 @@ const Header = () => {
                     <span onClick={() => navigate("/signup")}>회원가입</span>
                   </>
                 ) : (
-                  <>
-                    <span onClick={() => navigate("/mypage")}>마이페이지</span>
-                    <div className="divider" />
-                    <span onClick={handleLogout}>로그아웃</span>
-                  </>
+                  <span onClick={() => navigate("/mypage")}>마이페이지</span>
                 )}
               </AuthBox>
             </TopRightRow>
@@ -285,9 +236,9 @@ const Header = () => {
             </StartAuctionBtnWrapper>
           </RightSection>
         </TopSection>
+        <BottomDivider />
       </HeaderContainer>
-      <BottomDivider />
-    </>
+    </HeaderWrapper>
   );
 };
 
