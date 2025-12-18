@@ -1,41 +1,140 @@
+import React, { useState } from "react";
 import styled from "styled-components";
-import { useState } from "react";
 import AxiosAPI from "../api/AxiosAPI";
 import { emailRegex, passwordRegex, nicknameRegex } from "../utils/validators";
+import { useNavigate } from "react-router-dom";
 
-const Container = styled.div`
-  max-width: 420px;
-  margin: 100px auto;
+/* =========================
+    Styled Components
+========================= */
+
+const SignupWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 60px; /* 로고가 없으므로 상단에 적절히 배치 */
+  min-height: 100vh;
+  background-color: #fcfcfc;
+  font-family: "Noto Sans KR", sans-serif;
+`;
+
+const SignupCard = styled.div`
+  width: 100%;
+  max-width: 450px;
+  background: white;
+  padding: 40px;
+  border-radius: 30px;
+  border: 1px solid #eee;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+
+  h2 {
+    font-family: "dnf bitbit v2", sans-serif;
+    font-size: 26px;
+    margin-bottom: 30px;
+    text-align: left;
+    color: #000;
+  }
 `;
 
 const Row = styled.div`
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+
+  label {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 8px;
+    margin-left: 5px;
+    font-weight: bold;
+  }
+
+  .input-box {
+    display: flex;
+    gap: 8px;
+  }
+
+  input {
+    flex: 1;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.2s;
+
+    &:focus {
+      border-color: #000;
+    }
+    &:disabled {
+      background-color: #f5f5f5;
+      color: #aaa;
+    }
+  }
 `;
 
-const Button = styled.button`
-  margin-left: 8px;
+const SideButton = styled.button`
+  padding: 0 15px;
+  background-color: #000;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: "dnf bitbit v2", sans-serif;
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
 `;
 
 const ErrorText = styled.div`
-  color: red;
+  color: #ff4d4f;
   font-size: 12px;
-  margin-top: 4px;
+  margin-top: 6px;
+  margin-left: 5px;
 `;
 
 const SuccessText = styled.div`
-  color: green;
+  color: #28a745;
   font-size: 12px;
-  margin-top: 4px;
+  margin-top: 6px;
+  margin-left: 5px;
 `;
 
+const SubmitButton = styled.button`
+  width: 100%;
+  padding: 16px;
+  background-color: #888;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-family: "dnf bitbit v2", sans-serif;
+  font-size: 18px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.2s;
+
+  &:hover:not(:disabled) {
+    background-color: #333;
+  }
+`;
+
+/* =========================
+    Component Logic
+========================= */
+
 const Signup = () => {
+  const nav = useNavigate();
   const [email, setEmail] = useState("");
   const [emailCode, setEmailCode] = useState("");
   const [emailVerified, setEmailVerified] = useState(false);
-
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
-
   const [nickname, setNickname] = useState("");
   const [nicknameChecked, setNicknameChecked] = useState(false);
 
@@ -47,23 +146,17 @@ const Signup = () => {
     nickname: "",
   });
 
-  // 이메일 인증
-
   const sendEmailCode = async () => {
     if (!emailRegex.test(email)) {
       setErrors((p) => ({ ...p, email: "이메일 형식이 올바르지 않습니다" }));
       return;
     }
-
     setErrors((p) => ({ ...p, email: "" }));
-
     try {
       await AxiosAPI.sendEmailCode(email);
+      alert("인증번호가 전송되었습니다.");
     } catch {
-      setErrors((p) => ({
-        ...p,
-        email: "인증번호 전송에 실패했습니다",
-      }));
+      setErrors((p) => ({ ...p, email: "인증번호 전송에 실패했습니다" }));
     }
   };
 
@@ -72,56 +165,40 @@ const Signup = () => {
       setErrors((p) => ({ ...p, emailCode: "인증번호를 입력하세요" }));
       return;
     }
-
     try {
       const res = await AxiosAPI.verifyEmailCode(email, emailCode);
       if (res.data === true) {
         setEmailVerified(true);
         setErrors((p) => ({ ...p, emailCode: "" }));
       } else {
-        setErrors((p) => ({
-          ...p,
-          emailCode: "인증번호가 올바르지 않습니다",
-        }));
+        setErrors((p) => ({ ...p, emailCode: "인증번호가 올바르지 않습니다" }));
       }
     } catch {
       setErrors((p) => ({ ...p, emailCode: "인증에 실패했습니다" }));
     }
   };
 
-  // 닉네임 중복 확인
-
   const checkNickname = async () => {
     if (!nicknameRegex.test(nickname)) {
       setErrors((p) => ({
         ...p,
-        nickname: "닉네임은 2~10자의 완성형 한글, 영문, 숫자만 가능합니다",
+        nickname: "2~10자 한글, 영문, 숫자만 가능합니다",
       }));
       return;
     }
-
     try {
       const res = await AxiosAPI.checkNickname(nickname);
-
       if (res.data === true) {
-        setErrors((p) => ({
-          ...p,
-          nickname: "이미 사용 중인 닉네임입니다",
-        }));
+        setErrors((p) => ({ ...p, nickname: "이미 사용 중인 닉네임입니다" }));
         setNicknameChecked(false);
       } else {
         setErrors((p) => ({ ...p, nickname: "" }));
         setNicknameChecked(true);
       }
     } catch {
-      setErrors((p) => ({
-        ...p,
-        nickname: "닉네임 중복 확인 실패",
-      }));
+      setErrors((p) => ({ ...p, nickname: "중복 확인 실패" }));
     }
   };
-
-  // 회원가입
 
   const signupHandler = async () => {
     let valid = true;
@@ -131,22 +208,16 @@ const Signup = () => {
       newErrors.email = "이메일 인증을 완료하세요";
       valid = false;
     }
-
     if (!passwordRegex.test(password)) {
-      newErrors.password = "비밀번호는 8자 이상, 영문 + 숫자 조합이어야 합니다";
+      newErrors.password = "8자 이상, 영문+숫자 조합 필수";
       valid = false;
     }
-
-    if (!passwordConfirm) {
-      newErrors.passwordConfirm = "비밀번호 확인을 입력하세요";
-      valid = false;
-    } else if (password !== passwordConfirm) {
+    if (password !== passwordConfirm) {
       newErrors.passwordConfirm = "비밀번호가 일치하지 않습니다";
       valid = false;
     }
-
     if (!nicknameChecked) {
-      newErrors.nickname = "닉네임 중복 확인을 해주세요";
+      newErrors.nickname = "닉네임 중복 확인 필수";
       valid = false;
     }
 
@@ -155,123 +226,114 @@ const Signup = () => {
 
     try {
       await AxiosAPI.signup(email, password, nickname);
-      alert("회원가입 완료");
+      alert("🎉 회원가입이 완료되었습니다!");
+      nav("/login");
     } catch {
-      alert("회원가입 실패");
+      alert("회원가입 처리 중 오류가 발생했습니다.");
     }
   };
 
   return (
-    <Container>
-      <h2>회원가입</h2>
+    <SignupWrapper>
+      <SignupCard>
+        <h2>회원가입</h2>
 
-      {/* 이메일 */}
-      <Row>
-        이메일
-        <input
-          type="text"
-          value={email}
-          disabled={emailVerified}
-          onChange={(e) => {
-            setEmail(e.target.value);
-            setErrors((p) => ({ ...p, email: "" }));
-          }}
-        />
-        <Button onClick={sendEmailCode} disabled={emailVerified}>
-          인증번호 전송
-        </Button>
-        {errors.email && <ErrorText>{errors.email}</ErrorText>}
-      </Row>
+        {/* 이메일 */}
+        <Row>
+          <label>이메일</label>
+          <div className="input-box">
+            <input
+              type="text"
+              placeholder="example@zubzub.com"
+              value={email}
+              disabled={emailVerified}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setErrors((p) => ({ ...p, email: "" }));
+              }}
+            />
+            <SideButton onClick={sendEmailCode} disabled={emailVerified}>
+              전송
+            </SideButton>
+          </div>
+          {errors.email && <ErrorText>{errors.email}</ErrorText>}
+        </Row>
 
-      {/* 이메일 인증번호 */}
-      <Row>
-        이메일 인증번호
-        <input
-          type="text"
-          value={emailCode}
-          disabled={emailVerified}
-          onChange={(e) => {
-            setEmailCode(e.target.value);
-            setErrors((p) => ({ ...p, emailCode: "" }));
-          }}
-        />
-        <Button onClick={verifyEmailCode} disabled={emailVerified}>
-          인증번호 확인
-        </Button>
-        {errors.emailCode && <ErrorText>{errors.emailCode}</ErrorText>}
-      </Row>
+        {/* 인증번호 */}
+        <Row>
+          <label>인증번호</label>
+          <div className="input-box">
+            <input
+              type="text"
+              placeholder="인증번호 6자리"
+              value={emailCode}
+              disabled={emailVerified}
+              onChange={(e) => {
+                setEmailCode(e.target.value);
+                setErrors((p) => ({ ...p, emailCode: "" }));
+              }}
+            />
+            <SideButton onClick={verifyEmailCode} disabled={emailVerified}>
+              확인
+            </SideButton>
+          </div>
+          {errors.emailCode && <ErrorText>{errors.emailCode}</ErrorText>}
+          {emailVerified && <SuccessText>이메일 인증 완료</SuccessText>}
+        </Row>
 
-      {/* 비밀번호 */}
-      <Row>
-        비밀번호
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => {
-            const next = e.target.value;
-            setPassword(next);
-            setErrors((p) => ({
-              ...p,
-              password: "",
-              passwordConfirm:
-                passwordConfirm && next !== passwordConfirm
-                  ? "비밀번호가 일치하지 않습니다"
-                  : "",
-            }));
-          }}
-        />
-        {errors.password && <ErrorText>{errors.password}</ErrorText>}
-      </Row>
+        {/* 비밀번호 */}
+        <Row>
+          <label>비밀번호</label>
+          <input
+            type="password"
+            placeholder="8자 이상 영문 + 숫자 조합"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          {errors.password && <ErrorText>{errors.password}</ErrorText>}
+        </Row>
 
-      {/* 비밀번호 확인 */}
-      <Row>
-        비밀번호 확인
-        <input
-          type="password"
-          value={passwordConfirm}
-          onChange={(e) => {
-            const next = e.target.value;
-            setPasswordConfirm(next);
-            setErrors((p) => ({
-              ...p,
-              passwordConfirm:
-                next && password !== next ? "비밀번호가 일치하지 않습니다" : "",
-            }));
-          }}
-        />
-        {errors.passwordConfirm && (
-          <ErrorText>{errors.passwordConfirm}</ErrorText>
-        )}
-        {!errors.passwordConfirm &&
-          passwordConfirm &&
-          password === passwordConfirm && (
+        {/* 비밀번호 확인 */}
+        <Row>
+          <label>비밀번호 확인</label>
+          <input
+            type="password"
+            placeholder="비밀번호 재입력"
+            value={passwordConfirm}
+            onChange={(e) => setPasswordConfirm(e.target.value)}
+          />
+          {passwordConfirm && password === passwordConfirm && (
             <SuccessText>비밀번호가 일치합니다</SuccessText>
           )}
-      </Row>
+          {passwordConfirm && password !== passwordConfirm && (
+            <ErrorText>비밀번호가 일치하지 않습니다</ErrorText>
+          )}
+        </Row>
 
-      {/* 닉네임 */}
-      <Row>
-        닉네임
-        <input
-          type="text"
-          value={nickname}
-          onChange={(e) => {
-            setNickname(e.target.value);
-            setNicknameChecked(false); //  값 변경 시 다시 확인
-            setErrors((p) => ({ ...p, nickname: "" }));
-          }}
-        />
-        <Button onClick={checkNickname} disabled={!nickname}>
-          중복 확인
-        </Button>
-        {errors.nickname && <ErrorText>{errors.nickname}</ErrorText>}
-        {nicknameChecked && !errors.nickname && (
-          <SuccessText>사용 가능한 닉네임입니다</SuccessText>
-        )}
-      </Row>
+        {/* 닉네임 */}
+        <Row>
+          <label>닉네임</label>
+          <div className="input-box">
+            <input
+              type="text"
+              placeholder="2 ~ 6자 이내"
+              value={nickname}
+              onChange={(e) => {
+                setNickname(e.target.value);
+                setNicknameChecked(false);
+              }}
+            />
+            <SideButton onClick={checkNickname}>중복 확인</SideButton>
+          </div>
+          {nicknameChecked && (
+            <SuccessText>사용 가능한 닉네임입니다</SuccessText>
+          )}
+          {errors.nickname && <ErrorText>{errors.nickname}</ErrorText>}
+        </Row>
 
-      <button onClick={signupHandler}>회원가입</button>
-    </Container>
+        <SubmitButton onClick={signupHandler}>가입하기</SubmitButton>
+      </SignupCard>
+    </SignupWrapper>
   );
 };
 
