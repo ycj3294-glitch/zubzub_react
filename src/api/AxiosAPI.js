@@ -39,14 +39,14 @@ AxiosAPI.logout = async () => {
 
 // 인증번호 전송
 AxiosAPI.sendEmailCode = async (email) => {
-  return await AxiosAPI.post("/auth/email/send", {
+  return await AxiosAPI.post("/api/members/signup", {
     email,
   });
 };
 
 // 인증번호 검증
 AxiosAPI.verifyEmailCode = async (email, code) => {
-  return await AxiosAPI.post("/auth/email/verify", {
+  return await AxiosAPI.post("/api/members/signup/verify", {
     email,
     code,
   });
@@ -55,7 +55,7 @@ AxiosAPI.verifyEmailCode = async (email, code) => {
 // 회원가입
 
 AxiosAPI.signup = async (email, password, nickname) => {
-  return await AxiosAPI.post("/auth/signup", {
+  return await AxiosAPI.post("/api/members/signup/complete", {
     email,
     password,
     nickname,
