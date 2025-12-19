@@ -19,13 +19,15 @@ const AxiosAPI = axios.create({
 AxiosAPI.login = async (email, password) => {
   return await AxiosAPI.post("/api/members/login", {
     email,
-    password,
+    pwd: password,
   });
 };
 
 // 로그인 상태 확인 (인증 유지)
 AxiosAPI.me = async () => {
-  return await AxiosAPI.get("/auth/me");
+  return await AxiosAPI.get("/api/members/me", {
+    withCredentials: true,
+  });
 };
 
 // 로그아웃
@@ -45,9 +47,9 @@ AxiosAPI.sendEmailCode = async (email) => {
 };
 
 // 인증번호 검증
-AxiosAPI.verifyEmailCode = async (email, code) => {
+AxiosAPI.verifyEmailCode = async (token, code) => {
   return await AxiosAPI.post("/api/email/verify", {
-    email,
+    token,
     code,
   });
 };
@@ -55,9 +57,10 @@ AxiosAPI.verifyEmailCode = async (email, code) => {
 // 회원가입
 
 AxiosAPI.signup = async (email, password, nickname) => {
-  return await AxiosAPI.post("/api/members/signup", {
+  return await AxiosAPI.post("/api/members/signup/complete", {
     email,
-    password,
+    pwd: password,
+    name: nickname,
     nickname,
   });
 };
