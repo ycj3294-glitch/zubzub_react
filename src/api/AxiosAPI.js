@@ -17,7 +17,7 @@ const AxiosAPI = axios.create({
 
 // 로그인
 AxiosAPI.login = async (email, password) => {
-  return await AxiosAPI.post("/auth/login", {
+  return await AxiosAPI.post("/api/members/login", {
     email,
     password,
   });
@@ -30,7 +30,7 @@ AxiosAPI.me = async () => {
 
 // 로그아웃
 AxiosAPI.logout = async () => {
-  return await AxiosAPI.post("/auth/logout");
+  return await AxiosAPI.post("/api/members/logout");
 };
 
 /* =========================
@@ -39,14 +39,14 @@ AxiosAPI.logout = async () => {
 
 // 인증번호 전송
 AxiosAPI.sendEmailCode = async (email) => {
-  return await AxiosAPI.post("/auth/email/send", {
+  return await AxiosAPI.post("/api/email/send", {
     email,
   });
 };
 
 // 인증번호 검증
 AxiosAPI.verifyEmailCode = async (email, code) => {
-  return await AxiosAPI.post("/auth/email/verify", {
+  return await AxiosAPI.post("/api/email/verify", {
     email,
     code,
   });
@@ -55,7 +55,7 @@ AxiosAPI.verifyEmailCode = async (email, code) => {
 // 회원가입
 
 AxiosAPI.signup = async (email, password, nickname) => {
-  return await AxiosAPI.post("/auth/signup", {
+  return await AxiosAPI.post("/api/members/signup", {
     email,
     password,
     nickname,
@@ -64,7 +64,7 @@ AxiosAPI.signup = async (email, password, nickname) => {
 
 // 닉네임 중복 확인
 AxiosAPI.checkNickname = async (nickname) => {
-  return await AxiosAPI.get("/auth/nickname/exists", {
+  return await AxiosAPI.get("/api/members/check-nickname", {
     params: { nickname },
   });
 };
