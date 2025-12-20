@@ -131,7 +131,6 @@ const SubmitButton = styled.button`
 const Signup = () => {
   const nav = useNavigate();
   const [email, setEmail] = useState("");
-  const [token, setToken] = useState("");
   const [emailCode, setEmailCode] = useState("");
   const [emailVerified, setEmailVerified] = useState(false);
   const [password, setPassword] = useState("");
@@ -156,7 +155,7 @@ const Signup = () => {
     try {
       const token = await AxiosAPI.sendEmailCode(email);
       alert("인증번호가 전송되었습니다.");
-      setToken(token.data);
+      localStorage.setItem("signupToken", token.data);
     } catch {
       setErrors((p) => ({ ...p, email: "인증번호 전송에 실패했습니다" }));
     }
@@ -168,8 +167,9 @@ const Signup = () => {
       return;
     }
     try {
-      console.log("토큰코드", token, emailCode);
-      const res = await AxiosAPI.verifyEmailCode(token, emailCode);
+      console.log("코드", emailCode);
+
+      const res = await AxiosAPI.verifyEmailCode(emailCode);
       if (res.data === true) {
         setEmailVerified(true);
         setErrors((p) => ({ ...p, emailCode: "" }));
@@ -228,7 +228,8 @@ const Signup = () => {
     if (!valid) return;
 
     try {
-      await AxiosAPI.signup(email, password, nickname);
+      await AxiosAPI.signup(email, password, nickname, emailCode);
+
       alert("🎉 회원가입이 완료되었습니다!");
       nav("/login");
     } catch {

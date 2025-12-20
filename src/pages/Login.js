@@ -149,7 +149,7 @@ const Login = () => {
     try {
       const res = await AxiosAPI.login(email, pwd);
       if (res.status === 200 || res.status === 201) {
-        login(email);
+        login(res.data);
         nav("/");
       } else {
         setErrors((p) => ({

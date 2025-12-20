@@ -5,29 +5,38 @@ import AxiosAPI from "../api/AxiosAPI";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(null);
   const [isLogin, setIsLogin] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [accessToken, setAccessToken] = useState(null);
 
-  const login = (newToken, userData) => {
-    setToken(newToken);
+  const login = (userData, accessToken) => {
     setIsLogin(true);
     setUser(userData);
+    setAccessToken(accessToken);
   };
 
   const logout = () => {
-    setToken(null);
     setIsLogin(false);
     setUser(null);
   };
 
   useEffect(() => {
+    if (accessToken) {
+      AxiosAPI.interceptors.request.use((config) => {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+        return config;
+      });
+    }
+  }, [accessToken]);
+
+  useEffect(() => {
     const checkLogin = async () => {
       try {
-        const res = await AxiosAPI.me(token);
+        const res = await AxiosAPI.refresh();
         if (res.status === 200 || res.status === 201) {
-          login(token, res.data);
+          const { accessToken, refreshToken, ...userData } = res.data;
+          login(userData, accessToken);
         }
       } catch (e) {
         console.log("not logged in");
@@ -40,7 +49,9 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isLogin, user, login, logout, loading }}>
+    <AuthContext.Provider
+      value={{ isLogin, user, login, logout, loading, accessToken }}
+    >
       {children}
     </AuthContext.Provider>
   );

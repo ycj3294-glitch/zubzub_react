@@ -5,10 +5,9 @@ const BASE_URL = "http://localhost:8111";
 /* =========================
    axios 인스턴스
 ========================= */
-const AxiosAPI = axios.create({
+const AxiosApi = axios.create({
   baseURL: BASE_URL,
   timeout: 5000,
-  withCredentials: true, // 세션 쿠키 포함
 });
 
 /* =========================
@@ -16,23 +15,23 @@ const AxiosAPI = axios.create({
 ========================= */
 
 // 로그인
-AxiosAPI.login = async (email, password) => {
-  return await AxiosAPI.post("/api/members/login", {
+AxiosApi.login = async (email, pwd) => {
+  return await AxiosApi.post("/api/members/login", {
     email,
-    pwd: password,
+    pwd,
   });
 };
 
 // 로그인 상태 확인 (인증 유지)
-AxiosAPI.me = async () => {
-  return await AxiosAPI.get("/api/members/me", {
+AxiosApi.refresh = async () => {
+  return await AxiosApi.get("/api/members/token/refresh", {
     withCredentials: true,
   });
 };
 
 // 로그아웃
-AxiosAPI.logout = async () => {
-  return await AxiosAPI.post("/api/members/logout");
+AxiosApi.logout = async () => {
+  return await AxiosApi.post("/api/members/logout");
 };
 
 /* =========================
@@ -40,36 +39,45 @@ AxiosAPI.logout = async () => {
 ========================= */
 
 // 인증번호 전송
-AxiosAPI.sendEmailCode = async (email) => {
-  return await AxiosAPI.post("/api/email/send", {
-    email,
-  });
+AxiosApi.sendEmailCode = async (email) => {
+  return await AxiosApi.post("/api/email/send", { email });
 };
 
 // 인증번호 검증
-AxiosAPI.verifyEmailCode = async (token, code) => {
-  return await AxiosAPI.post("/api/email/verify", {
-    token,
-    code,
-  });
+AxiosApi.verifyEmailCode = async (code) => {
+  const token = localStorage.getItem("signupToken");
+  return await AxiosApi.post(
+    "/api/email/verify",
+    { code },
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
 };
 
 // 회원가입
-
-AxiosAPI.signup = async (email, password, nickname) => {
-  return await AxiosAPI.post("/api/members/signup/complete", {
-    email,
-    pwd: password,
-    name: nickname,
-    nickname,
-  });
+AxiosApi.signup = async (email, pwd, nickname, code) => {
+  const token = localStorage.getItem("signupToken");
+  return await AxiosApi.post(
+    "/api/members/signup",
+    {
+      email,
+      pwd,
+      name: nickname,
+      nickname,
+      code,
+    },
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
 };
 
 // 닉네임 중복 확인
-AxiosAPI.checkNickname = async (nickname) => {
-  return await AxiosAPI.get("/api/members/check-nickname", {
+AxiosApi.checkNickname = async (nickname) => {
+  return await AxiosApi.get("/api/members/check-nickname", {
     params: { nickname },
   });
 };
 
-export default AxiosAPI;
+export default AxiosApi;
