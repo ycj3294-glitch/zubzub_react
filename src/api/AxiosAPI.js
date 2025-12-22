@@ -79,6 +79,33 @@ AxiosApi.signup = async (email, pwd, nickname, code) => {
   );
 };
 
+/* =========================
+   비번 찾기 / 인증 변경
+========================= */
+
+// 인증번호 전송 (비밀번호 찾기)
+AxiosApi.sendResetPwdCode = async (email) => {
+  return await AxiosApi.post("/api/members/password-reset/request", { email });
+};
+
+// 인증번호 검증 및 비밀번호 재설정
+AxiosApi.verifyResetPwdCode = async (email, code) => {
+  return await AxiosApi.post("/api/members/password-reset/verify", {
+    email,
+    code,
+    newPassword: "임시", // 실제 변경 시에는 resetPassword 함수 따로 호출
+  });
+};
+
+// 비밀번호 변경
+AxiosApi.resetPassword = async (email, newPassword, code) => {
+  return await AxiosApi.post("/api/members/password-reset/verify", {
+    email,
+    code,
+    newPassword,
+  });
+};
+
 // 닉네임 중복 확인
 AxiosApi.checkNickname = async (nickname) => {
   return await AxiosApi.get("/api/members/check-nickname", {
