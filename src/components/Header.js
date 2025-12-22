@@ -3,6 +3,10 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import LogoImage1 from "../images/LogoImage1.png";
 import MessageModal from "./common/MessageModal";
+import { useAuth } from "../context/AuthContext";
+import AxiosAPI from "../api/AxiosAPI";
+import axios from "axios";
+import AxiosApi from "../api/AxiosAPI";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -191,8 +195,16 @@ const BottomDivider = styled.div`
 
 const Header = () => {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isLogin, logout } = useAuth();
   const [showMessageModal, setShowMessageModal] = useState(false);
+
+  const logoutHandler = async () => {
+    const res = await AxiosApi.logout();
+    if (res.status === 200 || res.status === 201) {
+      logout();
+      navigate("/");
+    }
+  };
 
   return (
     <>
@@ -221,7 +233,7 @@ const Header = () => {
             <RightSection>
               <TopRightRow>
                 <AuthBox>
-                  {!isLoggedIn ? (
+                  {!isLogin ? (
                     <>
                       <span onClick={() => navigate("/login")}>로그인</span>
                       <div className="divider" />
@@ -236,6 +248,8 @@ const Header = () => {
                       <span onClick={() => navigate("/mypage")}>
                         마이페이지
                       </span>
+                      <div className="divider" />
+                      <span onClick={logoutHandler}>로그아웃</span>
                     </>
                   )}
                 </AuthBox>
