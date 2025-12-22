@@ -171,36 +171,43 @@ const Login = () => {
       {/* 로고 컨테이너 제거됨 */}
       <LoginCard>
         <h2>로그인</h2>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            loginHandler();
+          }}
+        >
+          <InputGroup>
+            <input
+              type="text"
+              placeholder="이메일"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setErrors((p) => ({ ...p, email: "", common: "" }));
+              }}
+            />
+            {errors.email && <ErrorText>{errors.email}</ErrorText>}
+          </InputGroup>
 
-        <InputGroup>
-          <input
-            type="text"
-            placeholder="이메일"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              setErrors((p) => ({ ...p, email: "", common: "" }));
-            }}
-          />
-          {errors.email && <ErrorText>{errors.email}</ErrorText>}
-        </InputGroup>
+          <InputGroup>
+            <input
+              type="password"
+              placeholder="비밀번호"
+              value={pwd}
+              onChange={(e) => {
+                setPwd(e.target.value);
+                setErrors((p) => ({ ...p, pwd: "", common: "" }));
+              }}
+            />
+            {errors.pwd && <ErrorText>{errors.pwd}</ErrorText>}
+            {errors.common && <ErrorText>{errors.common}</ErrorText>}
+          </InputGroup>
 
-        <InputGroup>
-          <input
-            type="password"
-            placeholder="비밀번호"
-            value={pwd}
-            onChange={(e) => {
-              setPwd(e.target.value);
-              setErrors((p) => ({ ...p, pwd: "", common: "" }));
-            }}
-          />
-          {errors.pwd && <ErrorText>{errors.pwd}</ErrorText>}
-          {errors.common && <ErrorText>{errors.common}</ErrorText>}
-        </InputGroup>
-
-        <LoginButton onClick={loginHandler}>로그인</LoginButton>
-
+          <LoginButton type="submit" onClick={loginHandler}>
+            로그인
+          </LoginButton>
+        </form>
         <BottomMenu>
           {/* 아이디 찾기 -> 이메일 찾기로 변경 및 클릭 기능만 유지 */}
           <span
