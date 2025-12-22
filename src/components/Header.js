@@ -195,13 +195,14 @@ const BottomDivider = styled.div`
 
 const Header = () => {
   const navigate = useNavigate();
-  const { isLogin, logout } = useAuth();
+  const { isLogin, logout, setAccessToken } = useAuth();
   const [showMessageModal, setShowMessageModal] = useState(false);
 
   const logoutHandler = async () => {
     const res = await AxiosApi.logout();
     if (res.status === 200 || res.status === 201) {
       logout();
+      setAccessToken(null);
       navigate("/");
     }
   };

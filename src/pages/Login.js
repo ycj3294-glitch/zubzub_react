@@ -127,7 +127,7 @@ const Login = () => {
   const [errors, setErrors] = useState({ email: "", pwd: "", common: "" });
   const [showFindPwd, setShowFindPwd] = useState(false);
 
-  const { login } = useAuth();
+  const { checkLogin, setAccessToken } = useAuth();
   const nav = useNavigate();
 
   const loginHandler = async () => {
@@ -153,7 +153,13 @@ const Login = () => {
         console.log("이건로그인시응답 : ", res.data);
         console.log("유저데이터 : ", userData);
         console.log("액세스토큰 : ", accessToken);
-        login(res.data);
+        console.log("저장한다");
+        setAccessToken(accessToken);
+        console.log("저장함");
+        AxiosAPI.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${accessToken}`;
+        checkLogin();
         nav("/");
       } else {
         setErrors((p) => ({
@@ -204,9 +210,7 @@ const Login = () => {
             {errors.common && <ErrorText>{errors.common}</ErrorText>}
           </InputGroup>
 
-          <LoginButton type="submit" onClick={loginHandler}>
-            로그인
-          </LoginButton>
+          <LoginButton type="submit">로그인</LoginButton>
         </form>
         <BottomMenu>
           {/* 아이디 찾기 -> 이메일 찾기로 변경 및 클릭 기능만 유지 */}

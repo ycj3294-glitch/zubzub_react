@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import axios from "axios";
+import AxiosApi from "../api/AxiosAPI";
 
 /* =========================
     styled
@@ -240,10 +240,9 @@ const MinorAuction = () => {
   // );
 
   useEffect(() => {
-    axios
-      .get(`/api/auctions/minorlist`, {
-        params: { page: currentPage - 1, size },
-      })
+    AxiosApi.get(`/api/auctions/minorlist`, {
+      params: { page: currentPage - 1, size },
+    })
       .then((res) => {
         setAuctions(res.data.content);
         setTotalPages(res.data.totalPages);

@@ -29,6 +29,11 @@ AxiosApi.login = async (email, pwd) => {
 };
 
 // 로그인 상태 확인 (인증 유지)
+AxiosApi.me = async () => {
+  return await AxiosApi.get("/api/members/me");
+};
+
+// 액세스 토큰 재발급
 AxiosApi.refresh = async () => {
   return await AxiosApi.get("/api/members/token/refresh", {
     withCredentials: true,
@@ -37,7 +42,9 @@ AxiosApi.refresh = async () => {
 
 // 로그아웃
 AxiosApi.logout = async () => {
-  return await AxiosApi.post("/api/members/logout");
+  return await AxiosApi.post("/api/members/logout", null, {
+    withCredentials: true,
+  });
 };
 
 /* =========================

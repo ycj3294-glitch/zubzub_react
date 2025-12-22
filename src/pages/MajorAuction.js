@@ -4,7 +4,6 @@ import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import AxiosApi from "../api/AxiosAPI";
-import axios from "axios";
 
 /* =========================
    Styled Components (가이드 이미지 기반)
