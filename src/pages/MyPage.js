@@ -1,6 +1,8 @@
 import styled from "styled-components";
 import { useAuth } from "../context/AuthContext";
-
+import { useState } from "react";
+import ChargeModal from "../components/common/ChargeModal";
+import { useNavigate } from "react-router-dom";
 /* =====================
    Dummy Data
 ===================== */
@@ -156,6 +158,8 @@ const MoreBtn = styled.button`
 
 const MyPage = () => {
   const { isLogin, user } = useAuth();
+  const [showCharge, setShowCharge] = useState(false);
+  const nav = useNavigate();
 
   return (
     <Container>
@@ -163,7 +167,6 @@ const MyPage = () => {
       <ProfileRow>
         <ProfileImgWrap>
           <ProfileImg src="/images/profile.jpg" />
-          <EditIcon>✎</EditIcon>
         </ProfileImgWrap>
 
         <InfoBox>
@@ -184,11 +187,15 @@ const MyPage = () => {
             <strong>보유 줍코인</strong>
             <div>
               <CoinValue>{USER.coin.toLocaleString()} 줍코인</CoinValue>
-              <ChargeBtn>충전</ChargeBtn>
+              <ChargeBtn onClick={() => setShowCharge(true)}>충전</ChargeBtn>
+
+              {showCharge && (
+                <ChargeModal onClose={() => setShowCharge(false)} />
+              )}
             </div>
           </InfoRow>
 
-          <EditBtn>개인정보 수정</EditBtn>
+          <EditBtn onClick={() => nav("/mypage-edit")}>개인정보 수정</EditBtn>
         </InfoBox>
       </ProfileRow>
 
@@ -215,7 +222,9 @@ const MyPage = () => {
           </HistoryRow>
         ))}
 
-        <MoreBtn>나의 판매 기록 자세히 보기</MoreBtn>
+        <MoreBtn onClick={() => nav("/mypage-sales")}>
+          나의 판매 기록 자세히 보기
+        </MoreBtn>
       </Section>
     </Container>
   );

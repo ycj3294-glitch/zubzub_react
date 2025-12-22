@@ -15,6 +15,8 @@ import AdminPage from "./pages/AdminPage";
 import AuctionSchedule from "./pages/AuctionSchedule";
 import CreateAuction from "./pages/CreateAuction";
 import ScrollToTop from "./components/common/ScrollToTop";
+import MyPageEdit from "./pages/MyPageEdit";
+import MySales from "./pages/MySales";
 
 function App() {
   return (
@@ -36,6 +38,8 @@ function App() {
             <Route path="/component-test" element={<ComponentTest />} />
             <Route path="/schedule" element={<AuctionSchedule />} />
             <Route path="/create-auction" element={<CreateAuction />} />
+            <Route path="/mypage-edit" element={<MyPageEdit />} />
+            <Route path="/mypage/sales" element={<MySales />} />
           </Routes>
         </Layout>
       </Router>
