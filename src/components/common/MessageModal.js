@@ -27,9 +27,10 @@ const Overlay = styled.div`
 
 const Modal = styled.div`
   position: fixed;
-  top: 80px;
-  right: 40px;
+  top: 50%;
+  left: 50%;
   width: 760px;
+  transform: translate(-50%, -50%);
   height: 520px;
   background: white;
   border-radius: 20px;
