@@ -222,7 +222,7 @@ const AUCTION_LIST = [
 
 const MajorAuction = () => {
   const nav = useNavigate();
-  const [activeDate, setActiveDate] = useState(DATE_DATA[1].iso); // 16일 (5번째)을 기본 활성화로 가정
+  const [activeDate, setActiveDate] = useState(DATE_DATA[0].iso); //
   const [displayList, setDisplayList] = useState([]);
 
   // 현재 활성화된 날짜에 따라 경매 목록을 필터링하는 로직 (더미이므로 모든 날짜에 동일 목록 표시)
@@ -258,8 +258,11 @@ const MajorAuction = () => {
         {DATE_DATA.map((item, index) => (
           <DateItem
             key={index}
-            $active={item.name === activeDate}
-            onClick={() => setActiveDate(item.iso)}
+            $active={item.iso === activeDate}
+            onClick={() => {
+              console.log("Selected date:", item.iso);
+              setActiveDate(item.iso);
+            }}
           >
             {item.name}
           </DateItem>

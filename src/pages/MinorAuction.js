@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 /* =========================
     styled
@@ -199,25 +200,56 @@ const PageBtn = styled.button`
 
 const ITEMS_PER_PAGE = 12;
 
+const calculateRemaining = (endTime) => {
+  const now = new Date();
+  const end = new Date(endTime);
+  const diff = end - now; // ms 단위 차이
+
+  if (diff <= 0) return "마감";
+
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+
+  if (days > 0) return `${days}일 ${hours}시간`;
+  if (hours > 0) return `${hours}시간 ${minutes}분`;
+  return `${minutes}분`;
+};
+
 const MinorAuction = () => {
   const nav = useNavigate();
+  const [auctions, setAuctions] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [search, setSearch] = useState("");
+  const [size, setSize] = useState(12);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const list = Array.from({ length: 32 }, (_, i) => ({
-    id: i + 1,
-    name: `소규모 경매 물품 ${i + 1}`,
-    price: `₩ ${(12000 + i * 1000).toLocaleString()}`,
-    bidCount: Math.floor(Math.random() * 10),
-    remain: "2일",
-    img: `https://via.placeholder.com/300x220?text=Item+${i + 1}`,
-  }));
+  // const list = Array.from({ length: 32 }, (_, i) => ({
+  //   id: i + 1,
+  //   name: `소규모 경매 물품 ${i + 1}`,
+  //   price: `₩ ${(12000 + i * 1000).toLocaleString()}`,
+  //   bidCount: Math.floor(Math.random() * 10),
+  //   remain: "2일",
+  //   img: `https://via.placeholder.com/300x220?text=Item+${i + 1}`,
+  // }));
 
-  const totalPages = Math.ceil(list.length / ITEMS_PER_PAGE);
-  const pagedList = list.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  // const totalPages = Math.ceil(list.length / ITEMS_PER_PAGE);
+  // const pagedList = list.slice(
+  //   (currentPage - 1) * ITEMS_PER_PAGE,
+  //   currentPage * ITEMS_PER_PAGE
+  // );
+
+  useEffect(() => {
+    axios
+      .get(`/api/auctions/minorlist`, {
+        params: { page: currentPage - 1, size },
+      })
+      .then((res) => {
+        setAuctions(res.data.content);
+        setTotalPages(res.data.totalPages);
+      })
+      .catch((err) => console.error(err));
+  }, [currentPage, size]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -260,7 +292,7 @@ const MinorAuction = () => {
 
         {/* grid */}
         <Grid>
-          {pagedList.map((item) => (
+          {auctions.map((item) => (
             <Card
               key={item.id}
               onClick={() => nav(`/auction/minor/${item.id}`)}
@@ -274,7 +306,7 @@ const MinorAuction = () => {
                 <Price>현재가 {item.price}</Price>
                 <SubInfo>
                   <span>입찰 {item.bidCount}회</span>
-                  <span>남은 기간 {item.remain}</span>
+                  <span>남은 기간 {calculateRemaining(item.endTime)}</span>
                 </SubInfo>
               </Info>
             </Card>
