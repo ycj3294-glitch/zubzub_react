@@ -1,11 +1,9 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
-import { Editor } from "@toast-ui/react-editor";
-import "@toast-ui/editor/dist/toastui-editor.css";
 
-/* =========================
+/* =====================
    Styled
-========================= */
+===================== */
 
 const Container = styled.main`
   max-width: 1200px;
@@ -62,7 +60,7 @@ const Button = styled.button`
   border: 1px solid #000;
   background: #fff;
   cursor: pointer;
-  font-family: inherit;
+  margin-right: 6px;
 
   &:disabled {
     opacity: 0.4;
@@ -98,6 +96,7 @@ const Event = styled.div`
   border-radius: 6px;
   margin-top: 5px;
   font-size: 10px;
+  cursor: pointer;
 `;
 
 const FormBox = styled.div`
@@ -115,9 +114,13 @@ const Input = styled.input`
   border: 1px solid #ddd;
 `;
 
-/* =========================
+const Select = styled.select`
+  padding: 6px;
+`;
+
+/* =====================
    Component
-========================= */
+===================== */
 
 const AdminPage = () => {
   const [menu, setMenu] = useState("회원관리");
@@ -126,7 +129,7 @@ const AdminPage = () => {
 
   /* ===== 회원관리 ===== */
   const [members, setMembers] = useState(
-    [...Array(10)].map((_, i) => ({
+    [...Array(5)].map((_, i) => ({
       id: i,
       nickname: `유저${i + 1}`,
       email: `user${i + 1}@zubzub.com`,
@@ -134,46 +137,70 @@ const AdminPage = () => {
     }))
   );
 
-  const [pendingStatus, setPendingStatus] = useState({});
-
   /* ===== 대규모 경매 ===== */
   const [auctions, setAuctions] = useState(
-    [...Array(5)].map((_, i) => ({
+    [...Array(4)].map((_, i) => ({
       id: i,
       title: `대규모 경매 #${i + 1}`,
       seller: `판매자_${i + 1}`,
       approved: false,
-      date: null,
+      schedule: null,
     }))
   );
 
-  /* ===== 캘린더 ===== */
+  /* ===== 일정 ===== */
   const [calendar, setCalendar] = useState({});
+  const [scheduleDate, setScheduleDate] = useState("");
+  const [scheduleTime, setScheduleTime] = useState("");
+  const [editingSchedule, setEditingSchedule] = useState(null);
 
-  /* ===== 공지사항 ===== */
-  const [notices, setNotices] = useState([
-    { id: 1, title: "서비스 점검 안내", date: "2025-12-01" },
-    { id: 2, title: "경매 정책 변경 공지", date: "2025-12-05" },
-  ]);
+  /* =====================
+     일정 확정 (신규 + 수정 공통)
+  ===================== */
+  const confirmSchedule = () => {
+    setCalendar((prev) => {
+      let updated = { ...prev };
 
-  const [noticeTitle, setNoticeTitle] = useState("");
-  const editorRef = useRef();
+      // 🔥 수정이면 기존 일정 제거
+      if (editingSchedule) {
+        updated[editingSchedule.date] = updated[editingSchedule.date].filter(
+          (e) => e.id !== editingSchedule.id
+        );
 
-  /* ========================= */
+        if (updated[editingSchedule.date].length === 0) {
+          delete updated[editingSchedule.date];
+        }
+      }
 
-  const approveAuction = (date) => {
+      // 🔥 새 일정 추가
+      updated[scheduleDate] = [
+        ...(updated[scheduleDate] || []),
+        {
+          id: selected.id,
+          title: selected.title,
+          time: scheduleTime,
+        },
+      ];
+
+      return updated;
+    });
+
     setAuctions((prev) =>
       prev.map((a) =>
-        a.id === selected.id ? { ...a, approved: true, date } : a
+        a.id === selected.id
+          ? {
+              ...a,
+              approved: true,
+              schedule: { date: scheduleDate, time: scheduleTime },
+            }
+          : a
       )
     );
 
-    setCalendar((prev) => ({
-      ...prev,
-      [date]: [...(prev[date] || []), selected.title],
-    }));
-
     setView("list");
+    setEditingSchedule(null);
+    setScheduleDate("");
+    setScheduleTime("");
   };
 
   return (
@@ -214,39 +241,22 @@ const AdminPage = () => {
                 <td>{m.nickname}</td>
                 <td>{m.email}</td>
                 <td>
-                  <select
-                    value={pendingStatus[m.id] ?? m.status}
+                  <Select
+                    value={m.status}
                     onChange={(e) =>
-                      setPendingStatus((prev) => ({
-                        ...prev,
-                        [m.id]: e.target.value,
-                      }))
-                    }
-                  >
-                    <option value="정상">정상</option>
-                    <option value="정지">정지</option>
-                  </select>
-                </td>
-                <td>
-                  <Button
-                    disabled={pendingStatus[m.id] === undefined}
-                    onClick={() => {
                       setMembers((prev) =>
                         prev.map((u) =>
-                          u.id === m.id
-                            ? { ...u, status: pendingStatus[m.id] }
-                            : u
+                          u.id === m.id ? { ...u, status: e.target.value } : u
                         )
-                      );
-                      setPendingStatus((prev) => {
-                        const copy = { ...prev };
-                        delete copy[m.id];
-                        return copy;
-                      });
-                    }}
+                      )
+                    }
                   >
-                    확인
-                  </Button>
+                    <option>정상</option>
+                    <option>정지</option>
+                  </Select>
+                </td>
+                <td>
+                  <Button onClick={() => alert("상태 변경 완료")}>확인</Button>
                 </td>
               </tr>
             ))}
@@ -269,7 +279,7 @@ const AdminPage = () => {
             {auctions.map((a) => (
               <tr key={a.id}>
                 <td>{a.seller}</td>
-                <td className="title">{a.title}</td>
+                <td>{a.title}</td>
                 <td>
                   <Badge approved={a.approved}>
                     {a.approved ? "승인완료" : "대기"}
@@ -277,7 +287,6 @@ const AdminPage = () => {
                 </td>
                 <td>
                   <Button
-                    disabled={a.approved}
                     onClick={() => {
                       setSelected(a);
                       setView("schedule");
@@ -292,11 +301,22 @@ const AdminPage = () => {
         </Table>
       )}
 
+      {/* ===== 일정 설정 ===== */}
       {view === "schedule" && selected && (
         <FormBox>
           <h2>경매 일정 설정</h2>
           <p>{selected.title}</p>
-          <Input type="date" onChange={(e) => approveAuction(e.target.value)} />
+          <Input
+            type="date"
+            value={scheduleDate}
+            onChange={(e) => setScheduleDate(e.target.value)}
+          />
+          <Input
+            type="time"
+            value={scheduleTime}
+            onChange={(e) => setScheduleTime(e.target.value)}
+          />
+          <Button onClick={confirmSchedule}>확인</Button>
           <Button onClick={() => setView("list")}>취소</Button>
         </FormBox>
       )}
@@ -309,75 +329,27 @@ const AdminPage = () => {
             return (
               <Day key={i}>
                 {i + 1}
-                {calendar[dateKey]?.map((e, idx) => (
-                  <Event key={idx}>{e}</Event>
+                {calendar[dateKey]?.map((e) => (
+                  <Event
+                    key={e.id}
+                    onClick={() => {
+                      setSelected(auctions.find((a) => a.id === e.id));
+                      setEditingSchedule({
+                        id: e.id,
+                        date: dateKey,
+                      });
+                      setScheduleDate(dateKey);
+                      setScheduleTime(e.time);
+                      setView("schedule");
+                    }}
+                  >
+                    {e.title} ({e.time})
+                  </Event>
                 ))}
               </Day>
             );
           })}
         </Calendar>
-      )}
-
-      {/* ===== 공지사항 ===== */}
-      {menu === "공지 사항" && view === "list" && (
-        <>
-          <Button onClick={() => setView("write")}>공지 작성</Button>
-          <Table>
-            <thead>
-              <tr>
-                <th>No</th>
-                <th>제목</th>
-                <th>게시일</th>
-              </tr>
-            </thead>
-            <tbody>
-              {notices.map((n) => (
-                <tr key={n.id}>
-                  <td>{n.id}</td>
-                  <td className="title">{n.title}</td>
-                  <td>{n.date}</td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </>
-      )}
-
-      {menu === "공지 사항" && view === "write" && (
-        <FormBox>
-          <h2>공지사항 작성</h2>
-          <Input
-            placeholder="제목"
-            value={noticeTitle}
-            onChange={(e) => setNoticeTitle(e.target.value)}
-          />
-
-          <Editor
-            ref={editorRef}
-            height="300px"
-            initialEditType="wysiwyg"
-            previewStyle="vertical"
-            placeholder="공지 내용을 입력하세요"
-          />
-
-          <Button
-            onClick={() => {
-              setNotices((p) => [
-                {
-                  id: p.length + 1,
-                  title: noticeTitle,
-                  date: "2025-12-22",
-                },
-                ...p,
-              ]);
-              setNoticeTitle("");
-              editorRef.current.getInstance().reset();
-              setView("list");
-            }}
-          >
-            등록
-          </Button>
-        </FormBox>
       )}
     </Container>
   );
