@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Frame1 from "../images/Frame1.png";
 import Frame2 from "../images/Frame2.png";
@@ -250,6 +251,7 @@ const SafetyCard = styled.div`
 ========================= */
 
 const MainPage = () => {
+  const nav = useNavigate();
   const [activeDay, setActiveDay] = useState(14);
 
   const auctionData = {
@@ -323,7 +325,11 @@ const MainPage = () => {
           </CalendarHeader>
           <ScheduleItems>
             {auctionData[activeDay].map((item) => (
-              <ItemBox key={item.id}>
+              <ItemBox
+                key={item.id}
+                onClick={() => nav(`/auction/major/${item.id}`)}
+                style={{ cursor: "pointer" }}
+              >
                 <div className="img-wrapper">
                   <img src={item.img} alt={item.name} />
                 </div>
@@ -351,7 +357,11 @@ const MainPage = () => {
       <SectionTitle>소규모 경매</SectionTitle>
       <SmallAuctionGrid>
         {[...Array(10)].map((_, i) => (
-          <SmallItemCard key={i}>
+          <SmallItemCard
+            key={i}
+            onClick={() => nav(`/auction/minor/${i + 1}`)}
+            style={{ cursor: "pointer" }}
+          >
             <div className="thumb"></div>
             <p>최소 입찰가</p>
           </SmallItemCard>
