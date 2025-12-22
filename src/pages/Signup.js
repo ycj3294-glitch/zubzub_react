@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, useEffect } from "react";
 import styled from "styled-components";
 import AxiosAPI from "../api/AxiosAPI";
 import { emailRegex, passwordRegex, nicknameRegex } from "../utils/validators";
@@ -137,6 +137,7 @@ const Signup = () => {
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [nickname, setNickname] = useState("");
   const [nicknameChecked, setNicknameChecked] = useState(false);
+  const [passwordValid, setPasswordValid] = useState(false);
 
   const [errors, setErrors] = useState({
     email: "",
@@ -212,7 +213,7 @@ const Signup = () => {
       valid = false;
     }
     if (!passwordRegex.test(password)) {
-      newErrors.password = "8자 이상, 영문+숫자 조합 필수";
+      newErrors.password = "8자 이상, 특수 문자 포함, 영문 포함 필수";
       valid = false;
     }
     if (password !== passwordConfirm) {
@@ -236,6 +237,14 @@ const Signup = () => {
       alert("회원가입 처리 중 오류가 발생했습니다.");
     }
   };
+
+  useEffect(() => {
+    if (!password) return;
+
+    if (passwordRegex.test(password)) {
+      setErrors((p) => ({ ...p, password: "" }));
+    }
+  }, [password]);
 
   return (
     <SignupWrapper>
@@ -290,11 +299,31 @@ const Signup = () => {
           <label>비밀번호</label>
           <input
             type="password"
-            placeholder="8자 이상 영문 + 숫자 조합"
+            placeholder="8자 이상 영문 + 숫자 + 특수문자"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              const value = e.target.value;
+              setPassword(value);
+
+              if (!value) {
+                setPasswordValid(false);
+                setErrors((p) => ({ ...p, password: "" }));
+                return;
+              }
+
+              if (passwordRegex.test(value)) {
+                setPasswordValid(true);
+                setErrors((p) => ({ ...p, password: "" }));
+              } else {
+                setPasswordValid(false);
+              }
+            }}
           />
+
           {errors.password && <ErrorText>{errors.password}</ErrorText>}
+          {passwordValid && (
+            <SuccessText>사용할 수 있는 비밀번호입니다</SuccessText>
+          )}
         </Row>
 
         {/* 비밀번호 확인 */}
