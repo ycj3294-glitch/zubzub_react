@@ -2,6 +2,9 @@ import styled from "styled-components";
 import { useState, useRef } from "react";
 import { Editor } from "@toast-ui/react-editor";
 import "@toast-ui/editor/dist/toastui-editor.css";
+import ImageUploader from "../components/ImageUploader";
+import { createAuction } from "../api/auctionApi";
+import { useAuth } from "../context/AuthContext";
 
 /* =====================
     styled
@@ -139,37 +142,6 @@ const CurrencyWrapper = styled.div`
   }
 `;
 
-const PhotoPreviewBox = styled.label`
-  width: 230px;
-  height: 230px;
-  background: #f8f8f8;
-  border: 2px dashed #eee;
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  overflow: hidden;
-  &:hover {
-    border-color: #000;
-  }
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .plus {
-    font-size: 24px;
-    color: #bbb;
-    margin-bottom: 4px;
-  }
-  span {
-    font-size: 12px;
-    color: #aaa;
-  }
-`;
-
 const SubmitBtn = styled.button`
   width: 100%;
   margin-top: 30px;
@@ -191,13 +163,33 @@ const SubmitBtn = styled.button`
 ===================== */
 
 const CreateAuction = () => {
-  const [type, setType] = useState(null);
-  const [preview, setPreview] = useState(null);
   const editorRef = useRef();
+  const { user } = useAuth();
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) setPreview(URL.createObjectURL(file));
+  console.log(user);
+
+  const [auctionFormData, setAuctionFormData] = useState({
+    auctionType: "",
+    category: "misc",
+    sellerId: user.id,
+    itemName: "",
+    itemDesc: "",
+    startPrice: "",
+    startTime: "",
+    endTime: "",
+    itemImg: "",
+  });
+
+  const handleAuctionFormChange = (e) => {
+    const { name, value } = e.target;
+    setAuctionFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const auctionFormSubmit = async (e) => {
+    e.preventDefault();
+    console.log(auctionFormData);
+    const result = await createAuction(auctionFormData);
+    alert(result);
   };
 
   return (
@@ -205,29 +197,54 @@ const CreateAuction = () => {
       <Title>나만의 경매 시작하기</Title>
 
       <TypeSelect>
-        <TypeCard active={type === "MINOR"} onClick={() => setType("MINOR")}>
+        <TypeCard
+          active={auctionFormData.auctionType === "MINOR"}
+          name="auctionType"
+          value="MINOR"
+          onClick={() =>
+            setAuctionFormData((prev) => ({ ...prev, auctionType: "MINOR" }))
+          }
+        >
           <span className="type-title">소규모 경매</span>
         </TypeCard>
-        <TypeCard active={type === "MAJOR"} onClick={() => setType("MAJOR")}>
+
+        <TypeCard
+          active={auctionFormData.auctionType === "MAJOR"}
+          name="auctionType"
+          value="MAJOR"
+          onClick={() =>
+            setAuctionFormData((prev) => ({ ...prev, auctionType: "MAJOR" }))
+          }
+        >
           <span className="type-title">대규모 경매</span>
         </TypeCard>
       </TypeSelect>
 
-      {type && (
+      {auctionFormData.auctionType && (
         <FormCard>
           {/* 1. 상품명 (전체 너비) */}
           <TitleRow>
             <Label>상품명</Label>
-            <StyledInput full placeholder="경매 물품의 이름을 입력해 주세요" />
+            <StyledInput
+              full
+              placeholder="경매 물품의 이름을 입력해 주세요"
+              name="itemName"
+              onChange={handleAuctionFormChange}
+            />
           </TitleRow>
 
           <OptionsContainer>
             {/* 2. 왼쪽: 길이가 완벽하게 통일된 옵션들 */}
             <InputsColumn>
               <Row>
-                <Label>입찰가</Label>
+                <Label>입찰시작가</Label>
                 <CurrencyWrapper>
-                  <input type="number" placeholder="0" />
+                  <input
+                    type="number"
+                    placeholder="0"
+                    name="startPrice"
+                    onChange={handleAuctionFormChange}
+                  />
                   <div className="unit">ZC</div>
                 </CurrencyWrapper>
               </Row>
@@ -238,19 +255,27 @@ const CreateAuction = () => {
                   <div className="unit">ZC</div>
                 </CurrencyWrapper>
               </Row>
-              {type === "MINOR" && (
+              {auctionFormData.auctionType === "MINOR" && (
                 <>
                   <Row>
                     <Label>시작 시간</Label>
-                    <StyledInput type="datetime-local" />
+                    <StyledInput
+                      type="datetime-local"
+                      name="startTime"
+                      onChange={handleAuctionFormChange}
+                    />
                   </Row>
                   <Row>
                     <Label>종료 시간</Label>
-                    <StyledInput type="datetime-local" />
+                    <StyledInput
+                      type="datetime-local"
+                      name="endTime"
+                      onChange={handleAuctionFormChange}
+                    />
                   </Row>
                 </>
               )}
-              {type === "MAJOR" && (
+              {auctionFormData.auctionType === "MAJOR" && (
                 <div
                   style={{
                     marginTop: "10px",
@@ -281,22 +306,10 @@ const CreateAuction = () => {
               <Label style={{ display: "block", marginBottom: "8px" }}>
                 대표 이미지
               </Label>
-              <PhotoPreviewBox>
-                <input
-                  type="file"
-                  accept="image/*"
-                  hidden
-                  onChange={handleImageChange}
-                />
-                {preview ? (
-                  <img src={preview} alt="미리보기" />
-                ) : (
-                  <>
-                    <div className="plus">+</div>
-                    <span>사진 추가</span>
-                  </>
-                )}
-              </PhotoPreviewBox>
+              <ImageUploader
+                name={"itemImg"}
+                onChange={handleAuctionFormChange}
+              ></ImageUploader>
             </div>
           </OptionsContainer>
 
@@ -311,9 +324,18 @@ const CreateAuction = () => {
               initialEditType="wysiwyg"
               previewStyle="vertical"
               placeholder="상세한 상품 정보를 입력해 주세요."
+              name={"itemDesc"}
+              onChange={() => {
+                setAuctionFormData((prev) => ({
+                  ...prev,
+                  itemDesc: editorRef.current.getInstance().getMarkdown(),
+                }));
+              }}
             />
-            <SubmitBtn onClick={() => alert("신청이 완료되었습니다.")}>
-              {type === "MAJOR" ? "경매 승인 신청하기" : "경매 즉시 등록하기"}
+            <SubmitBtn onClick={auctionFormSubmit}>
+              {auctionFormData.auctionType === "MAJOR"
+                ? "경매 승인 신청하기"
+                : "경매 즉시 등록하기"}
             </SubmitBtn>
           </div>
         </FormCard>

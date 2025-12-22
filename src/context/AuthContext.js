@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(null);
 
   const login = ({ accessToken, ...userData }) => {
+    console.log(userData);
     setIsLogin(true);
     setUser(userData);
     setAccessToken(accessToken);
