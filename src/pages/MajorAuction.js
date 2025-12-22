@@ -2,64 +2,8 @@
 
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-
-/* =========================
-   Dummy Data (하루 3개 경매, 여러 날짜 데이터)
-========================= */
-
-const today = new Date();
-const formatDate = (date) => `${date.getMonth() + 1}.${date.getDate()}`;
-
-const getAuctionDate = (days) => {
-  const date = new Date();
-  date.setDate(date.getDate() + days);
-  return date;
-};
-
-// 상단 날짜 캘린더용 데이터 (오늘 포함 7일)
-const DATE_DATA = Array.from({ length: 7 }, (_, i) => ({
-  day: getAuctionDate(i).getDate(),
-  date: `${getAuctionDate(i).getMonth() + 1}.${getAuctionDate(i).getDate()}`,
-  name: ["12일", "13일", "14일", "15일", "16일", "17일", "18일"][i],
-}));
-
-// 경매 목록 데이터 (각 날짜별 3개 경매를 가정)
-const AUCTION_LIST = [
-  {
-    id: 1,
-    title: "WHY? 책 20권 묶음",
-    image: "/images/major_why.jpg", // 가이드 이미지
-    currentPrice: 40000,
-    remainTime: "11:11:11",
-    bidCount: 0,
-    bidUnit: 1000,
-    immediateBuy: "불가",
-    status: "진행 중",
-  },
-  {
-    id: 2,
-    title: "트럼펫 (2경매)",
-    image: "/images/major_trumpet.jpg",
-    currentPrice: 0,
-    remainTime: "00:00:00",
-    bidCount: 0,
-    bidUnit: 0,
-    immediateBuy: "불가",
-    status: "시작 안함",
-  },
-  {
-    id: 3,
-    title: "카메라 (3경매)",
-    image: "/images/major_camera.jpg",
-    currentPrice: 0,
-    remainTime: "00:00:00",
-    bidCount: 0,
-    bidUnit: 0,
-    immediateBuy: "불가",
-    status: "시작 안함",
-  },
-];
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 /* =========================
    Styled Components (가이드 이미지 기반)
@@ -191,15 +135,114 @@ const InfoText = styled.p`
 `;
 
 /* =========================
+   Dummy Data (하루 3개 경매, 여러 날짜 데이터)
+========================= */
+
+const today = new Date();
+const formatDate = (date) => `${date.getMonth() + 1}.${date.getDate()}`;
+
+const getAuctionDate = (days) => {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return date;
+};
+
+// 상단 날짜 캘린더용 데이터 (오늘 포함 7일)
+const DATE_DATA = Array.from({ length: 7 }, (_, i) => {
+  const date = getAuctionDate(i); // 오늘 + i일
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // 2자리
+  const day = String(date.getDate()).padStart(2, "0"); // 2자리
+  return {
+    day: date.getDate(),
+    date: `${date.getMonth() + 1}.${date.getDate()}`,
+    name: `${date.getDate()}일`, // ← 자동 생성
+    iso: `${year}-${month}-${day}`,
+  };
+});
+
+// 남은 시간 계산 함수
+const getRemainingTime = (endTime) => {
+  const now = new Date();
+  const end = new Date(endTime);
+  const diff = end - now; // 밀리초 단위 차이
+
+  if (diff <= 0) return "00:00:00"; // 이미 종료된 경우
+
+  const hours = Math.floor(diff / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+  return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(
+    2,
+    "0"
+  )}:${String(seconds).padStart(2, "0")}`;
+};
+
+// 경매 목록 데이터 (각 날짜별 3개 경매를 가정)
+const AUCTION_LIST = [
+  {
+    id: 1,
+    title: "WHY? 책 20권 묶음",
+    image: "/images/major_why.jpg", // 가이드 이미지
+    currentPrice: 40000,
+    remainTime: "11:11:11",
+    bidCount: 0,
+    bidUnit: 1000,
+    immediateBuy: "불가",
+    status: "진행 중",
+  },
+  {
+    id: 2,
+    title: "트럼펫 (2경매)",
+    image: "/images/major_trumpet.jpg",
+    currentPrice: 0,
+    remainTime: "00:00:00",
+    bidCount: 0,
+    bidUnit: 0,
+    immediateBuy: "불가",
+    status: "시작 안함",
+  },
+  {
+    id: 3,
+    title: "카메라 (3경매)",
+    image: "/images/major_camera.jpg",
+    currentPrice: 0,
+    remainTime: "00:00:00",
+    bidCount: 0,
+    bidUnit: 0,
+    immediateBuy: "불가",
+    status: "시작 안함",
+  },
+];
+
+/* =========================
    Component
 ========================= */
 
 const MajorAuction = () => {
   const nav = useNavigate();
-  const [activeDate, setActiveDate] = useState(DATE_DATA[4].name); // 16일 (5번째)을 기본 활성화로 가정
+  const [activeDate, setActiveDate] = useState(DATE_DATA[1].iso); // 16일 (5번째)을 기본 활성화로 가정
+  const [displayList, setDisplayList] = useState([]);
 
   // 현재 활성화된 날짜에 따라 경매 목록을 필터링하는 로직 (더미이므로 모든 날짜에 동일 목록 표시)
-  const displayList = AUCTION_LIST;
+  // const displayList = AUCTION_LIST;
+
+  useEffect(() => {
+    const fetchAuctions = async () => {
+      try {
+        const response = await axios.get(
+          "/api/auctions/majorlist/by-date", // axios url
+          { params: { date: activeDate } } // ← 옵션 객체 끝
+        ); // ← axios.get 끝나는 괄호
+        setDisplayList(response.data); // ← try 블록 안에서 호출
+      } catch (error) {
+        console.error("경매 데이터를 불러오는 중 오류 발생", error);
+      }
+    };
+
+    fetchAuctions();
+  }, [activeDate]);
 
   const handleItemClick = (id) => {
     // 가이드 이미지 1 상세 페이지로 이동
@@ -216,7 +259,7 @@ const MajorAuction = () => {
           <DateItem
             key={index}
             $active={item.name === activeDate}
-            onClick={() => setActiveDate(item.name)}
+            onClick={() => setActiveDate(item.iso)}
           >
             {item.name}
           </DateItem>
@@ -228,9 +271,9 @@ const MajorAuction = () => {
         {displayList.map((item, index) => (
           <AuctionItem key={item.id}>
             <ImageContainer onClick={() => handleItemClick(item.id)}>
-              <AuctionImage src={item.image} alt={item.title} />
+              <AuctionImage src={item.itemimage} alt={item.itemName} />
               {/* '시작 안함' 상태일 때만 오버레이 표시 */}
-              <StatusOverlay $show={item.status === "시작 안함"}>
+              <StatusOverlay $show={item.auctionStatus === "시작 안함"}>
                 시작 안함
               </StatusOverlay>
             </ImageContainer>
@@ -240,14 +283,11 @@ const MajorAuction = () => {
 
               <InfoRow>
                 <InfoText>
-                  현재가 <span>{item.currentPrice.toLocaleString()} 원</span>
+                  현재가 <span>{item.startPrice.toLocaleString()} 원</span>
                 </InfoText>
-                <InfoText>남은 시간: {item.remainTime}</InfoText>
-                <InfoText>입찰 횟수: {item.bidCount}회</InfoText>
-                <InfoText>
-                  입찰 단위: {item.bidUnit.toLocaleString()}원
-                </InfoText>
-                <InfoText>즉시 구매: {item.immediateBuy}</InfoText>
+                <InfoText>남은 시간: {getRemainingTime(item.endTime)}</InfoText>
+                <InfoText>입찰 횟수: 회</InfoText>
+                <InfoText>입찰 단위: 원</InfoText>
               </InfoRow>
             </InfoContainer>
           </AuctionItem>
