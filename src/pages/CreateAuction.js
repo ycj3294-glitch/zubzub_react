@@ -5,6 +5,7 @@ import "@toast-ui/editor/dist/toastui-editor.css";
 import ImageUploader from "../components/ImageUploader";
 import { createAuction } from "../api/auctionApi";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 /* =====================
     styled
@@ -165,16 +166,18 @@ const SubmitBtn = styled.button`
 const CreateAuction = () => {
   const editorRef = useRef();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   console.log(user);
 
   const [auctionFormData, setAuctionFormData] = useState({
     auctionType: "",
-    category: "misc",
+    category: "",
     sellerId: user.id,
     itemName: "",
     itemDesc: "",
     startPrice: "",
+    minBidUnit: "1000",
     startTime: "",
     endTime: "",
     itemImg: "",
@@ -190,6 +193,8 @@ const CreateAuction = () => {
     console.log(auctionFormData);
     const result = await createAuction(auctionFormData);
     alert(result);
+    if (result)
+      navigate("/auction/" + auctionFormData.auctionType.toLowerCase());
   };
 
   return (
@@ -251,7 +256,12 @@ const CreateAuction = () => {
               <Row>
                 <Label>입찰 단위</Label>
                 <CurrencyWrapper>
-                  <input type="number" defaultValue="1000" />
+                  <input
+                    type="number"
+                    defaultValue="1000"
+                    name="minBidUnit"
+                    onChange={handleAuctionFormChange}
+                  />
                   <div className="unit">ZC</div>
                 </CurrencyWrapper>
               </Row>
