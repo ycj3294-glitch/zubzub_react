@@ -9,6 +9,7 @@ import MinorAuction from "./pages/MinorAuction";
 import MinorAuctionDetail from "./pages/MinorAuctionDetail";
 import MajorAuctionDetail from "./pages/MajorAuctionDetail";
 import MyPage from "./pages/MyPage";
+import MyProfileEdit from "./pages/MyProfileEdit";
 import Notice from "./pages/Notice";
 import ComponentTest from "./pages/ComponentTest";
 import AdminPage from "./pages/AdminPage";
@@ -22,6 +23,7 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/mypage" element={<MyPage />} />
+            <Route path="/mypage/edit" element={<MyProfileEdit />}></Route>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/" element={<Main />} />

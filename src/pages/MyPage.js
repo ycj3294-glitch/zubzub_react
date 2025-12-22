@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { useAuth } from "../context/AuthContext";
 
 /* =====================
    Dummy Data
@@ -154,6 +155,8 @@ const MoreBtn = styled.button`
 ===================== */
 
 const MyPage = () => {
+  const { isLogin, user } = useAuth();
+
   return (
     <Container>
       {/* 프로필 */}
@@ -165,16 +168,17 @@ const MyPage = () => {
 
         <InfoBox>
           <InfoRow>
+            {console.log(user)}
             <strong>이메일</strong>
-            <span>{USER.email}</span>
+            <span>{user && user.email}</span>
           </InfoRow>
           <InfoRow>
             <strong>이름</strong>
-            <span>{USER.name}</span>
+            <span>{user && user.name}</span>
           </InfoRow>
           <InfoRow>
             <strong>닉네임</strong>
-            <span>{USER.nickname}</span>
+            <span>{user && user.nickname}</span>
           </InfoRow>
           <InfoRow>
             <strong>보유 줍코인</strong>

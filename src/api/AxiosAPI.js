@@ -16,10 +16,16 @@ const AxiosApi = axios.create({
 
 // 로그인
 AxiosApi.login = async (email, pwd) => {
-  return await AxiosApi.post("/api/members/login", {
-    email,
-    pwd,
-  });
+  return await AxiosApi.post(
+    "/api/members/login",
+    {
+      email,
+      pwd,
+    },
+    {
+      withCredentials: true,
+    }
+  );
 };
 
 // 로그인 상태 확인 (인증 유지)

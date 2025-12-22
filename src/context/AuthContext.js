@@ -10,7 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [accessToken, setAccessToken] = useState(null);
 
-  const login = (userData, accessToken) => {
+  const login = ({ accessToken, ...userData }) => {
     setIsLogin(true);
     setUser(userData);
     setAccessToken(accessToken);
@@ -19,16 +19,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setIsLogin(false);
     setUser(null);
+    setAccessToken(null);
   };
-
-  useEffect(() => {
-    if (accessToken) {
-      AxiosAPI.interceptors.request.use((config) => {
-        config.headers.Authorization = `Bearer ${accessToken}`;
-        return config;
-      });
-    }
-  }, [accessToken]);
 
   useEffect(() => {
     const checkLogin = async () => {
@@ -36,7 +28,10 @@ export const AuthProvider = ({ children }) => {
         const res = await AxiosAPI.refresh();
         if (res.status === 200 || res.status === 201) {
           const { accessToken, refreshToken, ...userData } = res.data;
-          login(userData, accessToken);
+          console.log("이건로그인시응답 : ", res.data);
+          console.log("유저데이터 : ", userData);
+          console.log("액세스토큰 : ", accessToken);
+          login(res.data);
         }
       } catch (e) {
         console.log("not logged in");
@@ -47,6 +42,15 @@ export const AuthProvider = ({ children }) => {
 
     checkLogin();
   }, []);
+
+  useEffect(() => {
+    if (accessToken) {
+      AxiosAPI.interceptors.request.use((config) => {
+        config.headers.Authorization = `Bearer ${accessToken}`;
+        return config;
+      });
+    }
+  }, [accessToken]);
 
   return (
     <AuthContext.Provider

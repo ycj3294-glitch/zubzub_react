@@ -149,6 +149,10 @@ const Login = () => {
     try {
       const res = await AxiosAPI.login(email, pwd);
       if (res.status === 200 || res.status === 201) {
+        const { accessToken, refreshToken, ...userData } = res.data;
+        console.log("이건로그인시응답 : ", res.data);
+        console.log("유저데이터 : ", userData);
+        console.log("액세스토큰 : ", accessToken);
         login(res.data);
         nav("/");
       } else {
