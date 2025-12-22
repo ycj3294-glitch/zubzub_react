@@ -3,6 +3,7 @@
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import AxiosApi from "../api/AxiosAPI";
 import axios from "axios";
 
 /* =========================
@@ -231,7 +232,7 @@ const MajorAuction = () => {
   useEffect(() => {
     const fetchAuctions = async () => {
       try {
-        const response = await axios.get(
+        const response = await AxiosApi.get(
           "/api/auctions/majorlist/by-date", // axios url
           { params: { date: activeDate } } // ← 옵션 객체 끝
         ); // ← axios.get 끝나는 괄호
