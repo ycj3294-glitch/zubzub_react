@@ -2,10 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import LogoImage1 from "../images/LogoImage1.png";
-import { useAuth } from "../context/AuthContext";
-import AxiosAPI from "../api/AxiosAPI";
-import axios from "axios";
-import AxiosApi from "../api/AxiosAPI";
+import MessageModal from "./common/MessageModal";
 
 const HeaderWrapper = styled.div`
   width: 100%;
@@ -194,68 +191,70 @@ const BottomDivider = styled.div`
 
 const Header = () => {
   const navigate = useNavigate();
-
-  const { isLogin, logout } = useAuth();
-
-  const logoutHandler = async () => {
-    const res = await AxiosApi.logout();
-    if (res.status === 200 || res.status === 201) {
-      logout();
-      navigate("/");
-    }
-  };
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showMessageModal, setShowMessageModal] = useState(false);
 
   return (
-    <HeaderWrapper>
-      <HeaderContainer>
-        <TopSection>
-          <Logo src={LogoImage1} alt="Logo" onClick={() => navigate("/")} />
-          <CenterSection>
-            <SearchBox>
-              <SearchInput type="text" placeholder="검색어를 입력하세요" />
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-            </SearchBox>
-            <MenuRow>
-              <span onClick={() => navigate("/auction/major")}>
-                대규모 경매
-              </span>
-              <span onClick={() => navigate("/auction/minor")}>
-                소규모 경매
-              </span>
-              <span onClick={() => navigate("/schedule")}>경매 일정</span>
-              <span onClick={() => navigate("/notice")}>공지사항</span>
-            </MenuRow>
-          </CenterSection>
-          <RightSection>
-            <TopRightRow>
-              <AuthBox>
-                {!isLogin ? (
-                  <>
-                    <span onClick={() => navigate("/login")}>로그인</span>
-                    <div className="divider" />
-                    <span onClick={() => navigate("/signup")}>회원가입</span>
-                  </>
-                ) : (
-                  <>
-                    <span onClick={logoutHandler}>로그아웃</span>
-                    <div className="divider" />
-                    <span onClick={() => navigate("/mypage")}>마이페이지</span>
-                  </>
-                )}
-              </AuthBox>
-            </TopRightRow>
-            <StartAuctionBtnWrapper>
-              <StartAuctionBtn onClick={() => navigate("/create-auction")}>
-                나만의 경매 시작하기
-              </StartAuctionBtn>
-            </StartAuctionBtnWrapper>
-          </RightSection>
-        </TopSection>
-        <BottomDivider />
-      </HeaderContainer>
-    </HeaderWrapper>
+    <>
+      <HeaderWrapper>
+        <HeaderContainer>
+          <TopSection>
+            <Logo src={LogoImage1} alt="Logo" onClick={() => navigate("/")} />
+            <CenterSection>
+              <SearchBox>
+                <SearchInput type="text" placeholder="검색어를 입력하세요" />
+                <SearchIconWrapper>
+                  <SearchIcon />
+                </SearchIconWrapper>
+              </SearchBox>
+              <MenuRow>
+                <span onClick={() => navigate("/auction/major")}>
+                  대규모 경매
+                </span>
+                <span onClick={() => navigate("/auction/minor")}>
+                  소규모 경매
+                </span>
+                <span onClick={() => navigate("/schedule")}>경매 일정</span>
+                <span onClick={() => navigate("/notice")}>공지사항</span>
+              </MenuRow>
+            </CenterSection>
+            <RightSection>
+              <TopRightRow>
+                <AuthBox>
+                  {!isLoggedIn ? (
+                    <>
+                      <span onClick={() => navigate("/login")}>로그인</span>
+                      <div className="divider" />
+                      <span onClick={() => navigate("/signup")}>회원가입</span>
+                    </>
+                  ) : (
+                    <>
+                      <span onClick={() => setShowMessageModal(true)}>
+                        쪽지함
+                      </span>
+                      <div className="divider" />
+                      <span onClick={() => navigate("/mypage")}>
+                        마이페이지
+                      </span>
+                    </>
+                  )}
+                </AuthBox>
+              </TopRightRow>
+              <StartAuctionBtnWrapper>
+                <StartAuctionBtn onClick={() => navigate("/create-auction")}>
+                  나만의 경매 시작하기
+                </StartAuctionBtn>
+              </StartAuctionBtnWrapper>
+            </RightSection>
+          </TopSection>
+          <BottomDivider />
+        </HeaderContainer>
+      </HeaderWrapper>
+
+      {showMessageModal && (
+        <MessageModal onClose={() => setShowMessageModal(false)} />
+      )}
+    </>
   );
 };
 
