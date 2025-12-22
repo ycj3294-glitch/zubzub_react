@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://192.168.0.93:8111/api/auctions";
+const BASE_URL = "http://localhost:8111/api/auctions";
 
 export const getAuction = async (auctionId) => {
   try {

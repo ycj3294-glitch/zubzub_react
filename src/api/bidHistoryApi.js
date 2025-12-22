@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://192.168.0.93:8111/api/bid-histories";
+const BASE_URL = "http://localhost:8111/api/bid-histories";
 
 export const loadBidHistories = async (auctionId, page, size = 20) => {
   try {
