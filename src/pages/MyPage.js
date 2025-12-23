@@ -3,6 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 import ChargeModal from "../components/common/ChargeModal";
 import { useNavigate } from "react-router-dom";
+
 /* =====================
    Dummy Data
 ===================== */
@@ -210,6 +211,10 @@ const MyPage = () => {
             <span>{item.date}</span>
           </HistoryRow>
         ))}
+        {/* ✅ 버튼 수정: AuctionHistory 페이지로 이동 */}
+        <MoreBtn onClick={() => nav("/auction-history")}>
+          나의 경매 기록 보기
+        </MoreBtn>
       </Section>
 
       {/* 판매내역 */}
@@ -221,9 +226,9 @@ const MyPage = () => {
             <span>{item.date}</span>
           </HistoryRow>
         ))}
-
-        <MoreBtn onClick={() => nav("/mypage-sales")}>
-          나의 판매 기록 자세히 보기
+        {/* ✅ 버튼 수정: AuctionHistory 페이지로 이동 */}
+        <MoreBtn onClick={() => nav("/auction-history")}>
+          나의 경매 기록 보기
         </MoreBtn>
       </Section>
     </Container>
