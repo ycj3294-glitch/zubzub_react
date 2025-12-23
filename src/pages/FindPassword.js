@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AxiosAPI from "../api/AxiosAPI";
 import styled from "styled-components";
 
@@ -95,6 +95,11 @@ const FindPwdModal = ({ onClose }) => {
 
   const [error, setError] = useState("");
 
+  // 2. 모달이 열릴 때 혹시 모를 쓰레기 토큰 청소 (필터 방해 방지)
+  useEffect(() => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("signupToken");
+  }, []);
   /* =========================
      STEP 1: 이메일 인증
   ========================= */
@@ -123,9 +128,8 @@ const FindPwdModal = ({ onClose }) => {
   };
 
   /* =========================
-     STEP 2: 비밀번호 변경
-  ========================= */
-
+   STEP 2: 비밀번호 변경
+========================= */
   const resetPassword = async () => {
     if (password !== passwordConfirm) {
       setError("비밀번호가 일치하지 않습니다");
@@ -133,14 +137,14 @@ const FindPwdModal = ({ onClose }) => {
     }
 
     try {
-      await AxiosAPI.resetPassword(email, password);
+      // ✅ 수정: email, password 뒤에 현재 들고 있는 'code'를 함께 전달해야 합니다!
+      await AxiosAPI.resetPassword(email, password, code);
       alert("비밀번호가 변경되었습니다");
       onClose();
     } catch {
       setError("비밀번호 변경 실패");
     }
   };
-
   return (
     <Overlay onClick={onClose}>
       <Modal onClick={(e) => e.stopPropagation()}>

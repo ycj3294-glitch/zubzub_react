@@ -46,8 +46,8 @@ export const AuthProvider = ({ children }) => {
   }, [accessToken]);
 
   useEffect(() => {
-    // 항상 최신 토큰을 localStorage에서 읽어오기
-    AxiosAPI.interceptors.request.use((config) => {
+    // 1. Request Interceptor: 모든 요청에 토큰 주입
+    const requestInterceptor = AxiosAPI.interceptors.request.use((config) => {
       const token = localStorage.getItem("accessToken");
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -55,13 +55,19 @@ export const AuthProvider = ({ children }) => {
       return config;
     });
 
-    AxiosAPI.interceptors.response.use(
+    // 2. Response Interceptor: 401 에러 시 토큰 재발행 로직
+    const responseInterceptor = AxiosAPI.interceptors.response.use(
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
 
-        // refresh API는 인터셉터 제외
-        if (originalRequest.url.includes("/refresh")) {
+        // [중요 수정]
+        // 1. refresh API 호출 중 에러는 즉시 거부
+        // 2. login API 호출 중 401 에러는 '비번 틀림'이지 '토큰 만료'가 아니므로 재발행 로직 방지
+        if (
+          originalRequest.url.includes("/refresh") ||
+          originalRequest.url.includes("/login")
+        ) {
           return Promise.reject(error);
         }
 
@@ -69,17 +75,19 @@ export const AuthProvider = ({ children }) => {
           originalRequest._retry = true;
 
           try {
-            console.log("토큰재발행");
+            console.log("토큰재발행 시도 중...");
             const res = await AxiosAPI.refresh();
             const newToken = res.data;
 
             setAccessToken(newToken);
             localStorage.setItem("accessToken", newToken);
-            console.log("스토리지에 새 액세스토큰 저장", newToken);
+            console.log("스토리지에 새 액세스토큰 저장 완료");
 
-            // 원래 요청 재실행 (request 인터셉터가 최신 토큰을 자동으로 넣음)
+            // 새 토큰으로 헤더 교체 후 원래 요청 재시도
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
             return AxiosAPI(originalRequest);
           } catch (refreshError) {
+            console.error("토큰 재발행 실패 -> 로그아웃 처리");
             logout();
             return Promise.reject(refreshError);
           }
@@ -88,6 +96,12 @@ export const AuthProvider = ({ children }) => {
         return Promise.reject(error);
       }
     );
+
+    // 컴포넌트 언마운트 시 인터셉터 정리
+    return () => {
+      AxiosAPI.interceptors.request.eject(requestInterceptor);
+      AxiosAPI.interceptors.response.eject(responseInterceptor);
+    };
   }, []);
 
   useEffect(() => {
