@@ -230,7 +230,7 @@ const Signup = () => {
     if (!valid) return;
 
     try {
-      await AxiosAPI.signup(email, password, nickname, emailCode);
+      await AxiosAPI.signup(email, password, name, nickname, emailCode);
 
       alert("🎉 회원가입이 완료되었습니다!");
       nav("/login");
@@ -345,7 +345,7 @@ const Signup = () => {
         </Row>
         {/* 이름 */}
         <Row>
-          <lable>이름</lable>
+          <label>이름</label>
           <input
             type="text"
             placeholder="이름"
