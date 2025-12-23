@@ -1,8 +1,9 @@
 import styled from "styled-components";
 import { useAuth } from "../context/AuthContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ChargeModal from "../components/common/ChargeModal";
 import { useNavigate } from "react-router-dom";
+import AxiosApi from "../api/AxiosAPI";
 
 /* =====================
    Dummy Data
@@ -159,8 +160,25 @@ const MoreBtn = styled.button`
 
 const MyPage = () => {
   const { isLogin, user } = useAuth();
+  const [member, setMember] = useState(null);
   const [showCharge, setShowCharge] = useState(false);
   const nav = useNavigate();
+
+  // 회원 정보 불러오기
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const response = await AxiosApi.getUserInfo(user.id);
+        setMember(response.data);
+      } catch (error) {
+        console.error("회원 정보 불러오기 실패:", error);
+      }
+    };
+
+    if (user && user.id) {
+      fetchUserInfo();
+    }
+  }, [user]);
 
   return (
     <Container>

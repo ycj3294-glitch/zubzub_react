@@ -133,4 +133,9 @@ AxiosApi.approveAuction = async (id, startTime) => {
   });
 };
 
+// 회원 정보 조회
+AxiosApi.getUserInfo = async (id) => {
+  return await AxiosApi.get(`/api/members/${id}`);
+};
+
 export default AxiosApi;

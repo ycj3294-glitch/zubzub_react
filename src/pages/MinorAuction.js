@@ -301,8 +301,8 @@ const MinorAuction = () => {
               </ImageWrap>
 
               <Info>
-                <Name>{item.name}</Name>
-                <Price>현재가 {item.price}</Price>
+                <Name>{item.itemName}</Name>
+                <Price>시작가 : {item.startPrice.toLocaleString()}원</Price>
                 <SubInfo>
                   <span>입찰 {item.bidCount}회</span>
                   <span>남은 기간 {calculateRemaining(item.endTime)}</span>

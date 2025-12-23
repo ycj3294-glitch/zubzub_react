@@ -274,7 +274,7 @@ const MajorAuction = () => {
         {displayList.map((item, index) => (
           <AuctionItem key={item.id}>
             <ImageContainer onClick={() => handleItemClick(item.id)}>
-              <AuctionImage src={item.itemimage} alt={item.itemName} />
+              <AuctionImage src={item.itemImg} alt={item.itemName} />
               {/* '시작 안함' 상태일 때만 오버레이 표시 */}
               <StatusOverlay $show={item.auctionStatus === "시작 안함"}>
                 시작 안함
