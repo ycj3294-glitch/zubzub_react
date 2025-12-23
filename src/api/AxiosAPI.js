@@ -125,4 +125,12 @@ AxiosApi.getPendingAuctions = async () => {
   return await AxiosApi.get("/api/admin/pending");
 };
 
+// 대규모 경매 승인 및 일정 등록
+AxiosApi.approveAuction = async (id, startTime) => {
+  return await AxiosApi.post("/api/admin/approve", {
+    id,
+    startTime,
+  });
+};
+
 export default AxiosApi;

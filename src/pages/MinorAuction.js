@@ -297,7 +297,7 @@ const MinorAuction = () => {
               onClick={() => nav(`/auction/minor/${item.id}`)}
             >
               <ImageWrap>
-                <Image src={item.img} alt={item.name} />
+                <Image src={item.itemImg} alt={item.name} />
               </ImageWrap>
 
               <Info>

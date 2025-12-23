@@ -344,33 +344,51 @@ const AdminPage = () => {
   };
 
   /** 승인(일정 설정 confirm) */
-  const confirmApproveWithSchedule = () => {
+  const confirmApproveWithSchedule = async () => {
     if (!selected) return;
     if (!scheduleDate || !scheduleTime) {
       alert("날짜와 시간을 모두 선택해 주세요.");
       return;
     }
 
-    // 1) auctions 승인 + schedule 저장
-    setAuctions((prev) =>
-      prev.map((a) =>
-        a.id === selected.id
-          ? {
-              ...a,
-              approved: true,
-              schedule: { date: scheduleDate, time: scheduleTime },
-            }
-          : a
-      )
-    );
+    const startTime = `${scheduleDate}T${scheduleTime}`;
 
-    // 2) calendar 등록 (승인 시점에만 캘린더 반영)
-    addEventToCalendar(selected.id, selected.title, scheduleDate, scheduleTime);
+    try {
+      // 1️⃣ 백엔드 승인 요청 (startTime만)
+      console.log("승인 요청 보내기:", selected.id, startTime);
+      await AxiosApi.approveAuction(selected.id, startTime);
+      // 1) auctions 승인 + schedule 저장
+      setAuctions((prev) =>
+        prev.map((a) =>
+          a.id === selected.id
+            ? {
+                ...a,
+                approved: true,
+                schedule: { date: scheduleDate, time: scheduleTime },
+              }
+            : a
+        )
+      );
 
-    setView("list");
-    setSelected(null);
-    setScheduleDate("");
-    setScheduleTime("");
+      // 2) calendar 등록 (승인 시점에만 캘린더 반영)
+      addEventToCalendar(
+        selected.id,
+        selected.itemName,
+        scheduleDate,
+        scheduleTime
+      );
+
+      setView("list");
+      setSelected(null);
+      setScheduleDate("");
+      setScheduleTime("");
+
+      // 메시지 출력
+      alert("경매가 승인되고 일정이 등록되었습니다.");
+    } catch (error) {
+      console.error("승인 실패:", error);
+      alert("승인에 실패했습니다.");
+    }
   };
 
   /** 일정 관리에서 수정 confirm (교체) */
