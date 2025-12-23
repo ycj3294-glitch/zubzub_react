@@ -17,6 +17,7 @@ import CreateAuction from "./pages/CreateAuction";
 import ScrollToTop from "./components/common/ScrollToTop";
 import MyPageEdit from "./pages/MyPageEdit";
 import MySales from "./pages/MySales";
+import AuctionHistory from "./pages/AuctionHistory";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/mypage" element={<MyPage />} />
+            <Route path="/auction-history" element={<AuctionHistory />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/" element={<Main />} />

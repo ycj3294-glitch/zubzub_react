@@ -69,14 +69,14 @@ AxiosApi.verifyEmailCode = async (code) => {
 };
 
 // 회원가입
-AxiosApi.signup = async (email, pwd, nickname, code) => {
+AxiosApi.signup = async (email, pwd, name, nickname, code) => {
   const token = localStorage.getItem("signupToken");
   return await AxiosApi.post(
     "/api/members/signup",
     {
       email,
       pwd,
-      name: nickname,
+      name,
       nickname,
       code,
     },
