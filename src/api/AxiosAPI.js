@@ -138,4 +138,9 @@ AxiosApi.getUserInfo = async (id) => {
   return await AxiosApi.get(`/api/members/${id}`);
 };
 
+// 크레딧 충전
+AxiosApi.chargeCredit = async (userId, amount) => {
+  return await AxiosApi.post(`/api/members/${userId}/credit?coin=${amount}`);
+};
+
 export default AxiosApi;

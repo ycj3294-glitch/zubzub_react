@@ -1,4 +1,6 @@
+import { useState } from "react";
 import styled from "styled-components";
+import AxiosApi from "../../api/AxiosAPI";
 
 const Overlay = styled.div`
   position: fixed;
@@ -22,18 +24,42 @@ const AmountBtn = styled.button`
   margin: 6px 0;
 `;
 
-const ChargeModal = ({ onClose }) => {
-  const amounts = [10000, 30000, 50000];
+const ChargeModal = ({ onClose, userId, onSuccess }) => {
+  const [amount, setAmount] = useState("");
+
+  const handleCharge = async () => {
+    const numericAmount = parseInt(amount);
+    console.log(userId, numericAmount);
+    if (!numericAmount || numericAmount <= 0) {
+      alert("올바른 금액을 입력해주세요.");
+      return;
+    }
+
+    console.log(`${numericAmount}원 충전요청`);
+    try {
+      const success = await AxiosApi.chargeCredit(userId, numericAmount);
+      if (success) {
+        alert(`${numericAmount.toLocaleString()}원 충전 완료!`);
+        onSuccess?.(numericAmount);
+        onClose();
+      }
+    } catch (error) {
+      alert("충전 중 오류가 발생했습니다.");
+    }
+  };
 
   return (
     <Overlay onClick={onClose}>
       <Modal onClick={(e) => e.stopPropagation()}>
         <h3>코인 충전</h3>
-        {amounts.map((a) => (
-          <AmountBtn key={a} onClick={() => alert(`${a}원 충전됨 (더미)`)}>
-            {a.toLocaleString()}원
-          </AmountBtn>
-        ))}
+        <input
+          type="number"
+          placeholder="충전할 금액 입력"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+          style={{ width: "100%", padding: "8px", marginBottom: "12px" }}
+        />
+        <button onClick={handleCharge}>충전하기</button>
       </Modal>
     </Overlay>
   );

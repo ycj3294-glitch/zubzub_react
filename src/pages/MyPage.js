@@ -168,7 +168,9 @@ const MyPage = () => {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
+        console.log("회원 정보 불러오기 시도, user id:", user.id);
         const response = await AxiosApi.getUserInfo(user.id);
+        console.log("회원 정보 불러오기 성공:", response.data);
         setMember(response.data);
       } catch (error) {
         console.error("회원 정보 불러오기 실패:", error);
@@ -205,11 +207,22 @@ const MyPage = () => {
           <InfoRow>
             <strong>보유 줍코인</strong>
             <div>
-              <CoinValue>{USER.coin.toLocaleString()} 줍코인</CoinValue>
+              <CoinValue>
+                {member?.credit?.toLocaleString() || 0} 줍코인
+              </CoinValue>
               <ChargeBtn onClick={() => setShowCharge(true)}>충전</ChargeBtn>
 
               {showCharge && (
-                <ChargeModal onClose={() => setShowCharge(false)} />
+                <ChargeModal
+                  onClose={() => setShowCharge(false)}
+                  userId={user?.id} // userId 넘기기
+                  onSuccess={(amount) => {
+                    setMember((prev) => ({
+                      ...prev,
+                      credit: prev.credit + amount,
+                    }));
+                  }}
+                />
               )}
             </div>
           </InfoRow>
