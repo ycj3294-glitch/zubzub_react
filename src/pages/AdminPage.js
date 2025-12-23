@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import { Editor } from "@toast-ui/react-editor";
 import "@toast-ui/editor/dist/toastui-editor.css";
+import AxiosApi from "../api/AxiosAPI";
 
 /* =========================
    Styled
@@ -222,18 +223,32 @@ const AdminPage = () => {
      - approved:false 목록에서 일정 설정 → 확인으로 승인
   ========================= */
 
-  const [auctions, setAuctions] = useState(
-    [...Array(6)].map((_, i) => ({
-      id: i,
-      title: `대규모 경매 #${i + 1}`,
-      seller: `판매자_${i + 1}`,
-      approved: false,
-      schedule: {
-        date: null, // "YYYY-MM-DD"
-        time: null, // "HH:mm"
-      },
-    }))
-  );
+  // const [auctions, setAuctions] = useState(
+  //   [...Array(6)].map((_, i) => ({
+  //     id: i,
+  //     title: `대규모 경매 #${i + 1}`,
+  //     seller: `판매자_${i + 1}`,
+  //     approved: false,
+  //     schedule: {
+  //       date: null, // "YYYY-MM-DD"
+  //       time: null, // "HH:mm"
+  //     },
+  //   }))
+  // );
+
+  // 실제 경매 승인 대기 데이터 받아오기
+  const [auctions, setAuctions] = useState([]);
+  useEffect(() => {
+    console.log("useEffect 실행됨");
+    console.log(AxiosApi.getPendingAuctions);
+    AxiosApi.getPendingAuctions()
+      .then((response) => {
+        setAuctions(response.data);
+      })
+      .catch((error) => {
+        console.error("승인대기 목록을 받아오지 못했습니다.", error);
+      });
+  }, []);
 
   /* =========================
      3) 대규모 일정 관리
@@ -636,12 +651,10 @@ const AdminPage = () => {
           <tbody>
             {auctions.map((a) => (
               <tr key={a.id}>
-                <td>{a.seller}</td>
-                <td className="title">{a.title}</td>
+                <td>{a.sellerId}</td>
+                <td className="title">{a.itemName}</td>
                 <td>
-                  <Badge approved={a.approved}>
-                    {a.approved ? "승인완료" : "대기"}
-                  </Badge>
+                  <Badge approved={a.auctionStatus}>대기</Badge>
                 </td>
                 <td>{formatScheduleLabel(a)}</td>
                 <td>
@@ -669,7 +682,7 @@ const AdminPage = () => {
         <FormBox>
           <h2>경매 일정 설정 (승인)</h2>
           <p style={{ fontFamily: "Noto Sans KR" }}>
-            <b>{selected.title}</b> / 판매자: {selected.seller}
+            <b>{selected.itemName}</b> / 판매자: {selected.sellerId}
           </p>
 
           <TwoCol>

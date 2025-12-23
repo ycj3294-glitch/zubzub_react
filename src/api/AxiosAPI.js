@@ -120,4 +120,9 @@ AxiosApi.checkNickname = async (nickname) => {
   });
 };
 
+// 대규모 경매 승인 대기 목록 조회
+AxiosApi.getPendingAuctions = async () => {
+  return await AxiosApi.get("/api/admin/pending");
+};
+
 export default AxiosApi;
