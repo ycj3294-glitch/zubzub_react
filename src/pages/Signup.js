@@ -130,6 +130,7 @@ const SubmitButton = styled.button`
 
 const Signup = () => {
   const nav = useNavigate();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [emailCode, setEmailCode] = useState("");
   const [emailVerified, setEmailVerified] = useState(false);
@@ -341,6 +342,16 @@ const Signup = () => {
           {passwordConfirm && password !== passwordConfirm && (
             <ErrorText>비밀번호가 일치하지 않습니다</ErrorText>
           )}
+        </Row>
+        {/* 이름 */}
+        <Row>
+          <lable>이름</lable>
+          <input
+            type="text"
+            placeholder="이름"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
         </Row>
 
         {/* 닉네임 */}
