@@ -177,61 +177,61 @@ const AuctionItem = styled.div`
 ========================= */
 
 const AuctionSchedule = () => {
-  // const [selectedDate, setSelectedDate] = useState(18);
-
-  // const events = {
-  //   1: [
-  //     {
-  //       id: 101,
-  //       title: "새해 첫 한정판 경매 대공개",
-  //       seller: "ZubZub_KR",
-  //       time: "14:00",
-  //     },
-  //   ],
-  //   3: [
-  //     {
-  //       id: 102,
-  //       title: "샤넬 팝업 초특가 경매 세일",
-  //       seller: "Luxury_H",
-  //       time: "18:00",
-  //     },
-  //   ],
-  //   18: [
-  //     {
-  //       id: 104,
-  //       title: "맥북 프로 M3 미개봉 풀박스",
-  //       seller: "Tech_Master",
-  //       time: "15:00",
-  //     },
-  //     {
-  //       id: 105,
-  //       title: "레트로 게임기 닌텐도 모음집",
-  //       seller: "Retro_King",
-  //       time: "21:00",
-  //     },
-  //   ],
-  //   24: [
-  //     {
-  //       id: 106,
-  //       title: "크리스마스 이브 특별 옥션 이벤트",
-  //       seller: "Santa_Zub",
-  //       time: "12:00",
-  //     },
-  //   ],
-  // };
-
-  const [events, setEvents] = useState([]);
   const [selectedDate, setSelectedDate] = useState(18);
 
-  useEffect(() => {
-    AxiosApi.getAuctionSchedule("/api/auction/schedule")
-      .then((response) => {
-        setEvents(response.data);
-      })
-      .catch((error) => {
-        console.error("스케쥴을 받아오지 못했습니다.", error);
-      });
-  }, []);
+  const events = {
+    1: [
+      {
+        id: 101,
+        title: "새해 첫 한정판 경매 대공개",
+        seller: "ZubZub_KR",
+        time: "14:00",
+      },
+    ],
+    3: [
+      {
+        id: 102,
+        title: "샤넬 팝업 초특가 경매 세일",
+        seller: "Luxury_H",
+        time: "18:00",
+      },
+    ],
+    18: [
+      {
+        id: 104,
+        title: "맥북 프로 M3 미개봉 풀박스",
+        seller: "Tech_Master",
+        time: "15:00",
+      },
+      {
+        id: 105,
+        title: "레트로 게임기 닌텐도 모음집",
+        seller: "Retro_King",
+        time: "21:00",
+      },
+    ],
+    24: [
+      {
+        id: 106,
+        title: "크리스마스 이브 특별 옥션 이벤트",
+        seller: "Santa_Zub",
+        time: "12:00",
+      },
+    ],
+  };
+
+  // const [events, setEvents] = useState([]);
+  // const [selectedDate, setSelectedDate] = useState(18);
+
+  // useEffect(() => {
+  //   AxiosApi.getAuctionSchedule("/api/auction/schedule")
+  //     .then((response) => {
+  //       setEvents(response.data);
+  //     })
+  //     .catch((error) => {
+  //       console.error("스케쥴을 받아오지 못했습니다.", error);
+  //     });
+  // }, []);
 
   return (
     <PageWrapper>
