@@ -20,6 +20,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setIsLogin(false);
     setUser(null);
+    localStorage.removeItem("accessToken");
+    setAccessToken(null);
   };
 
   const checkLogin = async () => {
@@ -38,34 +40,55 @@ export const AuthProvider = ({ children }) => {
     if (accessToken) {
       localStorage.setItem("accessToken", accessToken);
       console.log("스토리지에 액세스토큰 저장", accessToken);
+    } else {
+      localStorage.removeItem("accessToken");
+    }
+  }, [accessToken]);
 
-      AxiosAPI.interceptors.request.use((config) => {
-        config.headers.Authorization = `Bearer ${accessToken}`;
-        return config;
-      });
+  useEffect(() => {
+    // 항상 최신 토큰을 localStorage에서 읽어오기
+    AxiosAPI.interceptors.request.use((config) => {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    });
 
-      AxiosAPI.interceptors.response.use(
-        (response) => response,
-        async (error) => {
-          const originalRequest = error.config;
-          if (error.response?.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
-            try {
-              const res = await AxiosAPI.refresh();
-              const { accessToken } = res.data;
-              setAccessToken(accessToken);
-              originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-              return AxiosAPI(originalRequest); // 실패했던 요청 재시도
-            } catch (err) {
-              logout();
-              return Promise.reject(err);
-            }
-          }
+    AxiosAPI.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+
+        // refresh API는 인터셉터 제외
+        if (originalRequest.url.includes("/refresh")) {
           return Promise.reject(error);
         }
-      );
-    } else localStorage.removeItem("accessToken", null);
-  }, [accessToken]);
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+
+          try {
+            console.log("토큰재발행");
+            const res = await AxiosAPI.refresh();
+            const newToken = res.data;
+
+            setAccessToken(newToken);
+            localStorage.setItem("accessToken", newToken);
+            console.log("스토리지에 새 액세스토큰 저장", newToken);
+
+            // 원래 요청 재실행 (request 인터셉터가 최신 토큰을 자동으로 넣음)
+            return AxiosAPI(originalRequest);
+          } catch (refreshError) {
+            logout();
+            return Promise.reject(refreshError);
+          }
+        }
+
+        return Promise.reject(error);
+      }
+    );
+  }, []);
 
   useEffect(() => {
     checkLogin();
