@@ -718,15 +718,6 @@ const AdminPage = () => {
             <div className="left" style={{ fontFamily: "Noto Sans KR" }}>
               <b>2025년 12월</b> (더미 캘린더)
             </div>
-            <div className="right">
-              <Button
-                onClick={() => {
-                  alert("월 이동 같은 기능은 다음에 붙이면 됨");
-                }}
-              >
-                기능 확장
-              </Button>
-            </div>
           </TopActions>
           {renderCalendar()}
         </>
