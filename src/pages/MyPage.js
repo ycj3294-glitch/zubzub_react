@@ -161,6 +161,8 @@ const MoreBtn = styled.button`
 const MyPage = () => {
   const { isLogin, user } = useAuth();
   const [member, setMember] = useState(null);
+  const [winList, setWinList] = useState([]);
+  const [sellList, setSellList] = useState([]);
   const [showCharge, setShowCharge] = useState(false);
   const nav = useNavigate();
 
@@ -181,6 +183,25 @@ const MyPage = () => {
       fetchUserInfo();
     }
   }, [user]);
+
+  useEffect(() => {
+    const fetchListInfo = async () => {
+      console.log("userEffect:", user);
+      try {
+        const winResponse = await AxiosApi.getWinList(user.id);
+        const sellResponse = await AxiosApi.getSellList(user.id);
+
+        setWinList(winResponse.data);
+        setSellList(sellResponse.data);
+      } catch (error) {
+        console.error("리스트 정보 불러오기 실패:", error);
+      }
+    };
+
+    if (user && user.id) {
+      fetchListInfo();
+    }
+  }, [user?.id]);
 
   return (
     <Container>
@@ -236,10 +257,10 @@ const MyPage = () => {
       {/* 구매내역 */}
       <Section>
         <SectionTitle>구매내역</SectionTitle>
-        {HISTORY.map((item, idx) => (
+        {winList.map((item, idx) => (
           <HistoryRow key={idx}>
-            <span>{item.title}</span>
-            <span>{item.date}</span>
+            <span>{item.itemName}</span>
+            <span>{item.endTime}</span>
           </HistoryRow>
         ))}
         {/* ✅ 버튼 수정: AuctionHistory 페이지로 이동 */}
@@ -251,10 +272,10 @@ const MyPage = () => {
       {/* 판매내역 */}
       <Section>
         <SectionTitle>판매내역</SectionTitle>
-        {HISTORY.map((item, idx) => (
+        {sellList.map((item, idx) => (
           <HistoryRow key={idx}>
-            <span>{item.title}</span>
-            <span>{item.date}</span>
+            <span>{item.itemName}</span>
+            <span>{item.endTime}</span>
           </HistoryRow>
         ))}
         {/* ✅ 버튼 수정: AuctionHistory 페이지로 이동 */}
