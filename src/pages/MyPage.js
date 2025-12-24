@@ -154,6 +154,13 @@ const MoreBtn = styled.button`
   font-size: 13px;
 `;
 
+const EmptyMessage = styled.div`
+  padding: 20px;
+  text-align: center;
+  color: #999;
+  font-size: 14px;
+`;
+
 /* =====================
    Component
 ===================== */
@@ -257,13 +264,16 @@ const MyPage = () => {
       {/* 구매내역 */}
       <Section>
         <SectionTitle>구매내역</SectionTitle>
-        {winList.map((item, idx) => (
-          <HistoryRow key={idx}>
-            <span>{item.itemName}</span>
-            <span>{item.endTime}</span>
-          </HistoryRow>
-        ))}
-        {/* ✅ 버튼 수정: AuctionHistory 페이지로 이동 */}
+        {winList.length > 0 ? (
+          winList.map((item, idx) => (
+            <HistoryRow key={idx}>
+              <span>{item.itemName}</span>
+              <span>{item.endTime}</span>
+            </HistoryRow>
+          ))
+        ) : (
+          <EmptyMessage>구매내역이 없습니다.</EmptyMessage>
+        )}
         <MoreBtn onClick={() => nav("/auction-history")}>
           나의 경매 기록 보기
         </MoreBtn>
@@ -272,13 +282,16 @@ const MyPage = () => {
       {/* 판매내역 */}
       <Section>
         <SectionTitle>판매내역</SectionTitle>
-        {sellList.map((item, idx) => (
-          <HistoryRow key={idx}>
-            <span>{item.itemName}</span>
-            <span>{item.endTime}</span>
-          </HistoryRow>
-        ))}
-        {/* ✅ 버튼 수정: AuctionHistory 페이지로 이동 */}
+        {sellList.length > 0 ? (
+          sellList.map((item, idx) => (
+            <HistoryRow key={idx}>
+              <span>{item.itemName}</span>
+              <span>{item.endTime}</span>
+            </HistoryRow>
+          ))
+        ) : (
+          <EmptyMessage>판매내역이 없습니다.</EmptyMessage>
+        )}
         <MoreBtn onClick={() => nav("/auction-history")}>
           나의 경매 기록 보기
         </MoreBtn>
