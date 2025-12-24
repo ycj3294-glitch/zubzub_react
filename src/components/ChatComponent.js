@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { sendMessage, getMessages } from "../api/chatApi";
+import { sendMessage, getMessages } from "../api/AxiosAPI";
 import { connectMessageBroadcast } from "../api/broadcast";
 
 const ChatContainer = styled.div`

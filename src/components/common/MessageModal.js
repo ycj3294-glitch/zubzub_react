@@ -1,5 +1,6 @@
 import styled from "styled-components";
-import React, { useState } from "react"; // ✅ useState 추가
+import React, { useEffect, useState } from "react"; // ✅ useState 추가
+import { getReceivedMessages } from "../../api/AxiosAPI";
 
 /* =====================
    styled
@@ -88,7 +89,7 @@ const Pagination = styled.div`
    Component
 ===================== */
 
-const MessageModal = ({ onClose }) => {
+const MessageModal = ({ onClose, onOpen }) => {
   // ✅ 메세지 상태 관리 (초기값은 Dummy Data)
   const [messages, setMessages] = useState([
     {
@@ -113,6 +114,15 @@ const MessageModal = ({ onClose }) => {
       messages.map((msg) => (msg.id === id ? { ...msg, read: true } : msg))
     );
   };
+  const handleReceive = async () => {
+    const res = await getReceivedMessages();
+    console.log("dsf", res);
+    setMessages(res.data);
+  };
+
+  useEffect(() => {
+    handleReceive();
+  }, []);
 
   return (
     <>

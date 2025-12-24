@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createAuction } from "../../api/auctionApi";
+import { createAuction } from "../../api/AxiosAPI";
 import ImageUploader from "../ImageUploader";
 
 const CreateAuction = () => {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createBid } from "../../api/auctionApi";
+import { createBid } from "../../api/AxiosAPI";
 
 const CreateBidComponent = ({ auctionId }) => {
   const [bidFormData, setBidFormData] = useState({

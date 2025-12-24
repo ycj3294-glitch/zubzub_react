@@ -24,18 +24,6 @@ export const AuthProvider = ({ children }) => {
     setAccessToken(null);
   };
 
-  const checkLogin = async () => {
-    try {
-      const res = await AxiosAPI.me();
-      login(res.data);
-      console.log("로그인됨", res.data);
-    } catch (e) {
-      console.log("not logged in");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
     if (accessToken) {
       localStorage.setItem("accessToken", accessToken);
@@ -105,19 +93,29 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    const checkLogin = async () => {
+      try {
+        const res = await AxiosAPI.me();
+        login(res.data);
+        console.log("로그인됨", res.data);
+      } catch (e) {
+        console.log("not logged in");
+      } finally {
+        setLoading(false);
+      }
+    };
     checkLogin();
-  }, []);
+  }, [accessToken]);
 
   return (
     <AuthContext.Provider
       value={{
         isLogin,
         user,
-        login,
-        checkLogin,
-        logout,
         loading,
         accessToken,
+        login,
+        logout,
         setAccessToken,
       }}
     >

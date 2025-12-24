@@ -3,7 +3,7 @@ import { useState, useRef } from "react";
 import { Editor } from "@toast-ui/react-editor";
 import "@toast-ui/editor/dist/toastui-editor.css";
 import ImageUploader from "../components/ImageUploader";
-import { createAuction } from "../api/auctionApi";
+import { createAuction } from "../api/AxiosAPI";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 

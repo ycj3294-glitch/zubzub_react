@@ -127,8 +127,10 @@ const Login = () => {
   const [errors, setErrors] = useState({ email: "", pwd: "", common: "" });
   const [showFindPwd, setShowFindPwd] = useState(false);
 
-  const { checkLogin, setAccessToken } = useAuth();
+  const { setAccessToken, isLogin } = useAuth();
   const nav = useNavigate();
+
+  if (isLogin) nav("/");
 
   const loginHandler = async () => {
     let valid = true;
@@ -159,8 +161,6 @@ const Login = () => {
         AxiosAPI.defaults.headers.common[
           "Authorization"
         ] = `Bearer ${accessToken}`;
-        checkLogin();
-        nav("/");
       } else {
         setErrors((p) => ({
           ...p,

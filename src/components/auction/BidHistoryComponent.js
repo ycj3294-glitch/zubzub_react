@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { loadBidHistories } from "../../api/bidHistoryApi";
+import { loadBidHistories } from "../../api/AxiosAPI";
 
 const Container = styled.div`
   width: 300px;
