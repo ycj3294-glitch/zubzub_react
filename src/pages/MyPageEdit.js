@@ -3,6 +3,8 @@ import styled from "styled-components";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import AxiosApi from "../api/AxiosAPI";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { uploadFile } from "../api/firebase";
 
 /* =====================
    styled (MyPage 기반)
@@ -116,7 +118,18 @@ const MyPageEdit = () => {
   const [passwordConfirm, setPasswordConfirm] = useState("");
   const [profileImg, setProfileImg] = useState("/images/profile.jpg");
 
+  // 이미지 업로드 핸들러
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const url = await uploadFile(file);
+    console.log("🔥 setProfileImg에 들어가는 값:", url);
+    setProfileImg(url);
+  };
+
   const handleSave = async () => {
+    console.log("🚨 저장 직전 profileImg:", profileImg);
     // 1. 유효성 검사
     if (password && password !== passwordConfirm) {
       alert("비밀번호가 일치하지 않습니다.");
@@ -130,7 +143,14 @@ const MyPageEdit = () => {
 
     try {
       // 2. AxiosApi 호출 (id, 닉네임, 패스워드 전달)
-      const res = await AxiosApi.updateMember(user.id, nickname, password);
+      const res = await AxiosApi.updateMember(
+        user.id,
+        nickname,
+        password,
+        profileImg
+      );
+      //이미지 제대로 전달됐는지 확인
+      console.log("이미지 들어갔냐?:", profileImg);
 
       if (res.status === 200 || res.data === true) {
         alert("개인정보가 수정되었습니다.");
@@ -138,7 +158,11 @@ const MyPageEdit = () => {
         // 3. ✅ 전역 상태(AuthContext) 동기화
         // 수정된 닉네임을 전역 user 객체에 반영해서 다시 저장합니다.
         // 이렇게 해야 메인화면이나 마이페이지의 닉네임이 바로 바뀝니다.
-        const updatedUser = { ...user, nickname: nickname };
+        const updatedUser = {
+          ...user,
+          nickname: nickname,
+          profileImg: profileImg,
+        };
         login(updatedUser, accessToken);
 
         // 4. 완료 후 마이페이지로 이동
@@ -170,12 +194,7 @@ const MyPageEdit = () => {
             type="file"
             accept="image/*"
             hidden
-            onChange={(e) => {
-              const file = e.target.files[0];
-              if (file) {
-                setProfileImg(URL.createObjectURL(file));
-              }
-            }}
+            onChange={handleFileChange}
           />
         </ProfileImgWrap>
 

@@ -215,7 +215,7 @@ const MyPage = () => {
       {/* 프로필 */}
       <ProfileRow>
         <ProfileImgWrap>
-          <ProfileImg src="/images/profile.jpg" />
+          <ProfileImg src={member?.profileImg} />
         </ProfileImgWrap>
 
         <InfoBox>

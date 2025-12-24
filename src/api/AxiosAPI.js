@@ -237,10 +237,11 @@ export const deleteMessage = async (messageId) => {
 };
 
 //회원 정보 수정
-AxiosApi.updateMember = async (id, nickname, pwd) => {
+AxiosApi.updateMember = async (id, nickname, pwd, profileImg) => {
   const memberDto = {
     nickname: nickname,
     pwd: pwd,
+    profileImg: profileImg,
   };
   return await AxiosApi.patch(`/api/members/${id}`, memberDto);
 };
