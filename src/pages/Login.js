@@ -6,14 +6,12 @@ import { useAuth } from "../context/AuthContext";
 import FindPwdModal from "./FindPassword";
 
 /* =========================
-    Styled Components
+    Styled Components (기존 유지)
 ========================= */
-
 const LoginWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* 로고가 빠진 만큼 상단 여백을 더 바짝 올림 */
   justify-content: flex-start;
   padding-top: 100px;
   min-height: 100vh;
@@ -42,7 +40,6 @@ const LoginCard = styled.div`
 
 const InputGroup = styled.div`
   margin-bottom: 12px;
-
   input {
     width: 100%;
     padding: 15px;
@@ -52,12 +49,10 @@ const InputGroup = styled.div`
     font-size: 15px;
     outline: none;
     transition: all 0.2s ease-in-out;
-
     &:focus {
       border-color: #000;
       background-color: #fcfcfc;
     }
-
     &::placeholder {
       color: #bbb;
     }
@@ -84,7 +79,6 @@ const LoginButton = styled.button`
   cursor: pointer;
   margin-top: 15px;
   transition: background-color 0.2s ease;
-
   &:hover {
     background-color: #333;
   }
@@ -96,20 +90,17 @@ const BottomMenu = styled.div`
   align-items: center;
   margin-top: 30px;
   gap: 15px;
-
   a,
   span {
     font-size: 13px;
     color: #777;
     text-decoration: none;
     cursor: pointer;
-
     &:hover {
       color: #000;
       text-decoration: underline;
     }
   }
-
   .divider {
     width: 1px;
     height: 12px;
@@ -120,17 +111,20 @@ const BottomMenu = styled.div`
 /* =========================
     Component Logic
 ========================= */
-
 const Login = () => {
   const [email, setEmail] = useState("");
   const [pwd, setPwd] = useState("");
   const [errors, setErrors] = useState({ email: "", pwd: "", common: "" });
   const [showFindPwd, setShowFindPwd] = useState(false);
 
-  const { setAccessToken, isLogin } = useAuth();
+  // ✅ login 함수를 추가로 비구조화 할당
+  const { setAccessToken, isLogin, login } = useAuth();
   const nav = useNavigate();
 
-  if (isLogin) nav("/");
+  // 이미 로그인된 상태라면 메인으로 리다이렉트
+  if (isLogin) {
+    nav("/");
+  }
 
   const loginHandler = async () => {
     let valid = true;
@@ -150,31 +144,38 @@ const Login = () => {
 
     try {
       const res = await AxiosAPI.login(email, pwd);
+
       if (res.status === 200 || res.status === 201) {
+        // ✅ 토큰과 나머지 유저 정보를 분리
         const { accessToken, refreshToken, ...userData } = res.data;
-        console.log("이건로그인시응답 : ", res.data);
-        console.log("유저데이터 : ", userData);
-        console.log("액세스토큰 : ", accessToken);
-        console.log("저장한다");
+
+        console.log("로그인 응답 데이터:", res.data);
+
+        // 1. Context 및 로컬스토리지에 액세스 토큰 저장
         setAccessToken(accessToken);
-        console.log("저장함");
-        AxiosAPI.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${accessToken}`;
+
+        // 2. ✅ 중요: AuthContext의 login을 호출하여 유저 상태 및 isAdmin 권한 세팅
+        // 이렇게 해야 새로고침 없이도 즉시 관리자 메뉴가 활성화됩니다.
+        login(userData, accessToken);
+
+        console.log("로그인 완료 -> 메인 페이지로 이동");
+
+        // 3. 메인으로 이동
+        nav("/");
       } else {
         setErrors((p) => ({
           ...p,
           common: "이메일 또는 비밀번호가 올바르지 않습니다",
         }));
       }
-    } catch {
+    } catch (error) {
+      console.error("Login Error:", error);
       setErrors((p) => ({ ...p, common: "서버 오류가 발생했습니다" }));
     }
   };
 
   return (
     <LoginWrapper>
-      {/* 로고 컨테이너 제거됨 */}
       <LoginCard>
         <h2>로그인</h2>
         <form
@@ -213,10 +214,9 @@ const Login = () => {
           <LoginButton type="submit">로그인</LoginButton>
         </form>
         <BottomMenu>
-          {/* 아이디 찾기 -> 이메일 찾기로 변경 및 클릭 기능만 유지 */}
           <span
             onClick={() => {
-              /* 기능 없음 */
+              /* 이메일 찾기 로직 필요 시 추가 */
             }}
           >
             이메일 찾기
