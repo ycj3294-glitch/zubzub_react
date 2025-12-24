@@ -231,3 +231,12 @@ export const deleteMessage = async (messageId) => {
   const res = await AxiosApi.post(`/api/messages/${messageId}/delete`, null);
   return res.data;
 };
+
+//회원 정보 수정
+AxiosApi.updateMember = async (id, nickname, pwd) => {
+  const memberDto = {
+    nickname: nickname,
+    pwd: pwd,
+  };
+  return await AxiosApi.patch(`/api/members/${id}`, memberDto);
+};
