@@ -188,8 +188,8 @@ const MyPage = () => {
     const fetchListInfo = async () => {
       console.log("userEffect:", user);
       try {
-        const winResponse = await AxiosApi.getWinList(user.id);
-        const sellResponse = await AxiosApi.getSellList(user.id);
+        const winResponse = await AxiosApi.getWinList5(user.id);
+        const sellResponse = await AxiosApi.getSellList5(user.id);
 
         setWinList(winResponse.data);
         setSellList(sellResponse.data);

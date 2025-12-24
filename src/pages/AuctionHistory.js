@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import AxiosApi from "../api/AxiosAPI";
+import { jwtDecode } from "jwt-decode";
 
 /* =====================
    Styled Components
@@ -119,44 +121,77 @@ const ModalContent = styled.div`
 `;
 
 /* =====================
-   Dummy Data (각 15개씩 생성)
-===================== */
-const generateData = (prefix) =>
-  Array.from({ length: 25 }, (_, i) => ({
-    id: i + 1,
-    title: `${prefix} 물품 내역 ${i + 1}`,
-    date: `2025.12.${25 - i} - 14:00:00`,
-    price: `${(i + 1) * 10000}원`,
-    status: i % 2 === 0 ? "낙찰완료" : "진행중",
-  }));
-
-const DATA = {
-  purchase: generateData("구매"),
-  sales: generateData("판매"),
-};
-
-/* =====================
    Component
 ===================== */
 
 const AuctionHistory = () => {
   const nav = useNavigate();
   const [activeTab, setActiveTab] = useState("purchase");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [memberId, setMemberId] = useState(null);
+  // 구매내역 관련 데이터
+  const [purchaseData, setPurchaseData] = useState([]); // 구매 내역 데이터
+  const [purchasePage, setPurchasePage] = useState(1);
+  const [purchaseTotalPages, setPurchaseTotalPages] = useState(1);
+  // 판매내역 관련 데이터
+  const [salesData, setSalesData] = useState([]); // 판매 내역 데이터
+  const [salesPage, setSalesPage] = useState(1);
+  const [salesTotalPages, setSalesTotalPages] = useState(1);
+
   const [selectedItem, setSelectedItem] = useState(null); // 모달 상세 정보
 
-  const itemsPerPage = 10;
-  const currentItems = DATA[activeTab];
+  // JWT에서 userId 추출
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        console.log(decoded); // payload 확인
+        setMemberId(decoded.memberId); // 실제 이름 확인 후 수정
+      } catch (err) {
+        console.error("토큰 디코딩 실패", err);
+      }
+    }
+  }, []);
 
-  // 페이지네이션 계산
-  const totalPages = Math.ceil(currentItems.length / itemsPerPage);
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const pagedItems = currentItems.slice(indexOfFirstItem, indexOfLastItem);
+  // 구매 내역 가져오기
+  useEffect(() => {
+    if (!memberId) return; // memberId가 없으면 요청하지 않음
+    const fetchPurchaseListInfo = async () => {
+      try {
+        // 구매 내역
+        const purchaseResponse = await AxiosApi.getWinList(memberId);
+        setPurchaseData(purchaseResponse.data.content);
+        setPurchaseTotalPages(purchaseResponse.data.totalPages);
+        setPurchasePage(purchaseResponse.data.number);
+      } catch (err) {
+        console.error("데이터를 가져오는데 실패했습니다.", err);
+      }
+    };
+
+    fetchPurchaseListInfo();
+  }, [memberId, purchasePage]);
+
+  // 판매 내역 가져오기
+  useEffect(() => {
+    if (!memberId) return; // memberId가 없으면 요청하지 않음
+    const fetchSellListInfo = async () => {
+      try {
+        // 판매 내역
+        const salesResponse = await AxiosApi.getSellList(memberId);
+        setSalesData(salesResponse.data.content);
+        setSalesTotalPages(salesResponse.data.totalPages);
+        setSalesPage(salesResponse.data.number);
+      } catch (err) {
+        console.error("데이터를 가져오는데 실패했습니다.", err);
+      }
+    };
+
+    fetchSellListInfo();
+  }, [memberId, salesPage]);
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
-    setCurrentPage(1); // 탭 변경 시 1페이지로 리셋
+    setPurchasePage(1); // 탭 변경 시 1페이지로 리셋
   };
 
   return (
@@ -185,42 +220,86 @@ const AuctionHistory = () => {
         <span>거래 일시</span>
       </TableHeader>
 
-      {pagedItems.map((item) => (
-        <Row key={item.id} onClick={() => setSelectedItem(item)}>
-          <span>{item.id}</span>
-          <span style={{ textAlign: "left", paddingLeft: "20px" }}>
-            {item.title}
-          </span>
-          <span>{item.date}</span>
-        </Row>
-      ))}
+      {activeTab === "purchase" &&
+        purchaseData.length > 0 &&
+        purchaseData.map((item) => (
+          <Row key={item.id} onClick={() => setSelectedItem(item)}>
+            <span>{item.id}</span>
+            <span style={{ textAlign: "left", paddingLeft: "20px" }}>
+              {item.itemName}
+            </span>
+            <span>{item.endTime}</span>
+          </Row>
+        ))}
+
+      {activeTab === "sales" &&
+        salesData.length > 0 &&
+        salesData.map((item) => (
+          <Row key={item.id} onClick={() => setSelectedItem(item)}>
+            <span>{item.id}</span>
+            <span style={{ textAlign: "left", paddingLeft: "20px" }}>
+              {item.itemName}
+            </span>
+            <span>{item.endTime}</span>
+          </Row>
+        ))}
 
       {/* 페이지네이션 버튼 */}
-      <Pagination>
-        <button
-          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-        >
-          이전
-        </button>
-        {Array.from({ length: totalPages }, (_, i) => (
+      {activeTab === "purchase" && (
+        <Pagination>
           <button
-            key={i + 1}
-            className={currentPage === i + 1 ? "active" : ""}
-            onClick={() => setCurrentPage(i + 1)}
+            onClick={() => setPurchasePage((prev) => Math.max(prev - 1, 1))}
+            disabled={purchasePage === 1}
           >
-            {i + 1}
+            이전
           </button>
-        ))}
-        <button
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-          }
-          disabled={currentPage === totalPages}
-        >
-          다음
-        </button>
-      </Pagination>
+          {Array.from({ length: purchaseTotalPages }, (_, i) => (
+            <button
+              key={i + 1}
+              className={purchasePage === i + 1 ? "active" : ""}
+              onClick={() => setPurchasePage(i + 1)}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            onClick={() =>
+              setPurchasePage((prev) => Math.min(prev + 1, purchaseTotalPages))
+            }
+            disabled={purchasePage === purchaseTotalPages}
+          >
+            다음
+          </button>
+        </Pagination>
+      )}
+
+      {activeTab === "sales" && (
+        <Pagination>
+          <button
+            onClick={() => setSalesPage((prev) => Math.max(prev - 1, 1))}
+            disabled={salesPage === 1}
+          >
+            이전
+          </button>
+          {Array.from({ length: salesTotalPages }, (_, i) => (
+            <button
+              key={i + 1}
+              className={salesPage === i + 1 ? "active" : ""}
+              onClick={() => setSalesPage(i + 1)}
+            >
+              {i + 1}
+            </button>
+          ))}
+          <button
+            onClick={() =>
+              setSalesPage((prev) => Math.min(prev + 1, salesTotalPages))
+            }
+            disabled={salesPage === salesTotalPages}
+          >
+            다음
+          </button>
+        </Pagination>
+      )}
 
       {/* 상세 내역 모달 */}
       {selectedItem && (
@@ -248,16 +327,16 @@ const AuctionHistory = () => {
               경매 상세 정보
             </h3>
             <p>
-              <strong>물품명:</strong> {selectedItem.title}
+              <strong>물품명:</strong> {selectedItem.itemName}
             </p>
             <p>
-              <strong>거래가:</strong> {selectedItem.price}
+              <strong>거래가:</strong> {selectedItem.finalPrice}
             </p>
             <p>
-              <strong>일시:</strong> {selectedItem.date}
+              <strong>일시:</strong> {selectedItem.endTime}
             </p>
             <p>
-              <strong>상태:</strong> {selectedItem.status}
+              <strong>상태:</strong> {selectedItem.auctionStatus}
             </p>
             <button
               onClick={() => setSelectedItem(null)}

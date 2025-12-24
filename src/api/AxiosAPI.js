@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { Axios } from "axios";
 
 const BASE_URL = "http://localhost:8111";
 
@@ -143,14 +143,23 @@ AxiosApi.chargeCredit = async (userId, amount) => {
   return await AxiosApi.post(`/api/members/${userId}/credit?coin=${amount}`);
 };
 
-// 낙찰 리스트 조회
-AxiosApi.getWinList = async (userId) => {
+// 낙찰 리스트5 조회
+AxiosApi.getWinList5 = async (userId) => {
   return await AxiosApi.get(`/api/auctions/${userId}/win5`, {});
 };
 
-// 판매 리스트 조회
-AxiosApi.getSellList = async (userId) => {
+// 판매 리스트5 조회
+AxiosApi.getSellList5 = async (userId) => {
   return await AxiosApi.get(`/api/auctions/${userId}/sell5`, {});
+};
+
+// 낙찰 리스트 전부 조회
+AxiosApi.getWinList = async (memberId) => {
+  return await AxiosApi.get(`/api/auctions/${memberId}/winlist`, {});
+};
+// 판매 리스트 전부 조회
+AxiosApi.getSellList = async (memberId) => {
+  return await AxiosApi.get(`/api/auctions/${memberId}/selllist`, {});
 };
 
 export default AxiosApi;
