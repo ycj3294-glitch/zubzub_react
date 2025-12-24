@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import React, { useEffect, useState } from "react"; // ✅ useState 추가
-import { getReceivedMessages } from "../../api/AxiosAPI";
+import { getReceivedMessages } from "../api/AxiosAPI";
 
 /* =====================
    styled

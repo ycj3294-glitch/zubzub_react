@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import LogoImage1 from "../images/LogoImage1.png";
-import MessageModal from "./common/MessageModal";
+import MessageModal from "./MessageModal";
 import { useAuth } from "../context/AuthContext";
 import AxiosAPI from "../api/AxiosAPI";
 import axios from "axios";

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import styled from "styled-components";
-import AxiosApi from "../../api/AxiosAPI";
+import AxiosApi from "../api/AxiosAPI";
 
 const Overlay = styled.div`
   position: fixed;

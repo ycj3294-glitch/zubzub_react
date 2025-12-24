@@ -14,7 +14,7 @@ import ComponentTest from "./pages/ComponentTest";
 import AdminPage from "./pages/AdminPage";
 import AuctionSchedule from "./pages/AuctionSchedule";
 import CreateAuction from "./pages/CreateAuction";
-import ScrollToTop from "./components/common/ScrollToTop";
+import ScrollToTop from "./components/ScrollToTop";
 import MyPageEdit from "./pages/MyPageEdit";
 import MySales from "./pages/MySales";
 import AuctionHistory from "./pages/AuctionHistory";

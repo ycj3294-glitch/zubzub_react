@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
-import ChargeModal from "../components/common/ChargeModal";
+import ChargeModal from "../components/ChargeModal";
 import { useNavigate } from "react-router-dom";
 import AxiosApi from "../api/AxiosAPI";
 
