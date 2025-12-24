@@ -166,6 +166,10 @@ AxiosApi.getSellList = async (memberId) => {
   return await AxiosApi.get(`/api/auctions/${memberId}/selllist`);
 };
 
+AxiosApi.getAuctionDetail = async (auctionId) => {
+  return await AxiosApi.get(`/api/auctions/${auctionId}`);
+};
+
 export default AxiosApi;
 
 /* =========================

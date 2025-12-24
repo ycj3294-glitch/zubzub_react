@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import { useState /*, useEffect */ } from "react";
+import { useState, useEffect } from "react";
 import AxiosAPI from "../api/AxiosAPI"; // 🔥 붙여두기만 함
 
 /* =====================
@@ -166,25 +166,44 @@ const SectionTitle = styled.h2`
 
 const MinorAuctionDetail = () => {
   const { id } = useParams(); // 🔥 유지
-  const auction = DUMMY_AUCTION;
-
-  const [currentImg, setCurrentImg] = useState(0);
+  const [auction, setAuction] = useState("");
+  // 남은시간 계산용
+  const [remainingTime, setRemainingTime] = useState(0);
+  // const [currentImg, setCurrentImg] = useState(0);
   const [bidPrice, setBidPrice] = useState("");
 
   /* =====================
       서버 연동 (주석)
   ===================== */
 
-  /*
   useEffect(() => {
     const fetchAuction = async () => {
-      const res = await AxiosAPI.get(`/auction/minor/${id}`);
+      const res = await AxiosAPI.getAuctionDetail(id);
       setAuction(res.data);
     };
     fetchAuction();
   }, [id]);
-  */
 
+  useEffect(() => {
+    if (!auction?.endTime) return;
+
+    const interval = setInterval(() => {
+      const now = new Date();
+      const end = new Date(auction.endTime);
+      const diff = end - now; // ms 단위
+      setRemainingTime(diff > 0 ? diff : 0);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [auction.endTime]);
+
+  const formatTime = (ms) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    return `${hours}시간 ${minutes}분 ${seconds}초`;
+  };
   /*
   const handleBid = async () => {
     await AxiosAPI.post(`/auction/minor/${id}/bid`, {
@@ -197,21 +216,21 @@ const MinorAuctionDetail = () => {
      Front-only Logic
   ===================== */
 
-  const prevImage = () => {
-    setCurrentImg((prev) =>
-      prev === 0 ? auction.images.length - 1 : prev - 1
-    );
-  };
+  // const prevImage = () => {
+  //   setCurrentImg((prev) =>
+  //     prev === 0 ? auction.images.length - 1 : prev - 1
+  //   );
+  // };
 
-  const nextImage = () => {
-    setCurrentImg((prev) =>
-      prev === auction.images.length - 1 ? 0 : prev + 1
-    );
-  };
+  // const nextImage = () => {
+  //   setCurrentImg((prev) =>
+  //     prev === auction.images.length - 1 ? 0 : prev + 1
+  //   );
+  // };
 
   const handleBid = () => {
-    if (bidPrice < auction.currentPrice + auction.bidUnit) {
-      alert("입찰 금액이 부족합니다.");
+    if (bidPrice < auction.startPrice + auction.minBidUnit) {
+      alert("최소 입찰 금액보다 적습니다.");
       return;
     }
     alert("입찰 처리 (서버 연동 전)");
@@ -220,15 +239,16 @@ const MinorAuctionDetail = () => {
   return (
     <Container>
       <Header>
-        {auction.title} <span style={{ fontSize: 14 }}>#{id}</span>
+        {auction.itemName}{" "}
+        <span style={{ fontSize: 14 }}>#{id}번 일반경매</span>
       </Header>
 
       <MainGrid>
         {/* 이미지 */}
         <ImageWrap>
-          <MainImage src={auction.images[currentImg]} />
+          <MainImage src={auction.itemImg} />
 
-          <SliderWrapper>
+          {/* <SliderWrapper>
             <Arrow left onClick={prevImage}>
               ‹
             </Arrow>
@@ -244,18 +264,18 @@ const MinorAuctionDetail = () => {
                 />
               ))}
             </ThumbRow>
-          </SliderWrapper>
+          </SliderWrapper> */}
         </ImageWrap>
 
         {/* 경매 정보 */}
         <InfoBox>
-          <Price>현재가 {auction.currentPrice.toLocaleString()}원</Price>
+          <Price>시작가 {auction?.startPrice?.toLocaleString() || 0}원</Price>
 
           <InfoList>
-            <li>남은 시간 : {auction.remainTime}</li>
-            <li>입찰 횟수 : {auction.bidCount}회</li>
-            <li>입찰 단위 : {auction.bidUnit.toLocaleString()}원</li>
-            <li>즉시 구매 : 불가</li>
+            <li>남은 시간 : {formatTime(remainingTime)}</li>
+            <li>
+              입찰 단위 : {auction?.minBidUnit?.toLocaleString() || 100}원
+            </li>
           </InfoList>
 
           <BidRow>
@@ -272,13 +292,16 @@ const MinorAuctionDetail = () => {
       {/* 상품 설명 */}
       <Section>
         <SectionTitle>상품설명</SectionTitle>
-        <p style={{ whiteSpace: "pre-line" }}>{auction.description}</p>
+        <p style={{ whiteSpace: "pre-line" }}>{auction.itemDesc}</p>
       </Section>
 
       {/* 주의 사항 */}
       <Section>
         <SectionTitle>주의 사항</SectionTitle>
-        <p style={{ whiteSpace: "pre-line" }}>{auction.notice}</p>
+        <p style={{ whiteSpace: "pre-line" }}>
+          경매 특성상 단순 변심에 의한 환불은 불가합니다. 입찰 전 상품 설명을
+          반드시 확인해주세요
+        </p>
       </Section>
     </Container>
   );
