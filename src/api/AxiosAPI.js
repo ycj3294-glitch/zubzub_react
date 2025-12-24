@@ -143,6 +143,16 @@ AxiosApi.chargeCredit = async (userId, amount) => {
   return await AxiosApi.post(`/api/members/${userId}/credit?coin=${amount}`);
 };
 
+// 낙찰 리스트 조회
+AxiosApi.getWinList = async (userId) => {
+  return await AxiosApi.get(`/api/auctions/${userId}/win5`, {});
+};
+
+// 판매 리스트 조회
+AxiosApi.getSellList = async (userId) => {
+  return await AxiosApi.get(`/api/auctions/${userId}/sell5`, {});
+};
+
 export default AxiosApi;
 
 /* =========================
