@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { Editor } from "@toast-ui/react-editor";
 import "@toast-ui/editor/dist/toastui-editor.css";
 import AxiosApi from "../api/AxiosAPI";
+import { createMessage, sendMessage } from "../api/AxiosAPI";
 
 /* =========================
    Styled
@@ -34,6 +35,42 @@ const Nav = styled.nav`
       font-weight: bold;
       border-bottom: 2px solid #000;
     }
+  }
+`;
+// 화면 전체를 어둡게 덮는 배경
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); // 반투명 검정
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000; // 다른 요소보다 위에 보이게 함
+`;
+
+// 중앙에 흰색 박스
+const ModalContent = styled.div`
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  width: 450px;
+  border: 2px solid #000;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+
+  h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-family: "dnf bitbit v2";
+  }
+
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-family: "Noto Sans KR";
+    font-weight: bold;
   }
 `;
 
@@ -193,6 +230,13 @@ const formatScheduleLabel = (auction) => {
 ========================= */
 
 const AdminPage = () => {
+  const [isMsgModalOpen, setIsMsgModalOpen] = useState(false);
+  const [msgTarget, setMsgTarget] = useState({
+    id: null,
+    nickname: "",
+    isAll: false,
+  });
+  const [msgForm, setMsgForm] = useState({ title: "", content: "" });
   const MENUS = useMemo(
     () => ["회원관리", "대규모 경매 승인", "대규모 일정 관리", "공지 사항"],
     []
@@ -207,17 +251,56 @@ const AdminPage = () => {
   /* =========================
      1) 회원관리 (더미 유지)
   ========================= */
+  // 1. 처음엔 빈 배열로 시작합니다.
+  const [members, setMembers] = useState([]);
 
-  const [members, setMembers] = useState(
-    [...Array(10)].map((_, i) => ({
-      id: i,
-      nickname: `유저${i + 1}`,
-      email: `user${i + 1}@zubzub.com`,
-      status: "정상",
-      pendingStatus: "정상",
-    }))
-  );
+  // 2. 데이터를 가져오는 함수와 useEffect 추가
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        // ❗ 수정: memberList -> getAllMembers
+        const response = await AxiosApi.getAllMembers();
+        console.log("백엔드 원본 데이터:", response.data);
 
+        const mappedData = response.data.map((m) => ({
+          ...m,
+          // 백엔드 필드명이 memberStatus가 맞는지 확인 필요 (보통 status일 때도 있음)
+          pendingStatus: m.memberStatus === "ACTIVE" ? "정상" : "정지",
+        }));
+        setMembers(mappedData);
+      } catch (error) {
+        console.error("회원 목록을 가져오는데 실패했습니다.", error);
+      }
+    };
+
+    if (menu === "회원관리") {
+      fetchMembers();
+    }
+  }, [menu]);
+
+  const handleSendMessage = async () => {
+    if (!msgForm.title.trim() || !msgForm.content.trim()) {
+      alert("제목과 내용을 입력해주세요.");
+      return;
+    }
+    try {
+      if (msgTarget.isAll) {
+        await sendMessage(msgForm);
+        alert("모든 회원에게 쪽지를 발송했습니다.");
+      } else {
+        await createMessage({
+          receiverId: msgTarget.id,
+          title: msgForm.title,
+          content: msgForm.content,
+        });
+        alert(`${msgTarget.nickname}님에게 쪽지를 발송했습니다.`);
+      }
+      setIsMsgModalOpen(false);
+      setMsgForm({ title: "", content: "" });
+    } catch (e) {
+      alert("쪽지 발송에 실패했습니다.");
+    }
+  };
   /* =========================
      2) 대규모 경매 승인 (더미 유지)
      - approved:false 목록에서 일정 설정 → 확인으로 승인
@@ -600,54 +683,95 @@ const AdminPage = () => {
          1) 회원관리
       ========================= */}
       {menu === "회원관리" && (
-        <Table>
-          <thead>
-            <tr>
-              <th>닉네임</th>
-              <th>이메일</th>
-              <th>상태</th>
-              <th>확인</th>
-            </tr>
-          </thead>
-          <tbody>
-            {members.map((m) => (
-              <tr key={m.id}>
-                <td>{m.nickname}</td>
-                <td>{m.email}</td>
-                <td>
-                  <select
-                    value={m.pendingStatus}
-                    onChange={(e) => {
-                      const next = e.target.value;
-                      setMembers((prev) =>
-                        prev.map((u) =>
-                          u.id === m.id ? { ...u, pendingStatus: next } : u
-                        )
-                      );
-                    }}
-                  >
-                    <option value="정상">정상</option>
-                    <option value="정지">정지</option>
-                  </select>
-                </td>
-                <td>
-                  <Button
-                    onClick={() => {
-                      setMembers((prev) =>
-                        prev.map((u) =>
-                          u.id === m.id ? { ...u, status: u.pendingStatus } : u
-                        )
-                      );
-                      alert("상태 변경 완료");
-                    }}
-                  >
-                    확인
-                  </Button>
-                </td>
+        <>
+          <TopActions>
+            <div className="left" />
+            <div className="right">
+              <Button
+                onClick={() => {
+                  setMsgTarget({ id: null, nickname: "전체", isAll: true });
+                  setIsMsgModalOpen(true);
+                }}
+                style={{ background: "#000", color: "#fff" }}
+              >
+                전체 쪽지 발송
+              </Button>
+            </div>
+          </TopActions>
+          <Table>
+            <thead>
+              <tr>
+                <th>닉네임</th>
+                <th>이메일</th>
+                <th>상태</th>
+                <th>확인</th>
+                <th>쪽지</th>
               </tr>
-            ))}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody>
+              {members.map((m) => (
+                <tr key={m.id}>
+                  <td>{m.nickname}</td>
+                  <td>{m.email}</td>
+                  <td>
+                    <select
+                      value={m.pendingStatus}
+                      onChange={(e) => {
+                        const next = e.target.value;
+                        setMembers((prev) =>
+                          prev.map((u) =>
+                            u.id === m.id ? { ...u, pendingStatus: next } : u
+                          )
+                        );
+                      }}
+                    >
+                      <option value="정상">정상</option>
+                      <option value="정지">정지</option>
+                    </select>
+                  </td>
+                  <td>
+                    <Button
+                      onClick={async () => {
+                        try {
+                          const isActive = m.pendingStatus === "정상";
+
+                          // ❗ 수정: memberUpdateStatus 대신 실제 AxiosApi 함수 사용
+                          if (isActive) {
+                            await AxiosApi.activateMember(m.id);
+                          } else {
+                            await AxiosApi.suspendMember(m.id);
+                          }
+
+                          alert(`${m.nickname}님의 상태가 변경되었습니다.`);
+                          // 목록 새로고침 로직...
+                        } catch (error) {
+                          alert("상태 변경 실패");
+                        }
+                      }}
+                    >
+                      확인
+                    </Button>
+                  </td>
+                  {/* ❗ 두 번째 '확인' 버튼은 여기서 삭제했습니다. */}
+                  <td>
+                    <Button
+                      onClick={() => {
+                        setMsgTarget({
+                          id: m.id,
+                          nickname: m.nickname,
+                          isAll: false,
+                        });
+                        setIsMsgModalOpen(true);
+                      }}
+                    >
+                      쪽지
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </>
       )}
 
       {/* =========================
@@ -951,6 +1075,55 @@ const AdminPage = () => {
             </div>
           </TopActions>
         </FormBox>
+      )}
+      {isMsgModalOpen && (
+        <ModalOverlay onClick={() => setIsMsgModalOpen(false)}>
+          <ModalContent onClick={(e) => e.stopPropagation()}>
+            <h3>
+              {msgTarget.isAll
+                ? "📢 전체 쪽지 발송"
+                : `✉️ ${msgTarget.nickname}님에게 쪽지`}
+            </h3>
+            <label style={{ fontSize: "12px" }}>제목</label>
+            <Input
+              placeholder="제목"
+              value={msgForm.title}
+              onChange={(e) =>
+                setMsgForm({ ...msgForm, title: e.target.value })
+              }
+            />
+            <label style={{ fontSize: "12px" }}>내용</label>
+            <textarea
+              style={{
+                width: "100%",
+                height: "150px",
+                padding: "10px",
+                borderRadius: "10px",
+                border: "1px solid #ddd",
+                resize: "none",
+                fontFamily: "Noto Sans KR",
+              }}
+              placeholder="내용을 입력하세요"
+              value={msgForm.content}
+              onChange={(e) =>
+                setMsgForm({ ...msgForm, content: e.target.value })
+              }
+            />
+            <TopActions style={{ marginTop: "20px" }}>
+              <div className="left">
+                <Button onClick={() => setIsMsgModalOpen(false)}>취소</Button>
+              </div>
+              <div className="right">
+                <Button
+                  style={{ background: "#000", color: "#fff" }}
+                  onClick={handleSendMessage}
+                >
+                  발송
+                </Button>
+              </div>
+            </TopActions>
+          </ModalContent>
+        </ModalOverlay>
       )}
     </Container>
   );
