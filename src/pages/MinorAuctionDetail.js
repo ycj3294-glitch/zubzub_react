@@ -272,6 +272,7 @@ const MinorAuctionDetail = () => {
           <Price>시작가 {auction?.startPrice?.toLocaleString() || 0}원</Price>
 
           <InfoList>
+            <li>판매자 : {auction?.sellerNickName || "홍길동"}</li>
             <li>남은 시간 : {formatTime(remainingTime)}</li>
             <li>
               입찰 단위 : {auction?.minBidUnit?.toLocaleString() || 100}원
