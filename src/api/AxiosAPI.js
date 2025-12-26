@@ -174,7 +174,7 @@ export default AxiosApi;
 
 AxiosApi.getAuction = async (auctionId) => {
   const res = await AxiosApi.get(`/api/auctions/${auctionId}`);
-  return res.data;
+  return res;
 };
 
 export const createAuction = async (auctionFormData) => {
