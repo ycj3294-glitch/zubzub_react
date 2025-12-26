@@ -1,6 +1,6 @@
 // AuctionInfoComponent.tsx
 import { useEffect, useState } from "react";
-import { getAuction } from "../../api/AxiosAPI";
+import AxiosApi from "../../api/AxiosAPI";
 import { connectBidBroadcast } from "../../api/broadcast";
 import TimerComponent from "./TimerComponent";
 import styled from "styled-components";
@@ -46,7 +46,7 @@ const AuctionInfoComponent = ({ auctionId }) => {
 
   useEffect(() => {
     const loadAuction = async () => {
-      const tmp = await getAuction(auctionId);
+      const tmp = await AxiosApi.getAuction(auctionId);
       setAuction(tmp);
     };
     loadAuction();

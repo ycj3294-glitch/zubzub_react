@@ -3,7 +3,7 @@
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import AxiosApi, { getAuction, getUserInfo } from "../api/AxiosAPI";
+import AxiosApi from "../api/AxiosAPI";
 import { connectBidBroadcast } from "../api/broadcast";
 import TimerComponent from "../components/auction/TimerComponent";
 import { useAuth } from "../context/AuthContext";
@@ -282,7 +282,7 @@ const MajorAuctionDetail = () => {
 
   useEffect(() => {
     const loadAuction = async () => {
-      const res = await getAuction(auctionId);
+      const res = await AxiosApi.getAuction(auctionId);
       setAuction(res);
     };
     loadAuction();

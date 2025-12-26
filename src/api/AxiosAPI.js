@@ -172,7 +172,7 @@ export default AxiosApi;
    경매 / 입찰 / 채팅 / 메시지 (Named Exports)
 ========================= */
 
-export const getAuction = async (auctionId) => {
+AxiosApi.getAuction = async (auctionId) => {
   const res = await AxiosApi.get(`/api/auctions/${auctionId}`);
   return res.data;
 };
