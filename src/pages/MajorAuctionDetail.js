@@ -8,6 +8,8 @@ import { connectBidBroadcast } from "../api/broadcast";
 import TimerComponent from "../components/auction/TimerComponent";
 import { useAuth } from "../context/AuthContext";
 import CreateBidComponent from "../components/auction/CreateBidComponent";
+import ChatComponent from "../components/auction/ChatComponent";
+import BidHistoryComponent from "../components/auction/BidHistoryComponent";
 
 /* =====================
    Dummy Data (유지)
@@ -196,6 +198,10 @@ const TabArea = styled.div`
 `;
 
 const Tab = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   padding: 25px;
   text-align: center;
   border-right: 1px solid #000;
@@ -209,29 +215,6 @@ const TabTitle = styled.h3`
   font-size: 18px;
   font-weight: bold;
   margin-bottom: 30px;
-`;
-
-const ChatInputRow = styled.div`
-  display: flex;
-  gap: 0;
-  margin-top: 20px;
-  border: 1px solid #000;
-`;
-
-const ChatInput = styled.input`
-  flex: 1;
-  padding: 10px;
-  border: none;
-  font-size: 15px;
-`;
-
-const ChatButton = styled.button`
-  padding: 10px 20px;
-  border: none;
-  background: #000;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
 `;
 
 /* ===== Detail Section (상품 설명/주의 사항) (유지) ===== */
@@ -248,7 +231,7 @@ const SectionTitle = styled.h2`
   border-bottom: 3px solid #000;
 `;
 
-const SectionContent = styled.p`
+const SectionContent = styled.div`
   font-size: 15px;
   line-height: 1.6;
   white-space: pre-line;
@@ -262,10 +245,7 @@ const SectionContent = styled.p`
 const MajorAuctionDetail = () => {
   const { id: auctionId } = useParams();
   const [auction, setAuction] = useState(DUMMY_AUCTION);
-  const [currentImg, setCurrentImg] = useState(0);
-  const [bidPrice, setBidPrice] = useState(
-    auction.finalPrice + auction.minBidUnit
-  );
+  // const [currentImg, setCurrentImg] = useState(0);
   const [end, setEnd] = useState("");
   const { isLogin, user } = useAuth();
   const [credit, setCredit] = useState(0);
@@ -360,7 +340,7 @@ const MajorAuctionDetail = () => {
               <span>입찰 단위</span> <span>{auction.minBidUnit}원</span>
             </li>
             <li>
-              <span>즉시 구매</span> <span>{auction.immediatePrice}</span>
+              <span>최고 입잘자</span> <span>{auction.winnerNickname}</span>
             </li>
           </InfoList>
 
@@ -387,18 +367,14 @@ const MajorAuctionDetail = () => {
       <TabArea>
         <Tab>
           <TabTitle>판매자와 구매자의 실시간 질의 응답</TabTitle>
-          <ChatInputRow>
-            <ChatInput type="text" placeholder="TEXT" />
-            <ChatButton>입력</ChatButton>
-          </ChatInputRow>
+          <ChatComponent
+            chatId={auctionId}
+            nickname={user ? user.nickname : "익명"}
+          ></ChatComponent>
         </Tab>
         <Tab style={{ borderRight: "none" }}>
           <TabTitle>입찰 기록</TabTitle>
-          <SectionContent
-            style={{ textAlign: "center", marginTop: "30px", color: "#999" }}
-          >
-            <p>최근 입찰 기록이 없습니다.</p>
-          </SectionContent>
+          <BidHistoryComponent auctionId={auctionId}></BidHistoryComponent>
         </Tab>
       </TabArea>
 

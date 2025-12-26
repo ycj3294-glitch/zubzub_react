@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8111";
+const BASE_URL = `${window.location.protocol}//${window.location.hostname}:8111`;
 
 /* =========================
    axios 인스턴스
@@ -169,7 +169,7 @@ AxiosApi.getSellList = async (memberId) => {
 export default AxiosApi;
 
 /* =========================
-   경매 / 입찰 / 채팅 / 메시지 (Named Exports)
+   경매
 ========================= */
 
 AxiosApi.getAuction = async (auctionId) => {
@@ -181,6 +181,10 @@ export const createAuction = async (auctionFormData) => {
   const res = await AxiosApi.post(`/api/auctions`, auctionFormData);
   return res.status === 200 || res.status === 201;
 };
+
+/* =========================
+   입찰
+========================= */
 
 AxiosApi.createBid = async (auctionId, bidCreateDto) => {
   const res = await AxiosApi.post(
@@ -197,15 +201,23 @@ export const loadBidHistories = async (auctionId, page, size = 20) => {
   return res.data;
 };
 
-export const getMessages = async (chatId) => {
-  const res = await AxiosApi.get(`/api/chats${chatId}/messages`);
+/* =========================
+   채팅 
+========================= */
+
+AxiosApi.getChatMessages = async (chatId) => {
+  const res = await AxiosApi.get(`/api/chats/${chatId}/messages`);
   return res.data;
 };
 
-export const sendMessage = async (chatId, messageData) => {
-  const res = await AxiosApi.post(`/api/chats${chatId}/messages`, messageData);
+AxiosApi.sendChatMessage = async (chatId, messageData) => {
+  const res = await AxiosApi.post(`/api/chats/${chatId}/messages`, messageData);
   return res.status === 200 || res.status === 201;
 };
+
+/* =========================
+   메시지
+========================= */
 
 export const createMessage = async (messageData) => {
   const res = await AxiosApi.post(`/api/messages`, messageData);

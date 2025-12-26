@@ -1,7 +1,7 @@
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 
-const SOCKET_URL = "http://localhost:8111/ws";
+const SOCKET_URL = `${window.location.protocol}//${window.location.hostname}:8111/ws`;
 
 // 경매 연결
 export const connectBidBroadcast = (auctionId, onMessage) => {

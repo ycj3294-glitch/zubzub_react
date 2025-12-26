@@ -3,67 +3,61 @@ import styled from "styled-components";
 import { loadBidHistories } from "../../api/AxiosAPI";
 
 const Container = styled.div`
-  width: 300px;
+  width: 320px;
   height: 300px;
   overflow-y: auto;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 12px;
+  border: 1px solid #000; /* 얇은 검은색 실선 */
+  border-radius: 0; /* 각지게 */
+  padding: 10px;
   position: relative;
-  background-color: #fafafa;
+  background-color: #fff;
+  font-family: monospace; /* 터미널 느낌 */
 
   /* 스크롤바 커스터마이징 */
   &::-webkit-scrollbar {
     width: 8px;
   }
   &::-webkit-scrollbar-thumb {
-    background-color: #bbb;
-    border-radius: 4px;
+    background-color: #000;
   }
   &::-webkit-scrollbar-track {
-    background-color: #f0f0f0;
+    background-color: #fdfdfd;
   }
 `;
 
 const Item = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-  border-bottom: 1px solid #e0e0e0;
-  font-size: 14px;
-  color: #333;
-  transition: background-color 0.2s ease;
-  gap: 10px;
-
-  &:hover {
-    background-color: #f5f5f5;
-  }
+  align-items: flex-start;
+  padding: 8px;
+  border-bottom: 1px dotted #000; /* 메시지 구분선 */
+  font-size: 13px;
+  color: #000;
 `;
 
 const InfoGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 `;
 
 const Label = styled.span`
   font-weight: bold;
-  color: #555;
+  color: #000;
 `;
 
 const Value = styled.span`
-  color: #222;
+  color: #333;
 `;
 
 const Price = styled.span`
   font-weight: bold;
-  color: #0077cc;
+  color: #000; /* 블랙 강조 */
 `;
 
 const Time = styled.span`
   font-size: 12px;
-  color: #888;
+  color: #555;
 `;
 
 const Sentinel = styled.div`
@@ -135,7 +129,7 @@ const BidHistoryComponent = ({ auctionId }) => {
             </InfoGroup>
             <InfoGroup>
               <Label>회원</Label>
-              <Value>{item.memberId}</Value>
+              <Value>{item.bidderNickname}</Value>
             </InfoGroup>
             <InfoGroup>
               <Label>가격</Label>
