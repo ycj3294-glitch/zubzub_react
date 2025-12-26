@@ -263,7 +263,7 @@ const MajorAuctionDetail = () => {
   useEffect(() => {
     const loadAuction = async () => {
       const res = await AxiosApi.getAuction(auctionId);
-      console.log(res);
+      console.log(res.data);
       setAuction(res.data);
     };
     loadAuction();
@@ -283,12 +283,12 @@ const MajorAuctionDetail = () => {
 
   return (
     <Container>
-      <AuctionTitle>WHY? 책 20권 묶음</AuctionTitle>
+      <AuctionTitle>{auction.itemName}</AuctionTitle>
 
       <MainGrid>
         {/* 1. 이미지 섹션 */}
         <ImageSection>
-          <MainImage src={auction.itemImg} alt={auction.title} />
+          <MainImage src={auction.itemImg} alt={auction.itemName} />
 
           {/* <ThumbRowWrapper>
             <Arrow
