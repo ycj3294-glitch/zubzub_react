@@ -2,28 +2,6 @@ import { useEffect, useState } from "react";
 
 import styled from "styled-components";
 
-const Box = styled.div`
-  background: linear-gradient(135deg, #f0f4ff, #e0e7ff);
-  border-radius: 12px;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  font-family: "Inter", sans-serif;
-`;
-
-const Title = styled.h3`
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #374151;
-  margin-bottom: 8px;
-`;
-
-const Value = styled.p`
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #2563eb;
-`;
-
 const TimerComponent = ({ end }) => {
   const [remaining, setRemaining] = useState(0);
 
@@ -47,12 +25,9 @@ const TimerComponent = ({ end }) => {
   const seconds = remaining % 60;
 
   return (
-    <Box>
-      <Title>남은 시간</Title>
-      <Value>
-        {hours}시간 {minutes}분 {seconds}초
-      </Value>
-    </Box>
+    <div>
+      {hours}시간 {minutes}분 {seconds}초
+    </div>
   );
 };
 

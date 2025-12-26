@@ -3,6 +3,11 @@
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
+import AxiosApi, { getAuction, getUserInfo } from "../api/AxiosAPI";
+import { connectBidBroadcast } from "../api/broadcast";
+import TimerComponent from "../components/auction/TimerComponent";
+import { useAuth } from "../context/AuthContext";
+import CreateBidComponent from "../components/auction/CreateBidComponent";
 
 /* =====================
    Dummy Data (유지)
@@ -10,10 +15,11 @@ import { useState, useEffect, useRef } from "react";
 
 const DUMMY_AUCTION = {
   title: "WHY? 책 20권 묶음",
-  currentPrice: 40000,
-  bidUnit: 1000,
+  startPrice: 30000,
+  finalPrice: 40000,
+  minBidUnit: 1000,
   bidCount: 0,
-  remainTime: "11:11:11",
+  endTime: "11:11:11",
   immediatePrice: "불가",
   myCredit: 50000,
   images: [
@@ -41,6 +47,7 @@ const DUMMY_AUCTION = {
 2. 입찰 금액 제한
 - 입찰은 최소 1000원 단위로 가능하며 현재가보다 높은 금액으로만 입찰 가능합니다.
 - 입찰 후 취소 또는 변경은 절대 불가합니다.`,
+  end: "2025-12-25T11:11:00",
 };
 
 /* =====================
@@ -179,42 +186,6 @@ const CreditBox = styled.div`
   font-weight: bold;
 `;
 
-const BidInputWrapper = styled.div`
-  display: flex;
-  gap: 0; /* 간격 제거하여 하나로 붙임 */
-  margin-bottom: 0;
-  width: 100%;
-`;
-
-const BidInput = styled.input`
-  flex: 1;
-  padding: 12px;
-  border-radius: 0;
-  border: 1px solid #000;
-  font-size: 16px;
-  text-align: left; /* 텍스트 정렬 왼쪽으로 변경 */
-  font-weight: bold;
-
-  /* 가이드 이미지처럼 '입찰 금액 입력' 텍스트를 Input Placeholder 대신 사용 */
-  background: #f7f7f7;
-  color: #555;
-  width: 70%;
-  text-align: center;
-  border-right: none;
-`;
-
-const BidButton = styled.button`
-  padding: 12px 20px;
-  border-radius: 0;
-  border: 1px solid #000;
-  background: #000;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  width: 30%; /* 비율 조정 */
-  box-sizing: border-box;
-`;
-
 /* ===== Q&A / 입찰 기록 탭 (유지) ===== */
 
 const TabArea = styled.div`
@@ -289,23 +260,45 @@ const SectionContent = styled.p`
 ===================== */
 
 const MajorAuctionDetail = () => {
-  const { id } = useParams();
-  const [auction] = useState(DUMMY_AUCTION);
+  const { id: auctionId } = useParams();
+  const [auction, setAuction] = useState(DUMMY_AUCTION);
   const [currentImg, setCurrentImg] = useState(0);
   const [bidPrice, setBidPrice] = useState(
-    auction.currentPrice + auction.bidUnit
+    auction.finalPrice + auction.minBidUnit
   );
+  const [end, setEnd] = useState("");
+  const { isLogin, user } = useAuth();
+  const [credit, setCredit] = useState(0);
 
-  const handleBid = () => {
-    // 입찰 금액 유효성 검사 로직
-    if (bidPrice <= auction.currentPrice) {
-      alert(
-        `입찰 금액은 현재가 ${auction.currentPrice.toLocaleString()}원보다 높아야 합니다.`
-      );
-      return;
-    }
-    alert(`입찰금 ${bidPrice.toLocaleString()}원 처리 (서버 연동 전)`);
-  };
+  useEffect(() => {
+    if (!user) return;
+    const loadCredit = async () => {
+      console.log(user);
+      const { data } = await AxiosApi.getUserInfo(user.id);
+      setCredit(data.credit);
+    };
+    loadCredit();
+  }, [user, auction]);
+
+  useEffect(() => {
+    const loadAuction = async () => {
+      const res = await getAuction(auctionId);
+      setAuction(res);
+    };
+    loadAuction();
+
+    connectBidBroadcast(auctionId, (auction) => {
+      setAuction((prev) => ({ ...prev, ...auction }));
+      console.log("경매 업데이트:", auction);
+    });
+  }, [auctionId]);
+
+  useEffect(() => {
+    if (!auction) return;
+    if (new Date() < new Date(auction.startTime)) setEnd(auction.startTime);
+    else if (auction.extendedEndTime) setEnd(auction.extendedEndTime);
+    else setEnd(auction.endTime);
+  }, [auction]);
 
   return (
     <Container>
@@ -314,9 +307,9 @@ const MajorAuctionDetail = () => {
       <MainGrid>
         {/* 1. 이미지 섹션 */}
         <ImageSection>
-          <MainImage src={auction.images[currentImg]} alt={auction.title} />
+          <MainImage src={auction.itemImg} alt={auction.title} />
 
-          <ThumbRowWrapper>
+          {/* <ThumbRowWrapper>
             <Arrow
               left
               onClick={() =>
@@ -346,99 +339,47 @@ const MajorAuctionDetail = () => {
                 />
               ))}
             </ThumbRow>
-          </ThumbRowWrapper>
+          </ThumbRowWrapper> */}
         </ImageSection>
 
         {/* 2. 정보 및 입찰 섹션 (오른쪽 빈 공간 개선) */}
         <InfoSection>
-          <CurrentPrice>
-            현재가 {auction.currentPrice.toLocaleString()} 원
-          </CurrentPrice>
+          <CurrentPrice>현재가 {auction.finalPrice} 원</CurrentPrice>
 
           <InfoList>
             <li>
-              <span>남은 시간</span> <span>{auction.remainTime}</span>
+              <span>남은 시간</span>{" "}
+              <span>
+                <TimerComponent end={auction.endTime} />
+              </span>
             </li>
             <li>
               <span>입찰 횟수</span> <span>{auction.bidCount}회</span>
             </li>
             <li>
-              <span>입찰 단위</span>{" "}
-              <span>{auction.bidUnit.toLocaleString()}원</span>
+              <span>입찰 단위</span> <span>{auction.minBidUnit}원</span>
             </li>
             <li>
               <span>즉시 구매</span> <span>{auction.immediatePrice}</span>
             </li>
           </InfoList>
 
-          <CreditBox>
-            <span>내 보유 크레딧</span>{" "}
-            <span>{auction.myCredit.toLocaleString()}원</span>
-          </CreditBox>
-
-          <BidInputWrapper>
-            {/* 가이드 이미지의 '입찰 금액 입력' 텍스트를 표현하기 위해 임시 Input 사용 */}
-            <BidInput
-              as="div"
-              style={{
-                background: "none",
-                border: "none",
-                paddingLeft: "0",
-                fontWeight: "bold",
-                width: "auto",
-                color: "#000",
-              }}
-            >
-              입찰금액 입력
-            </BidInput>
-            <BidInput
-              type="number"
-              value={bidPrice}
-              onChange={(e) => setBidPrice(Number(e.target.value))}
-              placeholder={`최소 ${auction.bidUnit.toLocaleString()}원 단위`}
-              min={auction.currentPrice + auction.bidUnit}
-              style={{
-                flex: "none",
-                width: "auto",
-                border: "1px solid #000",
-                borderRight: "none",
-              }} // 실제 금액 입력 필드
-            />
-            <BidButton onClick={handleBid}>입찰</BidButton>
-          </BidInputWrapper>
+          {isLogin && (
+            <CreditBox>
+              <span>내 보유 크레딧</span> <span>{credit}원</span>
+            </CreditBox>
+          )}
 
           {/* 가이드 이미지와 유사하게 '입찰금액 입력' 텍스트를 하나의 컴포넌트로 표현 */}
-          <BidInputWrapper style={{ marginTop: "20px" }}>
-            <div
-              style={{
-                padding: "12px",
-                border: "1px solid #000",
-                borderRight: "none",
-                width: "70%",
-                background: "#f7f7f7",
-                fontWeight: "bold",
-                fontSize: "16px",
-                boxSizing: "border-box",
-                textAlign: "left",
-              }}
-            >
-              내 보유 크레딧
-            </div>
-            <div
-              style={{
-                padding: "12px",
-                border: "1px solid #000",
-                width: "30%",
-                background: "#000",
-                color: "white",
-                fontWeight: "bold",
-                fontSize: "16px",
-                boxSizing: "border-box",
-              }}
-            >
-              내역
-            </div>
-          </BidInputWrapper>
+          {isLogin && (
+            <CreateBidComponent
+              auctionId={auctionId}
+              finalPrice={auction.finalPrice}
+              minBidUnit={auction.minBidUnit}
+              bidderId={user.id}
+              style={{ marginTop: "20px" }}
+            ></CreateBidComponent>
+          )}
         </InfoSection>
       </MainGrid>
 

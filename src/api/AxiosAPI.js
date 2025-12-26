@@ -166,10 +166,6 @@ AxiosApi.getSellList = async (memberId) => {
   return await AxiosApi.get(`/api/auctions/${memberId}/selllist`);
 };
 
-AxiosApi.getAuctionDetail = async (auctionId) => {
-  return await AxiosApi.get(`/api/auctions/${auctionId}`);
-};
-
 export default AxiosApi;
 
 /* =========================
@@ -186,10 +182,10 @@ export const createAuction = async (auctionFormData) => {
   return res.status === 200 || res.status === 201;
 };
 
-export const createBid = async (auctionId, bidFormData) => {
+AxiosApi.createBid = async (auctionId, bidCreateDto) => {
   const res = await AxiosApi.post(
     `/api/auctions/${auctionId}/bids`,
-    bidFormData
+    bidCreateDto
   );
   return res.status === 200 || res.status === 201;
 };
@@ -237,11 +233,10 @@ export const deleteMessage = async (messageId) => {
 };
 
 //회원 정보 수정
-AxiosApi.updateMember = async (id, nickname, pwd, profileImg) => {
+AxiosApi.updateMember = async (id, nickname, pwd) => {
   const memberDto = {
     nickname: nickname,
     pwd: pwd,
-    profileImg: profileImg,
   };
   return await AxiosApi.patch(`/api/members/${id}`, memberDto);
 };
