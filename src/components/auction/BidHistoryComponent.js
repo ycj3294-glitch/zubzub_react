@@ -2,67 +2,80 @@ import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { loadBidHistories } from "../../api/AxiosAPI";
 
-const Container = styled.div`
-  width: 320px;
-  height: 300px;
-  overflow-y: auto;
-  border: 1px solid #000; /* 얇은 검은색 실선 */
-  border-radius: 0; /* 각지게 */
-  padding: 10px;
-  position: relative;
-  background-color: #fff;
-  font-family: monospace; /* 터미널 느낌 */
+// --- 스타일 컴포넌트 ---
 
-  /* 스크롤바 커스터마이징 */
+const Container = styled.div`
+  /* 고정 크기 제거 -> 부모(BoardBody)에 꽉 차게 */
+  width: 100%;
+  height: 100%;
+
+  overflow-y: auto;
+  background-color: #fff;
+  font-family: "Courier New", Courier, monospace; /* 채팅창과 동일 폰트 */
+  padding: 0;
+
+  /* 스크롤바 디자인 (채팅창과 통일) */
   &::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
   }
   &::-webkit-scrollbar-thumb {
-    background-color: #000;
+    background: #ccc;
+    border-radius: 3px;
   }
   &::-webkit-scrollbar-track {
-    background-color: #fdfdfd;
+    background: transparent;
   }
 `;
 
 const Item = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding: 8px;
-  border-bottom: 1px dotted #000; /* 메시지 구분선 */
+  display: grid;
+  /* 그리드로 시간 | 닉네임 | 가격 정렬 깔끔하게 */
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  padding: 12px 15px;
+  border-bottom: 1px dashed #ddd; /* 점선 구분선 */
   font-size: 13px;
   color: #000;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #f9f9f9;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
 `;
 
-const InfoGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-`;
-
-const Label = styled.span`
-  font-weight: bold;
-  color: #000;
-`;
-
-const Value = styled.span`
-  color: #333;
-`;
-
-const Price = styled.span`
-  font-weight: bold;
-  color: #000; /* 블랙 강조 */
-`;
-
-const Time = styled.span`
+/* 각 컬럼별 스타일 */
+const TimeCol = styled.div`
+  color: #888;
   font-size: 12px;
-  color: #555;
+  text-align: left;
+`;
+
+const UserCol = styled.div`
+  font-weight: bold;
+  text-align: center;
+  /* 닉네임이 길면 말줄임표 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const PriceCol = styled.div`
+  font-weight: 900;
+  text-align: right;
+  color: #000;
 `;
 
 const Sentinel = styled.div`
   height: 1px;
+  width: 100%;
+  visibility: hidden;
 `;
+
+// --- 컴포넌트 로직 ---
 
 const BidHistoryComponent = ({ auctionId }) => {
   const [items, setItems] = useState([]);
@@ -71,41 +84,46 @@ const BidHistoryComponent = ({ auctionId }) => {
   const bottomRef = useRef(null);
   const topRef = useRef(null);
 
-  // 데이터 로드
+  // 데이터 로드 (무한 스크롤)
   const loadMore = async () => {
-    const newItems = await loadBidHistories(auctionId, page);
-    if (newItems === null || newItems.length === 0) return;
-    setItems((prev) => [...prev, ...newItems]);
-    setPage((prev) => prev + 1);
+    try {
+      const newItems = await loadBidHistories(auctionId, page);
+      if (newItems === null || newItems.length === 0) return;
+      setItems((prev) => [...prev, ...newItems]);
+      setPage((prev) => prev + 1);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
-  // 새로고침
+  // 새로고침 (상단 감지 시)
   const refresh = async () => {
-    setItems([]);
-    const newItems = await loadBidHistories(auctionId, 0);
-    if (newItems === null || newItems.length === 0) return;
-    setItems(newItems);
-    setPage(1);
+    try {
+      const newItems = await loadBidHistories(auctionId, 0); // 0페이지 or 초기화
+      if (newItems && newItems.length > 0) {
+        setItems(newItems);
+        setPage(1);
+      }
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   useEffect(() => {
-    const bottomObserver = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          loadMore();
-        }
-      },
-      { threshold: 1 }
-    );
+    const observerOption = { threshold: 0.1 };
 
-    const topObserver = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          refresh();
-        }
-      },
-      { threshold: 1 }
-    );
+    const bottomObserver = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        loadMore();
+      }
+    }, observerOption);
+
+    const topObserver = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        // 너무 잦은 호출 방지 로직이 필요할 수 있음
+        refresh();
+      }
+    }, observerOption);
 
     if (bottomRef.current) bottomObserver.observe(bottomRef.current);
     if (topRef.current) topObserver.observe(topRef.current);
@@ -114,34 +132,46 @@ const BidHistoryComponent = ({ auctionId }) => {
       if (bottomRef.current) bottomObserver.unobserve(bottomRef.current);
       if (topRef.current) topObserver.unobserve(topRef.current);
     };
-  }, [page]);
+  }, [page, auctionId]); // auctionId 의존성 추가
+
+  // 날짜 포맷 헬퍼 (시간만 깔끔하게)
+  const formatTime = (dateStr) => {
+    if (!dateStr) return "-";
+    const date = new Date(dateStr);
+    return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  };
 
   return (
     <Container>
-      {/* 맨 위 감지용 */}
+      {/* 위로 스크롤 시 최신 데이터 갱신용 */}
       <Sentinel ref={topRef} />
-      {items &&
+
+      {items && items.length > 0 ? (
         items.map((item, idx) => (
-          <Item key={idx}>
-            <InfoGroup>
-              <Label>ID</Label>
-              <Value>{item.id}</Value>
-            </InfoGroup>
-            <InfoGroup>
-              <Label>회원</Label>
-              <Value>{item.bidderNickname}</Value>
-            </InfoGroup>
-            <InfoGroup>
-              <Label>가격</Label>
-              <Price>{item.price} 원</Price>
-            </InfoGroup>
-            <InfoGroup>
-              <Label>시간</Label>
-              <Time>{item.bidTime}</Time>
-            </InfoGroup>
+          <Item key={`${item.id}-${idx}`}>
+            <TimeCol>{formatTime(item.bidTime)}</TimeCol>
+            <UserCol>{item.bidderNickname || "익명"}</UserCol>
+            <PriceCol>{(item.price || 0).toLocaleString()}</PriceCol>
           </Item>
-        ))}
-      {/* 맨 아래 감지용 */}
+        ))
+      ) : (
+        <div
+          style={{
+            padding: "20px",
+            textAlign: "center",
+            color: "#999",
+            fontSize: "13px",
+          }}
+        >
+          입찰 기록이 없습니다.
+        </div>
+      )}
+
+      {/* 아래로 스크롤 시 과거 데이터 로드용 */}
       <Sentinel ref={bottomRef} />
     </Container>
   );
