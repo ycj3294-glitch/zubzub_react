@@ -244,13 +244,37 @@ const BottomDivider = styled.div`
   margin: 0;
 `;
 
+const AdminRow = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 6px; /* AuthBox와 간격 */
+`;
+
+const AdminButton = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 32px;
+  border: 1px solid #000;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  background: #000;
+  color: #fff;
+  margin-bottom: 8px;
+
+  &:hover {
+    background: #333;
+  }
+`;
+
 /* =========================
    Component Main
 ========================= */
 const Header = () => {
   const navigate = useNavigate();
-  const { isLogin, logout, setAccessToken } = useAuth();
-
+  const { isLogin, logout, user, setAccessToken } = useAuth();
+  const isAdmin = user?.isAdmin;
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [showLoginGuide, setShowLoginGuide] = useState(false); // 로그인 유도 모달 상태
 
@@ -300,6 +324,12 @@ const Header = () => {
             </CenterSection>
 
             <RightSection>
+              {isAdmin && (
+                <AdminButton onClick={() => navigate("/admin")}>
+                  관리 페이지
+                </AdminButton>
+              )}
+
               <TopRightRow>
                 <AuthBox>
                   {!isLogin ? (

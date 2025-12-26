@@ -189,8 +189,17 @@ AxiosApi.getSellList = async (memberId) => {
   return await AxiosApi.get(`/api/auctions/${memberId}/selllist`);
 };
 
+/* =========================
+   경매
+========================= */
+
 AxiosApi.getAuction = async (auctionId) => {
   const res = await AxiosApi.get(`/api/auctions/${auctionId}`);
+  return res;
+};
+
+AxiosApi.getAuctionSchedule = async () => {
+  const res = await AxiosApi.get(`/api/auctions/monthlist`);
   return res;
 };
 

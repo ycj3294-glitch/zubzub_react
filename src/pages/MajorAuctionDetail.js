@@ -1,394 +1,506 @@
-// MajorAuctionDetail.js (프리미엄 경매 상세 페이지 - 오른쪽 정보 밀도 개선)
-
 import styled from "styled-components";
 import { useParams } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import AxiosApi from "../api/AxiosAPI";
 import { connectBidBroadcast } from "../api/broadcast";
-import TimerComponent from "../components/auction/TimerComponent";
 import { useAuth } from "../context/AuthContext";
+
+// 공통 컴포넌트
+import TimerComponent from "../components/auction/TimerComponent";
 import CreateBidComponent from "../components/auction/CreateBidComponent";
 import ChatComponent from "../components/auction/ChatComponent";
 import BidHistoryComponent from "../components/auction/BidHistoryComponent";
 
 /* =====================
-   Dummy Data (유지)
+   Styled Components (원본 디자인 복구 완료)
 ===================== */
-
-const DUMMY_AUCTION = {
-  title: "WHY? 책 20권 묶음",
-  startPrice: 30000,
-  finalPrice: 40000,
-  minBidUnit: 1000,
-  bidCount: 0,
-  endTime: "11:11:11",
-  immediatePrice: "불가",
-  myCredit: 50000,
-  images: [
-    "대규모 경매 페이지 1.jpg",
-    "/images/major-thumb1.jpg",
-    "/images/major-thumb2.jpg",
-    "/images/major-thumb3.jpg",
-    "/images/major-thumb4.jpg",
-    "/images/major-thumb5.jpg",
-  ],
-  description: `상품 상태가 매우 희귀하여 최상급 컨디션을 유지하고 있습니다.
-많은 20권에서 읽어짐, 외관 관리에 의한 얼룩, 불편함이 해변함을 이용한 칫솔 및 칫솔이 많이 없었습니다. 책은(책 윗부분) 또한 깔끔합니다.
-
-[상품 특성]
-만화적 특성을 활용하는 '손때나 오염된 흔적이 거의 없어 새 책과 비교해도 손색이 없을 정도입니다. 특별한 책 소장하고 싶은 분께 추천드립니다.
-
-[배송 및 거래 안내]
-배송료는 낙찰 후 구매자에게 부과되며, 사이트 정책에 따라 배송이 진행될 예정입니다.
-본 상품은 거래 참여 후, 거래 이력 및 최종 낙찰 가격에 따라 거래가 이루어집니다. 게시된 상품의 궁금한 점이 있으시면 언제든지 문의 가능하며 판매 참여에 감사드립니다.`,
-
-  notice: `1. 경매 가능 기간 및 조건
-- 경매 참여는 만 14세 이상 구매자(회원)에 한하여 진행됩니다.
-- 경매 종료 시간은 11:11:11 입니다.
-
-2. 입찰 금액 제한
-- 입찰은 최소 1000원 단위로 가능하며 현재가보다 높은 금액으로만 입찰 가능합니다.
-- 입찰 후 취소 또는 변경은 절대 불가합니다.`,
-  end: "2025-12-25T11:11:00",
-};
-
-/* =====================
-   Styled Components (오른쪽 정보 개선)
-===================== */
-
 const Container = styled.div`
   max-width: 1100px;
-  margin: 50px auto;
-  padding: 0 16px;
+  margin: 40px auto;
+  padding: 0 20px;
+  font-family: "Pretendard", -apple-system, sans-serif;
+  color: #1a1a1a;
 `;
 
-const AuctionTitle = styled.h1`
-  font-size: 28px;
-  text-align: center;
-  margin-bottom: 30px;
-  font-weight: 900;
-  color: #000;
-`;
-
-const MainGrid = styled.div`
+const Header = styled.div`
   display: flex;
-  gap: 40px;
-  padding-bottom: 40px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #d4af37; /* 골드 라인 복구 */
+`;
 
+const Title = styled.h1`
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0;
+`;
+
+const PremiumBadge = styled.div`
+  /* 그라데이션 뱃지 복구 */
+  background: linear-gradient(135deg, #d4af37 0%, #f9f295 50%, #b8860b 100%);
+  color: #000;
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+`;
+
+const ConsistentGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 25px;
+  margin-bottom: 30px;
   @media (max-width: 900px) {
-    flex-direction: column;
+    grid-template-columns: 1fr;
   }
 `;
 
 const ImageSection = styled.div`
-  flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
 `;
 
-const InfoSection = styled.div`
-  flex: 1;
-  /* 오른쪽에 빈 느낌이 나지 않도록 경계선 제거 및 패딩 조정 */
-  padding: 0;
+const MainImageWrap = styled.div`
+  position: relative;
+  width: 100%;
+  height: 500px;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #333;
 `;
-
-/* ===== Image Area (유지) ===== */
 
 const MainImage = styled.img`
   width: 100%;
-  height: auto;
-  max-height: 400px;
+  height: 100%;
   object-fit: contain;
-  margin-bottom: 20px;
 `;
 
-const ThumbRowWrapper = styled.div`
-  width: 100%;
-  position: relative;
-  padding: 0 40px;
+const SliderArrow = styled.button`
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: #d4af37;
+  border: 1px solid #d4af37;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 2;
+  &:hover {
+    background: #d4af37;
+    color: #000;
+  }
+  ${(props) => (props.$left ? "left: 15px;" : "right: 15px;")}
 `;
 
 const ThumbRow = styled.div`
   display: flex;
-  gap: 8px;
-  overflow-x: scroll;
-  padding-bottom: 5px;
+  gap: 10px;
+  margin-top: 15px;
+  overflow-x: auto;
   &::-webkit-scrollbar {
     display: none;
   }
 `;
 
 const Thumb = styled.img`
-  width: 65px;
-  height: 65px;
-  flex-shrink: 0;
+  width: 70px;
+  height: 70px;
   object-fit: cover;
+  border-radius: 6px;
   cursor: pointer;
-  border: ${(props) => (props.$active ? "2px solid #000" : "1px solid #ddd")};
-  box-sizing: border-box;
+  border: ${(props) =>
+    props.$active ? "3px solid #d4af37" : "1px solid #ddd"};
+  transition: 0.2s;
+  flex-shrink: 0;
 `;
 
-const Arrow = styled.button`
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: white;
-  border: 1px solid #ccc;
-  border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  cursor: pointer;
-  z-index: 10;
-  font-size: 16px;
-  font-weight: bold;
-
-  ${(props) => (props.left ? "left: 0px;" : "right: 0px;")}
+const InfoBox = styled.div`
+  border: 2px solid #d4af37; /* 골드 테두리 복구 */
+  border-radius: 12px;
+  padding: 30px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 `;
 
-/* ===== Info Area (오른쪽 정보) ===== */
-
-const CurrentPrice = styled.p`
-  font-size: 30px;
-  font-weight: 900;
-  color: #000;
+const PriceArea = styled.div`
   margin-bottom: 25px;
-  text-align: left; /* 정렬 변경 */
-`;
-
-const InfoList = styled.ul`
-  list-style: none;
-  padding: 0;
-  font-size: 16px;
-  line-height: 2.2;
-  margin-bottom: 30px;
-
-  li {
-    display: flex;
-    justify-content: space-between;
-    padding-bottom: 5px;
+  .label {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 6px;
+    font-weight: 600;
   }
-  span:first-child {
-    font-weight: 500;
-  }
-  span:last-child {
+  .price {
+    font-size: 38px;
     font-weight: 900;
     color: #000;
   }
-`;
-
-const CreditBox = styled.div`
-  display: flex;
-  justify-content: space-between;
-  padding: 15px 0;
-  border-top: 2px solid #000;
-  border-bottom: 2px solid #000;
-  margin-bottom: 20px;
-  font-size: 16px;
-  font-weight: bold;
-`;
-
-/* ===== Q&A / 입찰 기록 탭 (유지) ===== */
-
-const TabArea = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  border: 1px solid #000;
-  margin-bottom: 40px;
-`;
-
-const Tab = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 25px;
-  text-align: center;
-  border-right: 1px solid #000;
-
-  &:last-child {
-    border-right: none;
+  .unit {
+    font-size: 20px;
+    margin-left: 5px;
+    color: #d4af37;
   }
 `;
 
-const TabTitle = styled.h3`
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 30px;
+const WalletBox = styled.div`
+  background: #1a1a1a;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 25px;
 `;
 
-/* ===== Detail Section (상품 설명/주의 사항) (유지) ===== */
+const WalletRow = styled.div`
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: #aaa;
+  margin-bottom: 10px;
+  .val {
+    color: #fff;
+    font-weight: 700;
+  }
+  .highlight {
+    color: #f9f295;
+    font-weight: 800;
+    font-size: 16px;
+  }
 
-const Section = styled.section`
-  margin-top: 40px;
+  &.divider {
+    border-top: 1px dashed #444;
+    padding-top: 12px;
+    margin-top: 5px;
+  }
+  .label-gold {
+    color: #d4af37;
+    font-weight: 800;
+  }
 `;
 
-const SectionTitle = styled.h2`
-  font-size: 24px;
-  font-weight: 900;
-  margin-bottom: 15px;
-  padding-bottom: 5px;
-  border-bottom: 3px solid #000;
+const InfoList = styled.div`
+  padding: 15px 0;
+  border-top: 1px solid #eee;
 `;
 
-const SectionContent = styled.div`
+const InfoItem = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
   font-size: 15px;
-  line-height: 1.6;
+  .key {
+    color: #666;
+  }
+  .value {
+    font-weight: 700;
+  }
+`;
+
+/* ===== Q&A 및 입찰 기록 보드 (수정됨) ===== */
+const Board = styled.div`
+  /* 기존 테두리 제거 (내부 컴포넌트인 ChatComponent가 테두리를 가짐) */
+  /* 단, 배경색이나 위치는 잡아줌 */
+  height: 450px;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  /* 채팅창의 둥근 모서리가 잘리지 않도록 함 */
+`;
+
+const BoardHeader = styled.div`
+  background: #000;
+  color: #d4af37;
+  padding: 15px 20px;
+  font-size: 15px;
+  font-weight: 800;
+
+  /* [핵심] 윗부분만 둥글게 처리 (라디오 스타일 상단) */
+  border-radius: 15px 15px 0 0;
+
+  /* 테두리도 ChatComponent와 이어지도록 설정 */
+  border: 1px solid #000;
+  border-bottom: none; /* 아래쪽 채팅창과 연결 */
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+/* ChatComponent(라디오 하단)를 감싸는 래퍼 - 꽉 차게 하기 위함 */
+const ChatWrapper = styled.div`
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  /* ChatComponent가 100% 크기를 가지므로 여기서 제어 */
+  & > div {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-top: none; /* 헤더와 겹치는 선 제거 */
+  }
+`;
+
+/* 입찰 기록용 바디 (채팅창과 디자인 통일) */
+const BoardBody = styled.div`
+  flex: 1;
+  background: #fff;
+  border: 1px solid #000;
+  border-top: none;
+  /* 아래쪽만 둥글게 */
+  border-radius: 0 0 15px 15px;
+  overflow: hidden;
+`;
+
+/* ===== 하단 가이드 섹션 (원본 유지) ===== */
+const Section = styled.section`
+  margin-top: 50px;
+`;
+const SectionTitle = styled.h2`
+  font-size: 22px;
+  font-weight: 900;
+  margin-bottom: 20px;
+  border-left: 5px solid #d4af37;
+  padding-left: 15px;
+`;
+
+const Description = styled.div`
+  line-height: 1.8;
+  font-size: 16px;
+  color: #333;
+  padding: 30px;
+  background: #fdfdfd;
+  border: 1px solid #eee;
+  border-radius: 12px;
   white-space: pre-line;
-  padding: 10px 0;
 `;
 
 /* =====================
-   Component
+   Main Component
 ===================== */
 
 const MajorAuctionDetail = () => {
   const { id: auctionId } = useParams();
-  const [auction, setAuction] = useState(DUMMY_AUCTION);
-  // const [currentImg, setCurrentImg] = useState(0);
-  const [end, setEnd] = useState("");
+  const [auction, setAuction] = useState(null);
   const { isLogin, user } = useAuth();
-  const [credit, setCredit] = useState(0);
+
+  const [userCredit, setUserCredit] = useState(0);
+  const [currentImgIdx, setCurrentImgIdx] = useState(0);
 
   useEffect(() => {
-    if (!user) return;
-    const loadCredit = async () => {
-      console.log(user);
-      const { data } = await AxiosApi.getUserInfo(user.id);
-      setCredit(data.credit);
+    const fetchAuction = async () => {
+      try {
+        const res = await AxiosApi.getAuction(auctionId);
+        if (res && res.data) {
+          setAuction(res.data);
+        }
+      } catch (e) {
+        console.error("데이터 로드 실패:", e);
+      }
     };
-    loadCredit();
-  }, [user, auction]);
+    if (auctionId) fetchAuction();
 
-  useEffect(() => {
-    const loadAuction = async () => {
-      const res = await AxiosApi.getAuction(auctionId);
-      console.log(res);
-      setAuction(res.data);
-    };
-    loadAuction();
-
-    connectBidBroadcast(auctionId, (auction) => {
-      setAuction((prev) => ({ ...prev, ...auction }));
-      console.log("경매 업데이트:", auction);
+    connectBidBroadcast(auctionId, (updated) => {
+      setAuction((prev) => ({ ...prev, ...updated }));
     });
   }, [auctionId]);
 
   useEffect(() => {
-    if (!auction) return;
-    if (new Date() < new Date(auction.startTime)) setEnd(auction.startTime);
-    else if (auction.extendedEndTime) setEnd(auction.extendedEndTime);
-    else setEnd(auction.endTime);
-  }, [auction]);
+    if (user?.id) {
+      AxiosApi.getUserInfo(user.id).then((res) => {
+        if (res?.data) setUserCredit(res.data.credit);
+      });
+    }
+  }, [user, auction]);
+
+  if (!auction) return <Container>데이터를 불러오는 중입니다...</Container>;
+
+  const images =
+    auction.itemImgs && auction.itemImgs.length > 0
+      ? auction.itemImgs
+      : [auction.itemImg];
 
   return (
     <Container>
-      <AuctionTitle>WHY? 책 20권 묶음</AuctionTitle>
+      <Header>
+        <Title>{auction.itemName}</Title>
+        <PremiumBadge>PREMIUM AUCTION</PremiumBadge>
+      </Header>
 
-      <MainGrid>
-        {/* 1. 이미지 섹션 */}
+      <ConsistentGrid>
+        {/* 이미지 섹션 */}
         <ImageSection>
-          <MainImage src={auction.itemImg} alt={auction.title} />
-
-          {/* <ThumbRowWrapper>
-            <Arrow
-              left
-              onClick={() =>
-                setCurrentImg((prev) =>
-                  prev === 0 ? auction.images.length - 1 : prev - 1
-                )
-              }
-            >
-              ‹
-            </Arrow>
-            <Arrow
-              onClick={() =>
-                setCurrentImg((prev) =>
-                  prev === auction.images.length - 1 ? 0 : prev + 1
-                )
-              }
-            >
-              ›
-            </Arrow>
-            <ThumbRow>
-              {auction.images.map((img, idx) => (
-                <Thumb
-                  key={idx}
-                  src={img}
-                  $active={idx === currentImg}
-                  onClick={() => setCurrentImg(idx)}
-                />
-              ))}
-            </ThumbRow>
-          </ThumbRowWrapper> */}
+          <MainImageWrap>
+            {images.length > 1 && (
+              <>
+                <SliderArrow
+                  $left
+                  onClick={() =>
+                    setCurrentImgIdx(
+                      (p) => (p - 1 + images.length) % images.length
+                    )
+                  }
+                >
+                  &lt;
+                </SliderArrow>
+                <SliderArrow
+                  onClick={() =>
+                    setCurrentImgIdx((p) => (p + 1) % images.length)
+                  }
+                >
+                  &gt;
+                </SliderArrow>
+              </>
+            )}
+            <MainImage src={images[currentImgIdx]} alt="Main" />
+          </MainImageWrap>
+          <ThumbRow>
+            {images.map((img, idx) => (
+              <Thumb
+                key={idx}
+                src={img}
+                $active={idx === currentImgIdx}
+                onClick={() => setCurrentImgIdx(idx)}
+              />
+            ))}
+          </ThumbRow>
         </ImageSection>
 
-        {/* 2. 정보 및 입찰 섹션 (오른쪽 빈 공간 개선) */}
-        <InfoSection>
-          <CurrentPrice>현재가 {auction.finalPrice} 원</CurrentPrice>
+        {/* 정보 박스 */}
+        <InfoBox>
+          <PriceArea>
+            <div className="label">시작 가격</div>
+            <div className="price">
+              {(auction.startPrice || 0).toLocaleString()}
+              <span className="unit">ZC</span>
+            </div>
+          </PriceArea>
+
+          <WalletBox>
+            <WalletRow>
+              <span>내 보유 코인</span>
+              <span className="val">{userCredit.toLocaleString()} ZC</span>
+            </WalletRow>
+
+            <WalletRow className="divider">
+              <span className="label-gold">현재 최고 입찰가</span>
+              <span className="highlight">
+                {(
+                  auction.finalPrice ||
+                  auction.startPrice ||
+                  0
+                ).toLocaleString()}{" "}
+                ZC
+              </span>
+            </WalletRow>
+          </WalletBox>
 
           <InfoList>
-            <li>
-              <span>남은 시간</span>{" "}
-              <span>
+            <InfoItem>
+              <span className="key">판매자</span>
+              <span className="value">{auction.sellerNickName}</span>
+            </InfoItem>
+            <InfoItem>
+              <span className="key">남은 시간</span>
+              <span className="value" style={{ color: "#d32f2f" }}>
                 <TimerComponent end={auction.endTime} />
               </span>
-            </li>
-            <li>
-              <span>입찰 횟수</span> <span>{auction.bidCount}회</span>
-            </li>
-            <li>
-              <span>입찰 단위</span> <span>{auction.minBidUnit}원</span>
-            </li>
-            <li>
-              <span>최고 입잘자</span> <span>{auction.winnerNickname}</span>
-            </li>
+            </InfoItem>
+            <InfoItem>
+              <span className="key">입찰 단위</span>
+              <span className="value">
+                {(auction.minBidUnit || auction.bidUnit || 0).toLocaleString()}{" "}
+                ZC
+              </span>
+            </InfoItem>
+            <InfoItem>
+              <span className="key">입찰 횟수</span>
+              <span className="value">{auction.bidCount || 0}회</span>
+            </InfoItem>
           </InfoList>
 
-          {isLogin && (
-            <CreditBox>
-              <span>내 보유 크레딧</span> <span>{credit}원</span>
-            </CreditBox>
-          )}
-
-          {/* 가이드 이미지와 유사하게 '입찰금액 입력' 텍스트를 하나의 컴포넌트로 표현 */}
-          {isLogin && (
+          <div style={{ marginTop: "auto" }}>
             <CreateBidComponent
               auctionId={auctionId}
-              finalPrice={auction.finalPrice}
-              minBidUnit={auction.minBidUnit}
-              bidderId={user.id}
-              style={{ marginTop: "20px" }}
-            ></CreateBidComponent>
-          )}
-        </InfoSection>
-      </MainGrid>
+              finalPrice={auction.currentPrice || auction.startPrice}
+              minBidUnit={auction.minBidUnit || auction.bidUnit}
+              bidderId={user?.id}
+            />
+          </div>
+        </InfoBox>
+      </ConsistentGrid>
 
-      {/* 3. 실시간 Q&A 및 입찰 기록 탭 */}
-      <TabArea>
-        <Tab>
-          <TabTitle>판매자와 구매자의 실시간 질의 응답</TabTitle>
-          <ChatComponent
-            chatId={auctionId}
-            nickname={user ? user.nickname : "익명"}
-          ></ChatComponent>
-        </Tab>
-        <Tab style={{ borderRight: "none" }}>
-          <TabTitle>입찰 기록</TabTitle>
-          <BidHistoryComponent auctionId={auctionId}></BidHistoryComponent>
-        </Tab>
-      </TabArea>
+      {/* 하단: 채팅 및 입찰 기록 */}
+      <ConsistentGrid>
+        <Board>
+          <BoardHeader>
+            실시간 Q&A <span>• Live</span>
+          </BoardHeader>
+          <ChatWrapper>
+            {/* 방금 만든 '상단 0, 하단 15px' 라디오 스타일 ChatComponent가 들어감 */}
+            <ChatComponent
+              chatId={auctionId}
+              nickname={user?.nickname || "익명"}
+            />
+          </ChatWrapper>
+        </Board>
 
-      {/* 4. 상품 설명 */}
+        <Board>
+          <BoardHeader>입찰 기록</BoardHeader>
+          <BoardBody>
+            <BidHistoryComponent auctionId={auctionId} />
+          </BoardBody>
+        </Board>
+      </ConsistentGrid>
+
+      {/* 가이드 섹션 */}
       <Section>
-        <SectionTitle>상품 설명</SectionTitle>
-        <SectionContent>{auction.description}</SectionContent>
+        <SectionTitle>상품 상세 정보</SectionTitle>
+        <Description>{auction.itemDesc || "상세 정보가 없습니다."}</Description>
       </Section>
 
-      {/* 5. 주의 사항 */}
       <Section>
-        <SectionTitle>주의 사항</SectionTitle>
-        <SectionContent>{auction.notice}</SectionContent>
+        <SectionTitle>프리미엄 경매 참여 가이드</SectionTitle>
+        <Description>
+          {`○ 소규모 경매 진행 방식 안내 (블라인드 입찰)
+
+소규모 경매는 블라인드 입찰 방식으로 진행됩니다.
+아래 내용을 반드시 확인하신 후 참여해 주세요.
+
+○  블라인드 입찰이란?
+
+입찰 금액은 본인에게만 공개되며
+다른 참가자의 입찰 금액은 경매 종료 전까지 확인할 수 없습니다.
+
+실시간 최고가 경쟁 방식이 아닙니다.
+
+○  입찰 시간
+
+각 경매는 정해진 시작 시간부터 종료 시간까지 입찰이 가능합니다.
+
+종료 시각 이후에는 추가 입찰이 불가능합니다.
+
+○  낙찰 기준
+
+제한 시간 내 가장 높은 금액을 제시한 참가자가 낙찰됩니다.
+
+동일 금액 입찰 시, 먼저 입찰한 참가자가 우선 낙찰됩니다.
+
+⚠ 유의사항
+
+입찰 후 취소 또는 금액 변경은 불가능합니다.
+
+허위 입찰 또는 부정 행위가 확인될 경우,
+서비스 이용이 제한될 수 있습니다.
+
+시스템 사정에 따라 경매 일정이 변경될 수 있으며,
+변경 시 별도 공지로 안내드립니다.`}
+        </Description>
       </Section>
     </Container>
   );
