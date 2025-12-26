@@ -391,7 +391,7 @@ const MajorAuctionDetail = () => {
               <span className="label-gold">현재 최고 입찰가</span>
               <span className="highlight">
                 {(
-                  auction.currentPrice ||
+                  auction.finalPrice ||
                   auction.startPrice ||
                   0
                 ).toLocaleString()}{" "}
