@@ -252,3 +252,11 @@ AxiosApi.updateMember = async (id, nickname, pwd) => {
   };
   return await AxiosApi.patch(`/api/members/${id}`, memberDto);
 };
+
+// 헤더 검색 인풋 창
+AxiosApi.searchAuctions = async (keyword, page = 0) => {
+  const res = await AxiosApi.get("/api/auctions/search", {
+    params: { keyword, page, size: 12 },
+  });
+  return res.data;
+};

@@ -4,6 +4,7 @@ import styled from "styled-components";
 import LogoImage1 from "../images/LogoImage1.png";
 import MessageModal from "./MessageModal";
 import { useAuth } from "../context/AuthContext";
+import SearchBar from "./SearchBar";
 import AxiosApi from "../api/AxiosAPI";
 
 /* =========================
@@ -285,12 +286,7 @@ const Header = () => {
             <Logo src={LogoImage1} alt="Logo" onClick={() => navigate("/")} />
 
             <CenterSection>
-              <SearchBox>
-                <SearchInput type="text" placeholder="검색어를 입력하세요" />
-                <SearchIconWrapper>
-                  <SearchIcon />
-                </SearchIconWrapper>
-              </SearchBox>
+              <SearchBar />
               <MenuRow>
                 <span onClick={() => navigate("/auction/major")}>
                   프리미엄 경매
