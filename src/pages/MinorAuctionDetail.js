@@ -3,6 +3,10 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import AxiosAPI from "../api/AxiosAPI";
 
+/* =====================
+   Styled Components
+===================== */
+
 const Container = styled.div`
   max-width: 1100px;
   margin: 50px auto;
@@ -22,7 +26,9 @@ const MainGrid = styled.div`
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
   gap: 30px;
+  /* 중요: 양쪽 박스 높이를 강제로 맞춤 */
   align-items: stretch;
+
   @media (max-width: 900px) {
     grid-template-columns: 1fr;
   }
@@ -31,15 +37,26 @@ const MainGrid = styled.div`
 /* ===== Image Section ===== */
 
 const ImageWrap = styled.div`
+  width: 100%;
+  /* 높이를 부모(Grid)에 맞추고 내부 요소 배치 설정 */
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+`;
+
+const MainImageContainer = styled.div`
   position: relative;
   width: 100%;
-  height: 500px;
+  /* 고정 높이 대신 최소 높이 설정 + 남는 공간 채우기(flex: 1) */
+  min-height: 500px;
+  flex: 1;
   background: #f9f9f9;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid #eee;
+
   @media (max-width: 768px) {
-    height: 300px;
+    min-height: 300px;
   }
 `;
 
@@ -63,28 +80,37 @@ const Arrow = styled.button`
   font-weight: bold;
   z-index: 2;
   transition: 0.3s;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
   &:hover {
     background: #fff;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   }
   ${(props) => (props.left ? "left: 10px;" : "right: 10px;")}
 `;
 
 const SliderWrapper = styled.div`
   margin-top: 15px;
+  width: 100%;
+  /* 썸네일 영역은 높이 고정 (필요시) */
+  flex-shrink: 0;
 `;
 
 const ThumbRow = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 12px;
   overflow-x: auto;
   padding-bottom: 5px;
+
   &::-webkit-scrollbar {
-    height: 4px;
+    height: 6px;
   }
   &::-webkit-scrollbar-thumb {
     background: #ccc;
     border-radius: 10px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
   }
 `;
 
@@ -95,10 +121,12 @@ const Thumb = styled.img`
   border-radius: 8px;
   cursor: pointer;
   border: ${(props) => (props.active ? "3px solid #000" : "1px solid #ddd")};
-  opacity: ${(props) => (props.active ? "1" : "0.6")};
-  transition: 0.2s;
+  opacity: ${(props) => (props.active ? "1" : "0.5")};
+  transition: all 0.2s ease;
+
   &:hover {
     opacity: 1;
+    border-color: #666;
   }
 `;
 
@@ -112,10 +140,12 @@ const InfoBox = styled.div`
   flex-direction: column;
   justify-content: space-between;
   background: #fff;
+  /* 중요: 왼쪽 이미지 박스와 높이를 맞추기 위해 100% 설정 */
+  height: 100%;
+  box-sizing: border-box;
 `;
 
 const Price = styled.div`
-  /* 기존 margin-bottom: 25px에서 줄임 (아래 텍스트와 간격 조절) */
   margin-bottom: 8px;
   font-size: 32px;
   font-weight: 900;
@@ -133,17 +163,15 @@ const Price = styled.div`
   }
 `;
 
-/* ✅ 새로 추가된 컴포넌트: 시작가 아래 텍스트용 */
 const BlindText = styled.div`
   font-size: 14px;
   color: #666;
-  margin-bottom: 25px; /* Price에서 뺀 여백을 여기로 이동 */
+  margin-bottom: 25px;
   font-weight: 500;
   display: flex;
   align-items: center;
   gap: 5px;
 
-  /* 앞에 자물쇠 아이콘 효과 */
   &::before {
     content: "🔒";
     font-size: 12px;
@@ -167,7 +195,7 @@ const InfoList = styled.ul`
 `;
 
 const BidRow = styled.div`
-  margin-top: auto;
+  margin-top: auto; /* 박스 하단으로 밀어내기 */
   display: flex;
   flex-direction: column;
 `;
@@ -231,8 +259,9 @@ const DescriptionText = styled.div`
   border-radius: 8px;
   white-space: pre-line;
 `;
+
 /* =====================
-   Component Logic (원본 로직 유지)
+   Component Logic
 ===================== */
 
 const MinorAuctionDetail = () => {
@@ -241,9 +270,8 @@ const MinorAuctionDetail = () => {
   const [remainingTime, setRemainingTime] = useState(0);
   const [currentImgIdx, setCurrentImgIdx] = useState(0);
 
-  // 로직: 0이 고정되지 않게 빈 문자열로 초기화
   const [bidPrice, setBidPrice] = useState("");
-  const [userCredit, setUserCredit] = useState(150000); // 임시 데이터
+  const [userCredit, setUserCredit] = useState(150000);
   const [myLastBid, setMyLastBid] = useState(0);
 
   useEffect(() => {
@@ -290,7 +318,6 @@ const MinorAuctionDetail = () => {
     );
   };
 
-  // 로직: 입찰 핸들러 (원본 유지)
   const handleBid = () => {
     if (bidPrice === "" || bidPrice <= 0) {
       alert("금액을 입력해주세요.");
@@ -322,11 +349,17 @@ const MinorAuctionDetail = () => {
 
   if (!auction) return <Container>로딩 중...</Container>;
 
-  const images = auction.itemImgs || [auction.itemImg];
+  // 이미지가 1개인지 여부 확인 (null 체크 포함)
+  const images =
+    auction.itemImgs && auction.itemImgs.length > 0
+      ? auction.itemImgs
+      : [auction.itemImg];
+
+  // 이미지가 2장 이상인지 확인하는 플래그
+  const hasMultipleImages = images.length > 1;
 
   return (
     <Container>
-      {/* Header Style 적용 + 데이터는 원본 변수 사용 */}
       <Header>
         {auction.itemName}{" "}
         <span
@@ -343,12 +376,13 @@ const MinorAuctionDetail = () => {
       </Header>
 
       <MainGrid>
-        {/* 이미지 섹션 (가이드 스타일) */}
+        {/* 이미지 섹션 */}
         <ImageWrap>
-          <div style={{ position: "relative" }}>
-            <MainImage src={images[currentImgIdx]} />
+          <MainImageContainer>
+            <MainImage src={images[currentImgIdx]} alt="Main Product" />
 
-            {images.length > 1 && (
+            {/* 이미지가 2장 이상일 때만 화살표 노출 */}
+            {hasMultipleImages && (
               <>
                 <Arrow left onClick={prevImage}>
                   &lt;
@@ -356,9 +390,10 @@ const MinorAuctionDetail = () => {
                 <Arrow onClick={nextImage}>&gt;</Arrow>
               </>
             )}
-          </div>
+          </MainImageContainer>
 
-          {images.length > 1 && (
+          {/* 이미지가 2장 이상일 때만 썸네일 노출 */}
+          {hasMultipleImages && (
             <SliderWrapper>
               <ThumbRow>
                 {images.map((img, idx) => (
@@ -367,6 +402,7 @@ const MinorAuctionDetail = () => {
                     src={img}
                     active={idx === currentImgIdx}
                     onClick={() => setCurrentImgIdx(idx)}
+                    alt={`thumbnail-${idx}`}
                   />
                 ))}
               </ThumbRow>
@@ -374,7 +410,7 @@ const MinorAuctionDetail = () => {
           )}
         </ImageWrap>
 
-        {/* 정보 섹션 (가이드 스타일 Box + 원본 데이터) */}
+        {/* 정보 섹션 */}
         <InfoBox>
           <Price>시작가 {auction.startPrice?.toLocaleString()}원</Price>
           <BlindText> 블라인드 경매 진행중</BlindText>
@@ -397,7 +433,6 @@ const MinorAuctionDetail = () => {
               <span>총 입찰</span>
               <strong>{auction.bidCount || 0}회</strong>
             </li>
-            {/* 원본 로직에 있던 유저 정보 표시 */}
             <li>
               <span>내 보유 포인트</span>
               <strong>{userCredit.toLocaleString()} ZC</strong>
@@ -422,7 +457,7 @@ const MinorAuctionDetail = () => {
         </InfoBox>
       </MainGrid>
 
-      {/* 상품 설명 섹션 */}
+      {/* 상품 설명 */}
       <Section>
         <SectionTitle>상품설명</SectionTitle>
         <DescriptionText>
@@ -430,7 +465,7 @@ const MinorAuctionDetail = () => {
         </DescriptionText>
       </Section>
 
-      {/* 주의 사항 섹션 (가이드 스타일 텍스트 포맷 유지) */}
+      {/* 주의 사항 */}
       <Section>
         <SectionTitle>주의 사항</SectionTitle>
         <DescriptionText>
