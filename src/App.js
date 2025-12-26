@@ -18,7 +18,6 @@ import ScrollToTop from "./components/ScrollToTop";
 import MyPageEdit from "./pages/MyPageEdit";
 import MySales from "./pages/MySales";
 import AuctionHistory from "./pages/AuctionHistory";
-import SearchResult from "./pages/SearchResult";
 
 function App() {
   return (
@@ -43,7 +42,6 @@ function App() {
             <Route path="/create-auction" element={<CreateAuction />} />
             <Route path="/mypage-edit" element={<MyPageEdit />} />
             <Route path="/mypage/sales" element={<MySales />} />
-            <Route path="/search" element={<SearchResult />} />
           </Routes>
         </Layout>
       </Router>

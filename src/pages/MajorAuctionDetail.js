@@ -263,7 +263,8 @@ const MajorAuctionDetail = () => {
   useEffect(() => {
     const loadAuction = async () => {
       const res = await AxiosApi.getAuction(auctionId);
-      setAuction(res);
+      console.log(res);
+      setAuction(res.data);
     };
     loadAuction();
 
