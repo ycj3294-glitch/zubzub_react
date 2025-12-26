@@ -177,66 +177,90 @@ const AuctionItem = styled.div`
 ========================= */
 
 const AuctionSchedule = () => {
-  const [selectedDate, setSelectedDate] = useState(18);
-
-  const events = {
-    1: [
-      {
-        id: 101,
-        title: "새해 첫 한정판 경매 대공개",
-        seller: "ZubZub_KR",
-        time: "14:00",
-      },
-    ],
-    3: [
-      {
-        id: 102,
-        title: "샤넬 팝업 초특가 경매 세일",
-        seller: "Luxury_H",
-        time: "18:00",
-      },
-    ],
-    18: [
-      {
-        id: 104,
-        title: "맥북 프로 M3 미개봉 풀박스",
-        seller: "Tech_Master",
-        time: "15:00",
-      },
-      {
-        id: 105,
-        title: "레트로 게임기 닌텐도 모음집",
-        seller: "Retro_King",
-        time: "21:00",
-      },
-    ],
-    24: [
-      {
-        id: 106,
-        title: "크리스마스 이브 특별 옥션 이벤트",
-        seller: "Santa_Zub",
-        time: "12:00",
-      },
-    ],
-  };
-
-  // const [events, setEvents] = useState([]);
   // const [selectedDate, setSelectedDate] = useState(18);
 
-  // useEffect(() => {
-  //   AxiosApi.getAuctionSchedule("/api/auction/schedule")
-  //     .then((response) => {
-  //       setEvents(response.data);
-  //     })
-  //     .catch((error) => {
-  //       console.error("스케쥴을 받아오지 못했습니다.", error);
-  //     });
-  // }, []);
+  // const events = {
+  //   1: [
+  //     {
+  //       id: 101,
+  //       title: "새해 첫 한정판 경매 대공개",
+  //       seller: "ZubZub_KR",
+  //       time: "14:00",
+  //     },
+  //   ],
+  //   3: [
+  //     {
+  //       id: 102,
+  //       title: "샤넬 팝업 초특가 경매 세일",
+  //       seller: "Luxury_H",
+  //       time: "18:00",
+  //     },
+  //   ],
+  //   18: [
+  //     {
+  //       id: 104,
+  //       title: "맥북 프로 M3 미개봉 풀박스",
+  //       seller: "Tech_Master",
+  //       time: "15:00",
+  //     },
+  //     {
+  //       id: 105,
+  //       title: "레트로 게임기 닌텐도 모음집",
+  //       seller: "Retro_King",
+  //       time: "21:00",
+  //     },
+  //   ],
+  //   24: [
+  //     {
+  //       id: 106,
+  //       title: "크리스마스 이브 특별 옥션 이벤트",
+  //       seller: "Santa_Zub",
+  //       time: "12:00",
+  //     },
+  //   ],
+  // };
+
+  const [events, setEvents] = useState({});
+  const [selectedDate, setSelectedDate] = useState(new Date().getDate());
+
+  useEffect(() => {
+    AxiosApi.getAuctionSchedule()
+      .then((response) => {
+        // 날짜별 이벤트 그룹핑
+        const eventsByDate = {};
+        response.data.forEach((ev) => {
+          const day = new Date(ev.startTime).getDate();
+          if (!eventsByDate[day]) eventsByDate[day] = [];
+          eventsByDate[day].push({
+            id: ev.id,
+            title: ev.itemName,
+            time: new Date(ev.startTime).toLocaleTimeString(),
+            seller: ev.sellerNickName,
+          });
+        });
+        setEvents(eventsByDate);
+      })
+      .catch((error) => {
+        console.error("스케쥴을 받아오지 못했습니다.", error);
+      });
+  }, []);
+
+  // 이번 달 실제 일수 계산
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth() + 1;
+  const daysInMonth = new Date(year, month, 0).getDate();
+
+  // 4️⃣ 첫 번째 날짜 요일에 맞춰 빈 칸 만들기 (리턴문 안에서 바로 쓸 수도 있지만 변수로 만들면 깔끔)
+  const firstDayOfMonth = new Date(year, month - 1, 1).getDay();
+  const emptyCells = [...Array(firstDayOfMonth)].map((_, i) => (
+    <div key={`empty-${i}`} className="date-cell empty"></div>
+  ));
 
   return (
     <PageWrapper>
       <TitleSection>
-        <h1>대규모 경매 일정</h1>
+        <h1>이번달 경매 일정</h1>
         <p>엄격한 심사를 통과한 프리미엄 경매 리스트입니다.</p>
       </TitleSection>
 
@@ -248,14 +272,18 @@ const AuctionSchedule = () => {
                 {d}
               </div>
             ))}
-            {[...Array(31)].map((_, i) => {
+
+            {/* 빈 칸 */}
+            {emptyCells}
+
+            {[...Array(daysInMonth)].map((_, i) => {
               const date = i + 1;
               return (
                 <div
                   key={i}
-                  className={`date-cell ${date === 18 ? "today" : ""} ${
-                    selectedDate === date ? "selected" : ""
-                  }`}
+                  className={`date-cell ${
+                    date === today.getDate() ? "today" : ""
+                  } ${selectedDate === date ? "selected" : ""}`}
                   onClick={() => setSelectedDate(date)}
                 >
                   <div className="date-num">{date}</div>
@@ -272,7 +300,9 @@ const AuctionSchedule = () => {
         </CalendarCard>
 
         <InfoCard>
-          <h3>12월 {selectedDate}일 경매</h3>
+          <h3>
+            {month}월 {selectedDate}일 경매
+          </h3>
           <div className="event-list">
             {events[selectedDate] ? (
               events[selectedDate].map((ev) => (
