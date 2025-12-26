@@ -417,7 +417,7 @@ const MinorAuctionDetail = () => {
           <InfoList>
             <li>
               <span>판매자</span>
-              <strong>{auction.sellerNickName || "익명"}</strong>
+              <strong>{auction.sellerNickname || "익명"}</strong>
             </li>
             <li>
               <span>남은 시간</span>
