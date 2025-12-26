@@ -138,10 +138,7 @@ const SearchResult = () => {
             </ImageWrap>
 
             <CardBody>
-              <Title>
-                {a.itemName}
-                <BlindBadge>블라인드</BlindBadge>
-              </Title>
+              <Title>{a.itemName}</Title>
 
               <Price>{a.startPrice.toLocaleString()} 원</Price>
 
