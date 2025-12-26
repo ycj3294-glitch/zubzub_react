@@ -178,7 +178,7 @@ const MinorAuctionDetail = () => {
 
   useEffect(() => {
     const fetchAuction = async () => {
-      const res = await AxiosAPI.getAuctionDetail(id);
+      const res = await AxiosAPI.getAuction(id);
       setAuction(res.data);
     };
     fetchAuction();
