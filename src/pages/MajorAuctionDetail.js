@@ -1,4 +1,4 @@
-// MajorAuctionDetail.js (대규모 경매 상세 페이지 - 오른쪽 정보 밀도 개선)
+// MajorAuctionDetail.js (프리미엄 경매 상세 페이지 - 오른쪽 정보 밀도 개선)
 
 import styled from "styled-components";
 import { useParams } from "react-router-dom";

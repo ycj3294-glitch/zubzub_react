@@ -1,4 +1,4 @@
-// MajorAuction.js (대규모 경매 목록 페이지)
+// MajorAuction.js (프리미엄 경매 목록 페이지)
 
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
@@ -135,28 +135,22 @@ const InfoText = styled.p`
 `;
 
 /* =========================
-   Dummy Data (하루 3개 경매, 여러 날짜 데이터)
+   날짜 로직 (오늘 기준 앞뒤 3일 총 7일 자동 생성)
 ========================= */
 
-const today = new Date();
-const formatDate = (date) => `${date.getMonth() + 1}.${date.getDate()}`;
-
-const getAuctionDate = (days) => {
-  const date = new Date();
-  date.setDate(date.getDate() + days);
-  return date;
-};
-
-// 상단 날짜 캘린더용 데이터 (오늘 포함 7일)
 const DATE_DATA = Array.from({ length: 7 }, (_, i) => {
-  const date = getAuctionDate(i); // 오늘 + i일
+  const date = new Date();
+  // i가 0~6이므로, i - 3을 하면 오늘 기준으로 -3, -2, -1, 0, 1, 2, 3일이 됨
+  date.setDate(date.getDate() + (i - 3));
+
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0"); // 2자리
-  const day = String(date.getDate()).padStart(2, "0"); // 2자리
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
   return {
     day: date.getDate(),
     date: `${date.getMonth() + 1}.${date.getDate()}`,
-    name: `${date.getDate()}일`, // ← 자동 생성
+    name: `${date.getDate()}일`,
     iso: `${year}-${month}-${day}`,
   };
 });
@@ -165,9 +159,9 @@ const DATE_DATA = Array.from({ length: 7 }, (_, i) => {
 const getRemainingTime = (endTime) => {
   const now = new Date();
   const end = new Date(endTime);
-  const diff = end - now; // 밀리초 단위 차이
+  const diff = end - now;
 
-  if (diff <= 0) return "00:00:00"; // 이미 종료된 경우
+  if (diff <= 0) return "00:00:00";
 
   const hours = Math.floor(diff / (1000 * 60 * 60));
   const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -179,63 +173,23 @@ const getRemainingTime = (endTime) => {
   )}:${String(seconds).padStart(2, "0")}`;
 };
 
-// 경매 목록 데이터 (각 날짜별 3개 경매를 가정)
-const AUCTION_LIST = [
-  {
-    id: 1,
-    title: "WHY? 책 20권 묶음",
-    image: "/images/major_why.jpg", // 가이드 이미지
-    currentPrice: 40000,
-    remainTime: "11:11:11",
-    bidCount: 0,
-    bidUnit: 1000,
-    immediateBuy: "불가",
-    status: "진행 중",
-  },
-  {
-    id: 2,
-    title: "트럼펫 (2경매)",
-    image: "/images/major_trumpet.jpg",
-    currentPrice: 0,
-    remainTime: "00:00:00",
-    bidCount: 0,
-    bidUnit: 0,
-    immediateBuy: "불가",
-    status: "시작 안함",
-  },
-  {
-    id: 3,
-    title: "카메라 (3경매)",
-    image: "/images/major_camera.jpg",
-    currentPrice: 0,
-    remainTime: "00:00:00",
-    bidCount: 0,
-    bidUnit: 0,
-    immediateBuy: "불가",
-    status: "시작 안함",
-  },
-];
-
 /* =========================
    Component
 ========================= */
 
 const MajorAuction = () => {
   const nav = useNavigate();
-  const [activeDate, setActiveDate] = useState(DATE_DATA[0].iso); //
+  // ✅ DATE_DATA[3]이 항상 '오늘'이므로 초기값을 오늘 날짜로 설정
+  const [activeDate, setActiveDate] = useState(DATE_DATA[3].iso);
   const [displayList, setDisplayList] = useState([]);
-
-  // 현재 활성화된 날짜에 따라 경매 목록을 필터링하는 로직 (더미이므로 모든 날짜에 동일 목록 표시)
-  // const displayList = AUCTION_LIST;
 
   useEffect(() => {
     const fetchAuctions = async () => {
       try {
-        const response = await AxiosApi.get(
-          "/api/auctions/majorlist/by-date", // axios url
-          { params: { date: activeDate } } // ← 옵션 객체 끝
-        ); // ← axios.get 끝나는 괄호
-        setDisplayList(response.data); // ← try 블록 안에서 호출
+        const response = await AxiosApi.get("/api/auctions/majorlist/by-date", {
+          params: { date: activeDate },
+        });
+        setDisplayList(response.data);
       } catch (error) {
         console.error("경매 데이터를 불러오는 중 오류 발생", error);
       }
@@ -245,13 +199,12 @@ const MajorAuction = () => {
   }, [activeDate]);
 
   const handleItemClick = (id) => {
-    // 가이드 이미지 1 상세 페이지로 이동
     nav(`/auction/major/${id}`);
   };
 
   return (
     <Container>
-      <PageHeader>대규모 경매</PageHeader>
+      <PageHeader>프리미엄 경매</PageHeader>
 
       {/* 캘린더/날짜 헤더 */}
       <DateHeader>
@@ -275,7 +228,6 @@ const MajorAuction = () => {
           <AuctionItem key={item.id}>
             <ImageContainer onClick={() => handleItemClick(item.id)}>
               <AuctionImage src={item.itemImg} alt={item.itemName} />
-              {/* '시작 안함' 상태일 때만 오버레이 표시 */}
               <StatusOverlay $show={item.auctionStatus === "시작 안함"}>
                 시작 안함
               </StatusOverlay>
@@ -286,11 +238,13 @@ const MajorAuction = () => {
 
               <InfoRow>
                 <InfoText>
-                  현재가 <span>{item.startPrice.toLocaleString()} 원</span>
+                  현재가 <span>{item.startPrice?.toLocaleString()} 원</span>
                 </InfoText>
                 <InfoText>남은 시간: {getRemainingTime(item.endTime)}</InfoText>
-                <InfoText>입찰 횟수: 회</InfoText>
-                <InfoText>입찰 단위: 원</InfoText>
+                <InfoText>입찰 횟수: {item.bidCount || 0}회</InfoText>
+                <InfoText>
+                  입찰 단위: {item.bidUnit?.toLocaleString() || 0}원
+                </InfoText>
               </InfoRow>
             </InfoContainer>
           </AuctionItem>
