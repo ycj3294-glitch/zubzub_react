@@ -150,6 +150,29 @@ AxiosApi.chargeCredit = async (userId, amount) => {
   return await AxiosApi.post(`/api/members/${userId}/credit?coin=${amount}`);
 };
 
+/* =========================
+   경매
+========================= */
+
+AxiosApi.getNearestEnd = async () => {
+  const res = await AxiosApi.get(`/api/auctions/nearest-end`);
+  return res.data;
+};
+
+AxiosApi.getMajorAuctionsByDate = async (date) => {
+  const res = await AxiosApi.get("/api/auctions/majorlist/by-date", {
+    params: { date },
+  });
+  return res.data;
+};
+
+AxiosApi.getMinorAuctions = async (currentPage, size) => {
+  const res = await AxiosApi.get(`/api/auctions/minorlist`, {
+    params: { page: currentPage - 1, size },
+  });
+  return res.data;
+};
+
 AxiosApi.getWinList5 = async (userId) => {
   return await AxiosApi.get(`/api/auctions/${userId}/win5`);
 };
@@ -165,12 +188,6 @@ AxiosApi.getWinList = async (memberId) => {
 AxiosApi.getSellList = async (memberId) => {
   return await AxiosApi.get(`/api/auctions/${memberId}/selllist`);
 };
-
-export default AxiosApi;
-
-/* =========================
-   경매
-========================= */
 
 AxiosApi.getAuction = async (auctionId) => {
   const res = await AxiosApi.get(`/api/auctions/${auctionId}`);
@@ -260,3 +277,5 @@ AxiosApi.searchAuctions = async (keyword, page = 0) => {
   });
   return res.data;
 };
+
+export default AxiosApi;

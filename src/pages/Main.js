@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import Frame1 from "../images/Frame1.png";
 import Frame2 from "../images/Frame2.png";
+import TimerComponent from "../components/auction/TimerComponent";
+import AxiosApi from "../api/AxiosAPI";
+import ChatComponent from "../components/auction/ChatComponent";
+import { useAuth } from "../context/AuthContext";
 
 /* =========================
    Styled Components
@@ -191,13 +195,18 @@ const SmallAuctionGrid = styled.div`
 
 const SmallItemCard = styled.div`
   text-align: center;
+
   .thumb {
     width: 100%;
     aspect-ratio: 1;
     border-radius: 12px;
     background: #f9f9f9;
     border: 1px solid #eee;
+    background-image: url(${(props) => props.img});
+    background-size: cover;
+    background-position: center;
   }
+
   p {
     margin-top: 10px;
     font-size: 12px;
@@ -252,47 +261,53 @@ const SafetyCard = styled.div`
 
 const MainPage = () => {
   const nav = useNavigate();
-  const [activeDay, setActiveDay] = useState(14);
+  const [activeDate, setActiveDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  console.log(activeDate);
+  const [mainAuction, setMainAuction] = useState();
+  const [majorAuctions, setMajorAuctions] = useState();
+  const [minorAuctions, setMinorAuctions] = useState();
+  const { user } = useAuth();
 
-  const auctionData = {
-    12: [
-      { id: 1, name: "빈티지 시계", img: "" },
-      { id: 2, name: "LP 플레이어", img: "" },
-      { id: 3, name: "헤드폰", img: "" },
-    ],
-    13: [
-      { id: 1, name: "노트북", img: "" },
-      { id: 2, name: "기계식 키보드", img: "" },
-      { id: 3, name: "마우스", img: "" },
-    ],
-    14: [
-      { id: 1, name: "일렉기타", img: "" },
-      { id: 2, name: "카메라", img: "" },
-      { id: 3, name: "트럼펫", img: "" },
-    ],
-    15: [
-      { id: 1, name: "스니커즈", img: "" },
-      { id: 2, name: "가죽 자켓", img: "" },
-      { id: 3, name: "선글라스", img: "" },
-    ],
-    16: [
-      { id: 1, name: "텐트", img: "" },
-      { id: 2, name: "캠핑 의자", img: "" },
-      { id: 3, name: "코벨", img: "" },
-    ],
-    17: [
-      { id: 1, name: "소파", img: "" },
-      { id: 2, name: "무드등", img: "" },
-      { id: 3, name: "러그", img: "" },
-    ],
-    18: [
-      { id: 1, name: "자전거", img: "" },
-      { id: 2, name: "스케이트보드", img: "" },
-      { id: 3, name: "전동휠", img: "" },
-    ],
+  // const days = [12, 13, 14, 15, 16, 17, 18];
+  const getNext7Days = () => {
+    const today = new Date();
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      return d.toISOString().split("T")[0]; // YYYY-MM-DD
+    });
   };
+  const days = getNext7Days(); // YYYY-MM-DD
+  const getDateLabel = (date) => date.split("-")[2]; // DD
 
-  const days = [12, 13, 14, 15, 16, 17, 18];
+  useEffect(() => {
+    const loadMainAuction = async () => {
+      const auction = await AxiosApi.getNearestEnd();
+      console.log("메인옥션", auction);
+      setMainAuction(auction);
+    };
+    loadMainAuction();
+  }, []);
+
+  useEffect(() => {
+    const loadMajorAuctions = async (date) => {
+      const auctions = await AxiosApi.getMajorAuctionsByDate(date);
+      console.log("선택날짜옥션", auctions);
+      setMajorAuctions(auctions);
+    };
+    loadMajorAuctions(activeDate);
+  }, [activeDate]);
+
+  useEffect(() => {
+    const loadMinorAuctions = async () => {
+      const auctions = await AxiosApi.getMinorAuctions(1, 10);
+      console.log("마이너옥션", auctions.content);
+      setMinorAuctions(auctions.content);
+    };
+    loadMinorAuctions();
+  }, []);
 
   return (
     <MainContainer>
@@ -313,59 +328,72 @@ const MainPage = () => {
             대규모 경매 일정
           </SectionTitle>
           <CalendarHeader>
-            {days.map((day) => (
+            {days.map((date) => (
               <DayItem
-                key={day}
-                active={activeDay === day}
-                onClick={() => setActiveDay(day)}
+                key={date}
+                active={activeDate === date}
+                onClick={() => setActiveDate(date)}
               >
-                {day}일
+                {getDateLabel(date)}일
               </DayItem>
             ))}
           </CalendarHeader>
           <ScheduleItems>
-            {auctionData[activeDay].map((item) => (
-              <ItemBox
-                key={item.id}
-                onClick={() => nav(`/auction/major/${item.id}`)}
-                style={{ cursor: "pointer" }}
-              >
-                <div className="img-wrapper">
-                  <img src={item.img} alt={item.name} />
-                </div>
-                <p>{item.name}</p>
-              </ItemBox>
-            ))}
+            {majorAuctions &&
+              majorAuctions.slice(0, 3).map((item) => (
+                <ItemBox
+                  key={item.id}
+                  onClick={() => nav(`/auction/major/${item.id}`)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <div className="img-wrapper">
+                    <img src={item.itemImg} alt={item.itemName} />
+                  </div>
+                  <p>{item.itemName}</p>
+                </ItemBox>
+              ))}
           </ScheduleItems>
         </ScheduleCard>
       </TopGrid>
 
       <SectionTitle>대규모 경매</SectionTitle>
       <LargeAuctionContent>
-        <LargeImageArea>타이머</LargeImageArea>
+        <LargeImageArea>
+          <TimerComponent
+            end={mainAuction ? mainAuction.endTime : ""}
+          ></TimerComponent>
+        </LargeImageArea>
         <LargeInfoArea>
           {/* ✅ 에러가 났던 부분 */}
-          <InfoLabel>현재 입찰가</InfoLabel>
+          <InfoLabel>
+            현재 낙찰가 : {mainAuction ? mainAuction.finalPrice : ""} 원
+          </InfoLabel>
           <ChatPlaceholder>
-            판매자와 구매자의
-            <br />
-            실시간 질의 응답
+            {mainAuction && (
+              <ChatComponent
+                chatId={mainAuction.id}
+                nickname={user ? user.nickname : "익명"}
+              ></ChatComponent>
+            )}
           </ChatPlaceholder>
         </LargeInfoArea>
       </LargeAuctionContent>
 
       <SectionTitle>소규모 경매</SectionTitle>
       <SmallAuctionGrid>
-        {[...Array(10)].map((_, i) => (
-          <SmallItemCard
-            key={i}
-            onClick={() => nav(`/auction/minor/${i + 1}`)}
-            style={{ cursor: "pointer" }}
-          >
-            <div className="thumb"></div>
-            <p>최소 입찰가</p>
-          </SmallItemCard>
-        ))}
+        {minorAuctions &&
+          minorAuctions.map((auction) => (
+            <SmallItemCard
+              key={auction.id}
+              onClick={() => nav(`/auction/minor/${auction.id}`)}
+              style={{ cursor: "pointer" }}
+              img={auction.itemImg}
+            >
+              <div className="thumb"></div>
+              <p>{auction.itemName}</p>
+              <p>{auction.finalPrice}원</p>
+            </SmallItemCard>
+          ))}
       </SmallAuctionGrid>
 
       <SafetySection>
