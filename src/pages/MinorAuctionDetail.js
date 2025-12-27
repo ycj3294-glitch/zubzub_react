@@ -300,6 +300,23 @@ const MinorAuctionDetail = () => {
     fetchAuction();
   }, [id]);
 
+  // 자신의 마지막 입찰가 조회
+  useEffect(() => {
+    const fetchMyLastBid = async () => {
+      console.log("내 마지막 입찰가 조회 실행");
+      try {
+        const res = await AxiosAPI.getMyLastBid(auction.id, userId);
+        setMyLastBid(res.data?.price || 0);
+      } catch (e) {
+        console.error("내 마지막 입찰가 조회 실패", e);
+      }
+    };
+
+    if (auction?.id && userId) {
+      fetchMyLastBid();
+    }
+  }, [auction?.id, userId]);
+
   useEffect(() => {
     if (!auction?.endTime) return;
     const interval = setInterval(() => {
