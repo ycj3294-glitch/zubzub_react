@@ -220,7 +220,7 @@ AxiosApi.createBid = async (auctionId, bidCreateDto) => {
   return res.status === 200 || res.status === 201;
 };
 
-export const loadBidHistories = async (auctionId, page, size = 20) => {
+AxiosApi.loadBidHistories = async (auctionId, page, size = 20) => {
   const res = await AxiosApi.get(`/api/bid-histories`, {
     params: { auctionId, page, size },
   });
@@ -245,27 +245,29 @@ AxiosApi.sendChatMessage = async (chatId, messageData) => {
    메시지
 ========================= */
 
-export const createMessage = async (messageData) => {
+AxiosApi.createMessage = async (messageData) => {
   const res = await AxiosApi.post(`/api/messages`, messageData);
   return res.data;
 };
 
-export const getReceivedMessages = async () => {
-  const res = await AxiosApi.get(`/api/messages/received`);
+AxiosApi.getReceivedMessages = async (page, size) => {
+  const res = await AxiosApi.get(`/api/messages/received`, {
+    params: { page, size },
+  });
   return res.data;
 };
 
-export const getMessage = async (messageId) => {
+AxiosApi.getMessage = async (messageId) => {
   const res = await AxiosApi.get(`/api/messages/${messageId}`);
   return res.data;
 };
 
-export const readMessage = async (messageId) => {
+AxiosApi.readMessage = async (messageId) => {
   const res = await AxiosApi.post(`/api/messages/${messageId}/read`, null);
   return res.data;
 };
 
-export const deleteMessage = async (messageId) => {
+AxiosApi.deleteMessage = async (messageId) => {
   const res = await AxiosApi.post(`/api/messages/${messageId}/delete`, null);
   return res.data;
 };

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { loadBidHistories } from "../../api/AxiosAPI";
+import AxiosApi from "../../api/AxiosAPI";
 
 // --- 스타일 컴포넌트 ---
 
@@ -87,7 +87,7 @@ const BidHistoryComponent = ({ auctionId }) => {
   // 데이터 로드 (무한 스크롤)
   const loadMore = async () => {
     try {
-      const newItems = await loadBidHistories(auctionId, page);
+      const newItems = await AxiosApi.loadBidHistories(auctionId, page);
       if (newItems === null || newItems.length === 0) return;
       setItems((prev) => [...prev, ...newItems]);
       setPage((prev) => prev + 1);
@@ -99,7 +99,7 @@ const BidHistoryComponent = ({ auctionId }) => {
   // 새로고침 (상단 감지 시)
   const refresh = async () => {
     try {
-      const newItems = await loadBidHistories(auctionId, 0); // 0페이지 or 초기화
+      const newItems = await AxiosApi.loadBidHistories(auctionId, 0); // 0페이지 or 초기화
       if (newItems && newItems.length > 0) {
         setItems(newItems);
         setPage(1);

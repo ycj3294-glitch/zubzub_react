@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Editor } from "@toast-ui/react-editor";
 import "@toast-ui/editor/dist/toastui-editor.css";
 import AxiosApi from "../api/AxiosAPI";
-import { createMessage } from "../api/AxiosAPI";
 
 /* =========================
    Styled
@@ -288,7 +287,7 @@ const AdminPage = () => {
         // await sendMessage(msgForm);
         alert("모든 회원에게 쪽지를 발송했습니다.");
       } else {
-        await createMessage({
+        await AxiosApi.createMessage({
           receiverId: msgTarget.id,
           title: msgForm.title,
           content: msgForm.content,

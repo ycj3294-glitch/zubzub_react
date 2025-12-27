@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import React, { useEffect, useState } from "react";
-import { getReceivedMessages, readMessage } from "../api/AxiosAPI";
+import AxiosApi from "../api/AxiosAPI";
+import MessageContentModal from "./MessageContentModal";
 
 /* ===================== styled (생략 - 기존과 동일) ===================== */
 const Overlay = styled.div`
@@ -77,11 +78,13 @@ const MessageModal = ({ onClose }) => {
   // 초기값을 빈 배열로 설정하여 .map 에러 방지
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showMessageContentModal, setShowMessageContentModal] = useState(false);
+  const [currentMessage, setCurrentMessage] = useState("");
 
   const handleReceive = async () => {
     try {
       setLoading(true);
-      const data = await getReceivedMessages();
+      const data = await AxiosApi.getReceivedMessages();
       console.log("서버 응답:", data); // 데이터 구조 확인용
 
       // Page 객체의 content 배열을 안전하게 가져옴
@@ -102,9 +105,9 @@ const MessageModal = ({ onClose }) => {
     // 백엔드 필드명 isRead 기준 체크
     if (!currentIsRead) {
       try {
-        await readMessage(id);
+        await AxiosApi.readMessage(id);
         setMessages((prev) =>
-          prev.map((msg) => (msg.id === id ? { ...msg, isRead: true } : msg))
+          prev.map((msg) => (msg.id === id ? { ...msg, read: true } : msg))
         );
       } catch (e) {
         console.error("읽음 처리 실패:", e);
@@ -136,7 +139,7 @@ const MessageModal = ({ onClose }) => {
 
         <TableHeader>
           <span>보낸 사람</span>
-          <span>내용</span>
+          <span>제목</span>
           <span>받은 시간</span>
         </TableHeader>
 
@@ -145,13 +148,21 @@ const MessageModal = ({ onClose }) => {
         ) : // messages 존재 여부와 길이를 동시에 체크하여 안전하게 map 실행
         messages && messages.length > 0 ? (
           messages.map((msg) => (
-            <Row key={msg.id} onClick={() => handleRead(msg.id, msg.isRead)}>
-              <span>운영자</span>
-              <Content unread={!msg.isRead}>
-                {!msg.isRead && <NewAlert>[!] </NewAlert>}
+            <Row
+              key={msg.id}
+              onClick={() => {
+                handleRead(msg.id, msg.read);
+
+                setCurrentMessage(msg);
+                setShowMessageContentModal(true);
+              }}
+            >
+              <Content unread={!msg.read}>운영자</Content>
+              <Content unread={!msg.read}>
+                {!msg.read && <NewAlert>[!] </NewAlert>}
                 {msg.title || msg.content}
               </Content>
-              <span>{formatDate(msg.createdAt)}</span>
+              <Content unread={!msg.read}>{formatDate(msg.createdAt)}</Content>
             </Row>
           ))
         ) : (
@@ -166,6 +177,15 @@ const MessageModal = ({ onClose }) => {
           <button>›</button> <button>≫</button>
         </Pagination>
       </Modal>
+
+      {/* 쪽지 내용 모달 */}
+      {showMessageContentModal && (
+        <MessageContentModal
+          title={currentMessage.title}
+          content={currentMessage.content}
+          onClose={() => setShowMessageContentModal(false)}
+        />
+      )}
     </>
   );
 };
