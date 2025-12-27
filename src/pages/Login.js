@@ -170,7 +170,10 @@ const Login = () => {
       }
     } catch (error) {
       console.error("Login Error:", error);
-      setErrors((p) => ({ ...p, common: "서버 오류가 발생했습니다" }));
+      setErrors((p) => ({
+        ...p,
+        common: "이메일 또는 비밀번호가 올바르지 않습니다",
+      }));
     }
   };
 
