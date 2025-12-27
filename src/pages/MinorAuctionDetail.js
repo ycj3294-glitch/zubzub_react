@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import AxiosAPI from "../api/AxiosAPI";
+import { jwtDecode } from "jwt-decode";
 
 /* =====================
    Styled Components
@@ -274,6 +275,19 @@ const MinorAuctionDetail = () => {
   const [userCredit, setUserCredit] = useState(150000);
   const [myLastBid, setMyLastBid] = useState(0);
 
+  // 사용자 정보 (토큰에서 디코딩)
+  const token = localStorage.getItem("accessToken");
+  const decoded = jwtDecode(token);
+  const userId = decoded.memberId; // 실제 서버에서 사용하는 키 확인 필요
+
+  useEffect(() => {
+    if (userId && auction) {
+      AxiosAPI.getUserInfo(userId).then((res) => {
+        if (res?.data) setUserCredit(res.data.credit);
+      });
+    }
+  }, [userId, auction]);
+
   useEffect(() => {
     const fetchAuction = async () => {
       try {
@@ -318,7 +332,7 @@ const MinorAuctionDetail = () => {
     );
   };
 
-  const handleBid = () => {
+  const handleBid = async () => {
     if (bidPrice === "" || bidPrice <= 0) {
       alert("금액을 입력해주세요.");
       return;
@@ -329,7 +343,10 @@ const MinorAuctionDetail = () => {
       alert("보유하신 ZC가 부족합니다.");
       return;
     }
-
+    if (auction.auctionStatus === "COMPLETED") {
+      alert("이미 종료된 경매입니다.");
+      return;
+    }
     if (numericBid < auction.startPrice) {
       alert(`최소 시작 금액은 ${auction.startPrice.toLocaleString()}원입니다.`);
       return;
@@ -341,10 +358,32 @@ const MinorAuctionDetail = () => {
       );
       return;
     }
+    try {
+      if (!token) {
+        alert("로그인이 필요합니다.");
+        return;
+      }
 
-    alert(`${numericBid.toLocaleString()} ZC로 입찰 신청이 완료되었습니다!`);
-    setMyLastBid(numericBid);
-    setBidPrice("");
+      const confirmMsg = `${numericBid.toLocaleString()}원으로 입찰하시겠습니까?\n(낙찰 시 취소 불가)`;
+      if (!window.confirm(confirmMsg)) return;
+
+      const response = await AxiosAPI.createBid(id, {
+        bidderId: userId,
+        price: numericBid,
+      });
+
+      if (response) {
+        // ✅ 성공 시에만 상태 변경과 메시지
+        alert(
+          `${numericBid.toLocaleString()} ZC로 입찰 신청이 완료되었습니다!`
+        );
+        setMyLastBid(numericBid);
+        setBidPrice("");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("입찰 중 오류가 발생했습니다.");
+    }
   };
 
   if (!auction) return <Container>로딩 중...</Container>;
