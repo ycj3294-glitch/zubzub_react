@@ -189,6 +189,12 @@ AxiosApi.getSellList = async (memberId) => {
   return await AxiosApi.get(`/api/auctions/${memberId}/selllist`);
 };
 
+AxiosApi.getMyLastBid = async (auctionId, userId) => {
+  return await AxiosApi.get(`/api/bid-histories/${auctionId}/lastbid`, {
+    params: { bidderId: userId },
+  });
+};
+
 /* =========================
    경매
 ========================= */
