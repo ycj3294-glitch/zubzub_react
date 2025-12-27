@@ -259,34 +259,7 @@ const MinorAuction = () => {
       <Inner>
         {/* header */}
         <HeaderRow>
-          <Title>소규모 경매</Title>
-
-          <SearchArea>
-            {/* 돋보기 아이콘 추가 */}
-            <svg
-              width="18"
-              height="18"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="3"
-              viewBox="0 0 24 24"
-            >
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="M21 21l-4.35-4.35"></path>
-            </svg>
-            <input
-              placeholder="관심 있는 물품을 검색해 보세요"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </SearchArea>
-
-          <CategorySelect>
-            <option value="all">전체보기</option>
-            <option value="clothes">의류</option>
-            <option value="electronics">전자기기</option>
-            <option value="etc">잡화</option>
-          </CategorySelect>
+          <Title>데일리 경매</Title>
         </HeaderRow>
 
         {/* grid */}

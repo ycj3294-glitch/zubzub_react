@@ -325,7 +325,7 @@ const MainPage = () => {
               textAlign: "center",
             }}
           >
-            대규모 경매 일정
+            프리미엄 경매 일정
           </SectionTitle>
           <CalendarHeader>
             {days.map((date) => (
@@ -356,7 +356,7 @@ const MainPage = () => {
         </ScheduleCard>
       </TopGrid>
 
-      <SectionTitle>대규모 경매</SectionTitle>
+      <SectionTitle>프리미엄 경매</SectionTitle>
       <LargeAuctionContent>
         <LargeImageArea>
           <TimerComponent
@@ -379,7 +379,7 @@ const MainPage = () => {
         </LargeInfoArea>
       </LargeAuctionContent>
 
-      <SectionTitle>소규모 경매</SectionTitle>
+      <SectionTitle>데일리 경매</SectionTitle>
       <SmallAuctionGrid>
         {minorAuctions &&
           minorAuctions.map((auction) => (
