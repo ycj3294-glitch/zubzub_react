@@ -214,14 +214,6 @@ const Login = () => {
           <LoginButton type="submit">로그인</LoginButton>
         </form>
         <BottomMenu>
-          <span
-            onClick={() => {
-              /* 이메일 찾기 로직 필요 시 추가 */
-            }}
-          >
-            이메일 찾기
-          </span>
-          <div className="divider" />
           <span onClick={() => setShowFindPwd(true)}>비밀번호 찾기</span>
           <div className="divider" />
           <Link to="/signup">회원가입</Link>

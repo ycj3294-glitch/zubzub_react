@@ -22,6 +22,22 @@ const Modal = styled.div`
   z-index: 1001;
   display: flex;
   flex-direction: column;
+
+  /* 📌 모바일 대응 */
+  @media (max-width: 768px) {
+    width: 85%; /* 화면의 85% 정도로 줄임 */
+    height: auto; /* 높이는 내용에 맞게 */
+    max-height: 60%; /* 너무 길어지지 않게 제한 */
+    padding: 16px; /* 패딩 줄이기 */
+    border-radius: 12px;
+  }
+
+  @media (max-width: 480px) {
+    width: 90%; /* 더 작은 화면에서는 거의 꽉 차게 */
+    max-height: 55%; /* 아까 만든 모달보다 조금 더 작게 */
+    padding: 12px;
+    border-radius: 8px;
+  }
 `;
 
 const CloseX = styled.div`

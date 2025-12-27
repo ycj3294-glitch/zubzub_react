@@ -62,6 +62,7 @@ const ModalContent = styled.div`
 const HeaderWrapper = styled.div`
   width: 100%;
   height: 135px;
+  position: relative;
 `;
 
 const HeaderContainer = styled.header`
@@ -74,6 +75,9 @@ const HeaderContainer = styled.header`
   top: 0;
   left: 0;
   z-index: 1000;
+  @media (max-width: 900px) {
+    display: none; /* 모바일에서는 숨김 */
+  }
 `;
 
 const TopSection = styled.div`
@@ -99,55 +103,6 @@ const CenterSection = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-`;
-
-const SearchBox = styled.div`
-  display: flex;
-  align-items: center;
-  border: 1px solid #ccc;
-  padding: 8px 15px;
-  width: 100%;
-  box-sizing: border-box;
-`;
-
-const SearchInput = styled.input`
-  flex: 1;
-  border: none;
-  outline: none;
-  font-size: 16px;
-  background: transparent;
-  font-family: inherit;
-`;
-
-const SearchIconWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  &::before {
-    content: "";
-    width: 1px;
-    height: 16px;
-    background: #ccc;
-  }
-`;
-
-const SearchIcon = styled.div`
-  width: 18px;
-  height: 18px;
-  border: 1.5px solid #666;
-  border-radius: 50%;
-  position: relative;
-  cursor: pointer;
-  &::after {
-    content: "";
-    position: absolute;
-    width: 7px;
-    height: 1.5px;
-    background: #666;
-    bottom: -2px;
-    right: -3px;
-    transform: rotate(45deg);
-  }
 `;
 
 const MenuRow = styled.div`
@@ -179,7 +134,8 @@ const MenuRow = styled.div`
 const RightSection = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 20px;
   width: 220px;
   height: 80px;
 `;
@@ -244,12 +200,6 @@ const BottomDivider = styled.div`
   margin: 0;
 `;
 
-const AdminRow = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 6px; /* AuthBox와 간격 */
-`;
-
 const AdminButton = styled.div`
   display: flex;
   justify-content: center;
@@ -269,6 +219,98 @@ const AdminButton = styled.div`
 `;
 
 /* =========================
+모바일용
+========================= */
+
+const MobileHeaderContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 좌우 공간 분배 */
+  padding: 10px 16px;
+  background: #fff;
+  border-bottom: 1px solid #eee;
+
+  @media (min-width: 900px) {
+    display: none; /* 데스크톱에서는 숨김 */
+  }
+`;
+
+const MobileLogo = styled.img`
+  width: 80px;
+  height: auto;
+  cursor: pointer;
+`;
+
+const MobileSearchWrapper = styled.div`
+  flex-grow: 1;
+  flex-shrink: 1;
+  display: flex;
+  justify-content: center;
+  margin: 0 12px;
+`;
+
+const HamburgerButton = styled.div`
+  flex-grow: 0;
+  flex-shrink: 0;
+  width: 24px;
+  height: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+
+  span {
+    display: block;
+    height: 3px;
+    background: #000;
+    border-radius: 2px;
+  }
+`;
+
+const HeaderMenuContainer = styled.div`
+  display: none;
+
+  @media (max-width: 900px) {
+    display: ${({ open }) => (open ? "block" : "none")};
+    position: relative;
+    top: 0px; /* MobileHeaderContainer 바로 아래 */
+    right: 0;
+    width: 100%;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 2000;
+  }
+`;
+
+const HeaderMenu = styled.ul`
+  list-style: none;
+  margin: 0;
+  padding: 0;
+`;
+
+const HeaderMenuItem = styled.li`
+  padding: 14px 16px;
+  font-size: 15px;
+  color: #333;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+
+  &:first-child {
+    border-top: none;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background: #f5f5f5;
+  }
+`;
+
+/* =========================
    Component Main
 ========================= */
 const Header = () => {
@@ -277,6 +319,8 @@ const Header = () => {
   const isAdmin = user?.isAdmin;
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [showLoginGuide, setShowLoginGuide] = useState(false); // 로그인 유도 모달 상태
+
+  const [menuOpen, setMenuOpen] = useState();
 
   const logoutHandler = async () => {
     const res = await AxiosApi.logout();
@@ -353,15 +397,86 @@ const Header = () => {
                   )}
                 </AuthBox>
               </TopRightRow>
-              <StartAuctionBtnWrapper>
-                <StartAuctionBtn onClick={handleStartAuction}>
-                  나만의 경매 시작하기
-                </StartAuctionBtn>
-              </StartAuctionBtnWrapper>
+              {isLogin && (
+                <StartAuctionBtnWrapper>
+                  <StartAuctionBtn onClick={handleStartAuction}>
+                    나만의 경매 시작하기
+                  </StartAuctionBtn>
+                </StartAuctionBtnWrapper>
+              )}
             </RightSection>
           </TopSection>
           <BottomDivider />
         </HeaderContainer>
+        <MobileHeaderContainer>
+          <MobileLogo
+            src={LogoImage1}
+            alt="Logo"
+            onClick={() => navigate("/")}
+          />
+          <MobileSearchWrapper>
+            <SearchBar />
+          </MobileSearchWrapper>
+          <HamburgerButton onClick={() => setMenuOpen(!menuOpen)}>
+            <span></span>
+            <span></span>
+            <span></span>
+          </HamburgerButton>
+        </MobileHeaderContainer>
+        <HeaderMenuContainer open={menuOpen}>
+          <HeaderMenu onClick={() => setMenuOpen(!menuOpen)}>
+            {/* 로그인 안 했을 때만 보이는 메뉴 */}
+            {!isLogin && (
+              <>
+                <HeaderMenuItem onClick={() => navigate("/login")}>
+                  로그인
+                </HeaderMenuItem>
+                <HeaderMenuItem onClick={() => navigate("/signup")}>
+                  회원가입
+                </HeaderMenuItem>
+              </>
+            )}
+
+            {/* 관리자 계정일 때만 보이는 메뉴 */}
+            {isAdmin && (
+              <HeaderMenuItem onClick={() => navigate("/admin")}>
+                관리 페이지
+              </HeaderMenuItem>
+            )}
+
+            {/* 로그인 했을 때만 보이는 메뉴 */}
+            {isLogin && (
+              <>
+                <HeaderMenuItem onClick={() => setShowMessageModal(true)}>
+                  쪽지함
+                </HeaderMenuItem>
+                <HeaderMenuItem onClick={() => navigate("/mypage")}>
+                  마이페이지
+                </HeaderMenuItem>
+                <HeaderMenuItem onClick={logoutHandler}>
+                  로그아웃
+                </HeaderMenuItem>
+                <HeaderMenuItem onClick={handleStartAuction}>
+                  나만의 경매 시작하기
+                </HeaderMenuItem>
+              </>
+            )}
+
+            {/* 공통 메뉴 (누구나 보임) */}
+            <HeaderMenuItem onClick={() => navigate("/auction/major")}>
+              프리미엄 경매
+            </HeaderMenuItem>
+            <HeaderMenuItem onClick={() => navigate("/auction/minor")}>
+              데일리 경매
+            </HeaderMenuItem>
+            <HeaderMenuItem onClick={() => navigate("/schedule")}>
+              경매 일정
+            </HeaderMenuItem>
+            <HeaderMenuItem onClick={() => navigate("/notice")}>
+              공지사항
+            </HeaderMenuItem>
+          </HeaderMenu>
+        </HeaderMenuContainer>
       </HeaderWrapper>
 
       {/* 쪽지함 모달 */}

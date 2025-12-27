@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 
 const InputStyle = styled.input`
-  width: 450px;
+  flex: 1 1 450px;
+  max-width: 450px;
 `;
 
 const SearchBar = () => {
@@ -17,7 +18,14 @@ const SearchBar = () => {
   };
 
   return (
-    <div style={{ display: "flex", gap: "8px" }}>
+    <div
+      style={{
+        display: "flex",
+        gap: "8px",
+        width: "100%",
+        justifyContent: "center",
+      }}
+    >
       <InputStyle
         value={keyword}
         onChange={(e) => setKeyword(e.target.value)}

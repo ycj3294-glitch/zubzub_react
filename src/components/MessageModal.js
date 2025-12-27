@@ -23,7 +23,24 @@ const Modal = styled.div`
   z-index: 1001;
   display: flex;
   flex-direction: column;
+
+  /* 📌 모바일 대응 */
+  @media (max-width: 768px) {
+    width: 90%; /* 화면 너비의 90% */
+    height: auto; /* 높이는 내용에 맞게 */
+    max-height: 80%; /* 너무 길어지지 않게 제한 */
+    padding: 16px; /* 패딩 줄이기 */
+    border-radius: 12px;
+  }
+
+  @media (max-width: 480px) {
+    width: 95%; /* 더 작은 화면에서는 거의 꽉 차게 */
+    max-height: 75%;
+    padding: 12px;
+    border-radius: 8px;
+  }
 `;
+
 const CloseX = styled.div`
   position: absolute;
   top: 20px;

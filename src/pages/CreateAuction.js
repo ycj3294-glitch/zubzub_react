@@ -253,18 +253,20 @@ const CreateAuction = () => {
                   <div className="unit">ZC</div>
                 </CurrencyWrapper>
               </Row>
-              <Row>
-                <Label>입찰 단위</Label>
-                <CurrencyWrapper>
-                  <input
-                    type="number"
-                    defaultValue="1000"
-                    name="minBidUnit"
-                    onChange={handleAuctionFormChange}
-                  />
-                  <div className="unit">ZC</div>
-                </CurrencyWrapper>
-              </Row>
+              {auctionFormData.auctionType === "MAJOR" && (
+                <Row>
+                  <Label>입찰 단위</Label>
+                  <CurrencyWrapper>
+                    <input
+                      type="number"
+                      defaultValue="1000"
+                      name="minBidUnit"
+                      onChange={handleAuctionFormChange}
+                    />
+                    <div className="unit">ZC</div>
+                  </CurrencyWrapper>
+                </Row>
+              )}
               {auctionFormData.auctionType === "MINOR" && (
                 <>
                   <Row>

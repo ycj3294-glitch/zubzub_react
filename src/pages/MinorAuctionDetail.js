@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import AxiosAPI from "../api/AxiosAPI";
 import { jwtDecode } from "jwt-decode";
+import { useAuth } from "../context/AuthContext";
 
 /* =====================
    Styled Components
@@ -267,6 +268,9 @@ const DescriptionText = styled.div`
 
 const MinorAuctionDetail = () => {
   const { id } = useParams();
+
+  const { isLogin, user } = useAuth();
+
   const [auction, setAuction] = useState(null);
   const [remainingTime, setRemainingTime] = useState(0);
   const [currentImgIdx, setCurrentImgIdx] = useState(0);
@@ -275,18 +279,19 @@ const MinorAuctionDetail = () => {
   const [userCredit, setUserCredit] = useState(150000);
   const [myLastBid, setMyLastBid] = useState(0);
 
-  // 사용자 정보 (토큰에서 디코딩)
-  const token = localStorage.getItem("accessToken");
-  const decoded = jwtDecode(token);
-  const userId = decoded.memberId; // 실제 서버에서 사용하는 키 확인 필요
+  // // 사용자 정보 (토큰에서 디코딩)
+  // const token = localStorage.getItem("accessToken");
+  // const decoded = jwtDecode(token);
+  // const userId = decoded.memberId; // 실제 서버에서 사용하는 키 확인 필요
 
   useEffect(() => {
-    if (userId && auction) {
-      AxiosAPI.getUserInfo(userId).then((res) => {
+    if (!isLogin) return;
+    if (user.id && auction) {
+      AxiosAPI.getUserInfo(user.id).then((res) => {
         if (res?.data) setUserCredit(res.data.credit);
       });
     }
-  }, [userId, auction]);
+  }, [user, auction, isLogin]);
 
   useEffect(() => {
     const fetchAuction = async () => {
@@ -302,20 +307,21 @@ const MinorAuctionDetail = () => {
 
   // 자신의 마지막 입찰가 조회
   useEffect(() => {
+    if (!isLogin) return;
     const fetchMyLastBid = async () => {
       console.log("내 마지막 입찰가 조회 실행");
       try {
-        const res = await AxiosAPI.getMyLastBid(auction.id, userId);
+        const res = await AxiosAPI.getMyLastBid(auction.id, user.id);
         setMyLastBid(res.data?.price || 0);
       } catch (e) {
         console.error("내 마지막 입찰가 조회 실패", e);
       }
     };
 
-    if (auction?.id && userId) {
+    if (auction?.id && user.id) {
       fetchMyLastBid();
     }
-  }, [auction?.id, userId]);
+  }, [auction?.id, user?.id, isLogin]);
 
   useEffect(() => {
     if (!auction?.endTime) return;
@@ -369,14 +375,15 @@ const MinorAuctionDetail = () => {
       return;
     }
 
-    if ((numericBid - auction.startPrice) % auction.minBidUnit !== 0) {
-      alert(
-        `입찰 단위(${auction.minBidUnit.toLocaleString()}원)에 맞춰서 입력해주세요.`
-      );
-      return;
-    }
+    // if ((numericBid - auction.startPrice) % auction.minBidUnit !== 0) {
+    //   alert(
+    //     `입찰 단위(${auction.minBidUnit.toLocaleString()}원)에 맞춰서 입력해주세요.`
+    //   );
+    //   return;
+    // }
+
     try {
-      if (!token) {
+      if (!isLogin) {
         alert("로그인이 필요합니다.");
         return;
       }
@@ -385,7 +392,7 @@ const MinorAuctionDetail = () => {
       if (!window.confirm(confirmMsg)) return;
 
       const response = await AxiosAPI.createBid(id, {
-        bidderId: userId,
+        bidderId: user.id,
         price: numericBid,
       });
 
