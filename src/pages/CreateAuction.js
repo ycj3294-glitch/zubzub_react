@@ -210,7 +210,7 @@ const CreateAuction = () => {
             setAuctionFormData((prev) => ({ ...prev, auctionType: "MINOR" }))
           }
         >
-          <span className="type-title">소규모 경매</span>
+          <span className="type-title">데일리 경매</span>
         </TypeCard>
 
         <TypeCard
@@ -221,7 +221,7 @@ const CreateAuction = () => {
             setAuctionFormData((prev) => ({ ...prev, auctionType: "MAJOR" }))
           }
         >
-          <span className="type-title">대규모 경매</span>
+          <span className="type-title">프리미엄 경매</span>
         </TypeCard>
       </TypeSelect>
 
