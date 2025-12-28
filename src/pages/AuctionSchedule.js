@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import AxiosApi from "../api/AxiosAPI";
 
@@ -219,7 +220,7 @@ const AuctionSchedule = () => {
   //     },
   //   ],
   // };
-
+  const navigate = useNavigate(); // useNavigate 훅
   const [events, setEvents] = useState({});
   const [selectedDate, setSelectedDate] = useState(new Date().getDate());
 
@@ -235,7 +236,7 @@ const AuctionSchedule = () => {
             id: ev.id,
             title: ev.itemName,
             time: new Date(ev.startTime).toLocaleTimeString(),
-            seller: ev.sellerNickName,
+            seller: ev.sellerNickname,
           });
         });
         setEvents(eventsByDate);
@@ -310,11 +311,7 @@ const AuctionSchedule = () => {
                   <div className="time">{ev.time} 시작 예정</div>
                   <div className="name">{ev.title}</div>
                   <div className="seller">판매자: {ev.seller}</div>
-                  <button
-                    onClick={() =>
-                      alert(`${ev.title} 입찰 페이지로 이동합니다.`)
-                    }
-                  >
+                  <button onClick={() => navigate(`/auction/major/${ev.id}`)}>
                     입장하기
                   </button>
                 </AuctionItem>

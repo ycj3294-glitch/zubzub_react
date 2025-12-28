@@ -143,7 +143,7 @@ const SearchResult = () => {
               <Price>{a.startPrice.toLocaleString()} 원</Price>
 
               <Meta>
-                <span>{a.sellerNickName || "익명"}</span>
+                <span>{a.sellerNickname || "익명"}</span>
                 <span>{a.bidCount || 0}회 입찰</span>
               </Meta>
             </CardBody>

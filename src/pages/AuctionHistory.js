@@ -159,10 +159,13 @@ const AuctionHistory = () => {
     const fetchPurchaseListInfo = async () => {
       try {
         // 구매 내역
-        const purchaseResponse = await AxiosApi.getWinList(memberId);
+        const purchaseResponse = await AxiosApi.getWinList(
+          memberId,
+          purchasePage - 1
+        );
         setPurchaseData(purchaseResponse.data.content);
         setPurchaseTotalPages(purchaseResponse.data.totalPages);
-        setPurchasePage(purchaseResponse.data.number);
+        //setPurchasePage(purchaseResponse.data.number);//
       } catch (err) {
         console.error("데이터를 가져오는데 실패했습니다.", err);
       }
@@ -177,10 +180,13 @@ const AuctionHistory = () => {
     const fetchSellListInfo = async () => {
       try {
         // 판매 내역
-        const salesResponse = await AxiosApi.getSellList(memberId);
+        const salesResponse = await AxiosApi.getSellList(
+          memberId,
+          salesPage - 1
+        );
         setSalesData(salesResponse.data.content);
         setSalesTotalPages(salesResponse.data.totalPages);
-        setSalesPage(salesResponse.data.number);
+        //setSalesPage(salesResponse.data.number);
       } catch (err) {
         console.error("데이터를 가져오는데 실패했습니다.", err);
       }

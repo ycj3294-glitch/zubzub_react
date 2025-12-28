@@ -101,7 +101,7 @@ const ScheduleItems = styled.div`
 `;
 
 const ItemBox = styled.div`
-  flex: 1;
+  flex: 0 1 150px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -149,12 +149,29 @@ const LargeAuctionContent = styled.div`
 
 const LargeImageArea = styled.div`
   flex: 1.5;
-  background: #333;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #fff;
-  font-size: 20px;
+  position: relative;
+  background: ${({ imgUrl }) =>
+    imgUrl ? `url(${imgUrl}) no-repeat center / cover` : "#333"};
+  border-radius: 15px 0 0 15px;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    background-size: contain;
+    background-color: #000; /* 여백 생길 때 */
+  }
+
+  .timer-overlay {
+    position: absolute;
+    inset: 0; /* ← 이게 핵심: top/right/bottom/left = 0 */
+    background: rgba(0, 0, 0, 0.55); /* 이미지 덮는 반투명 레이어 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-size: 24px;
+    font-weight: bold;
+    z-index: 1;
+  }
 `;
 
 const LargeInfoArea = styled.div`
@@ -284,10 +301,16 @@ const MainPage = () => {
 
   useEffect(() => {
     const loadMainAuction = async () => {
-      const auction = await AxiosApi.getNearestEnd();
-      console.log("메인옥션", auction);
-      setMainAuction(auction);
+      try {
+        const auction = await AxiosApi.getNearestEnd();
+        setMainAuction(auction ?? null);
+        console.log("이미지 URL:", auction?.itemImg);
+      } catch (error) {
+        console.error("메인옥션 로드 실패", error);
+        setMainAuction(null);
+      }
     };
+
     loadMainAuction();
   }, []);
 
@@ -357,23 +380,31 @@ const MainPage = () => {
       </TopGrid>
 
       <SectionTitle>프리미엄 경매</SectionTitle>
+
       <LargeAuctionContent>
-        <LargeImageArea>
-          <TimerComponent
-            end={mainAuction ? mainAuction.endTime : ""}
-          ></TimerComponent>
+        <LargeImageArea
+          imgUrl={mainAuction?.itemImg}
+          onClick={() => {
+            if (!mainAuction) return;
+            nav(`/auction/major/${mainAuction.id}`);
+          }}
+        >
+          {mainAuction && (
+            <div className="timer-overlay">
+              <TimerComponent end={mainAuction.endTime} />
+            </div>
+          )}
         </LargeImageArea>
+
         <LargeInfoArea>
-          {/* ✅ 에러가 났던 부분 */}
-          <InfoLabel>
-            현재 낙찰가 : {mainAuction ? mainAuction.finalPrice : ""} 원
-          </InfoLabel>
+          <InfoLabel>현재 낙찰가 : {mainAuction?.finalPrice} 원</InfoLabel>
+
           <ChatPlaceholder>
             {mainAuction && (
               <ChatComponent
                 chatId={mainAuction.id}
                 nickname={user ? user.nickname : "익명"}
-              ></ChatComponent>
+              />
             )}
           </ChatPlaceholder>
         </LargeInfoArea>

@@ -159,6 +159,8 @@ const WalletBox = styled.div`
 `;
 
 const WalletRow = styled.div`
+  flex-direction: column; /* 세로 배치 */
+  gap: 5px;
   display: flex;
   justify-content: space-between;
   font-size: 14px;
@@ -388,14 +390,22 @@ const MajorAuctionDetail = () => {
             </WalletRow>
 
             <WalletRow className="divider">
-              <span className="label-gold">현재 최고 입찰가</span>
-              <span className="highlight">
-                {(
-                  auction.finalPrice ||
-                  auction.startPrice ||
-                  0
-                ).toLocaleString()}{" "}
-                ZC
+              {/* 첫 줄: 현재 최고 입찰가 + 금액 */}
+              <div className="price-row">
+                <span className="label-gold">현재 최고 입찰가 : </span>
+                <span className="highlight">
+                  {(
+                    auction.finalPrice ||
+                    auction.startPrice ||
+                    0
+                  ).toLocaleString()}{" "}
+                  ZC
+                </span>
+              </div>
+
+              {/* 두 번째 줄: 현재 최고 입찰자 */}
+              <span className="label-gold">
+                현재 최고 입찰자 : {auction.winnerNickname || "없음"}
               </span>
             </WalletRow>
           </WalletBox>
@@ -403,7 +413,7 @@ const MajorAuctionDetail = () => {
           <InfoList>
             <InfoItem>
               <span className="key">판매자</span>
-              <span className="value">{auction.sellerNickName}</span>
+              <span className="value">{auction.sellerNickname}</span>
             </InfoItem>
             <InfoItem>
               <span className="key">남은 시간</span>
@@ -467,27 +477,27 @@ const MajorAuctionDetail = () => {
       <Section>
         <SectionTitle>프리미엄 경매 참여 가이드</SectionTitle>
         <Description>
-          {`○ 소규모 경매 진행 방식 안내 (블라인드 입찰)
+          {`프리미엄 경매 진행 방식 안내 (실시간 입찰)
 
-소규모 경매는 블라인드 입찰 방식으로 진행됩니다.
-아래 내용을 반드시 확인하신 후 참여해 주세요.
+프리미엄 경매는 실시간 최고가 경쟁 방식으로 진행됩니다. 아래 내용을 반드시 확인하신 후 참여해 주세요.
 
-○  블라인드 입찰이란?
+실시간 입찰이란?
 
-입찰 금액은 본인에게만 공개되며
-다른 참가자의 입찰 금액은 경매 종료 전까지 확인할 수 없습니다.
+입찰 금액은 모든 참가자에게 즉시 반영됩니다.
 
-실시간 최고가 경쟁 방식이 아닙니다.
+다른 참가자의 입찰 금액도 실시간으로 확인할 수 있습니다.
 
-○  입찰 시간
+현재 최고가에 따라 경매가 진행되며, 최고 입찰자가 계속 표시됩니다.
+
+입찰 시간
 
 각 경매는 정해진 시작 시간부터 종료 시간까지 입찰이 가능합니다.
 
 종료 시각 이후에는 추가 입찰이 불가능합니다.
 
-○  낙찰 기준
+낙찰 기준
 
-제한 시간 내 가장 높은 금액을 제시한 참가자가 낙찰됩니다.
+경매 종료 시점에 가장 높은 금액을 제시한 참가자가 낙찰됩니다.
 
 동일 금액 입찰 시, 먼저 입찰한 참가자가 우선 낙찰됩니다.
 
@@ -495,11 +505,9 @@ const MajorAuctionDetail = () => {
 
 입찰 후 취소 또는 금액 변경은 불가능합니다.
 
-허위 입찰 또는 부정 행위가 확인될 경우,
-서비스 이용이 제한될 수 있습니다.
+허위 입찰 또는 부정 행위가 확인될 경우, 서비스 이용이 제한될 수 있습니다.
 
-시스템 사정에 따라 경매 일정이 변경될 수 있으며,
-변경 시 별도 공지로 안내드립니다.`}
+시스템 사정에 따라 경매 일정이 변경될 수 있으며, 변경 시 별도 공지로 안내드립니다.`}
         </Description>
       </Section>
     </Container>
