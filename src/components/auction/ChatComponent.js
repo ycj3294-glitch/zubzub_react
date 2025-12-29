@@ -47,6 +47,8 @@ const ChatMessages = styled.div`
 `;
 
 const ChatMessage = styled.div`
+  display: flex;
+  justify-content: center;
   font-size: 13px;
   line-height: 1.5;
   margin-bottom: 10px;
