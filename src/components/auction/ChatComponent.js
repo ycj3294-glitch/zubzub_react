@@ -14,7 +14,6 @@ const ChatContainer = styled.div`
   font-family: "Courier New", Courier, monospace;
 
   /* 테두리 설정 */
-  border: 1px solid #000;
 
   /* [핵심 변경] 위쪽은 직각(0), 아래쪽만 둥글게(15px) */
   /* 순서: 좌상단, 우상단, 우하단, 좌하단 */

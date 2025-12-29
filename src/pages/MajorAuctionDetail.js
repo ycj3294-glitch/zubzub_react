@@ -457,13 +457,15 @@ const MajorAuctionDetail = () => {
           <BoardHeader>
             실시간 Q&A <span>• Live</span>
           </BoardHeader>
-          <ChatWrapper>
-            {/* 방금 만든 '상단 0, 하단 15px' 라디오 스타일 ChatComponent가 들어감 */}
-            <ChatComponent
-              chatId={auctionId}
-              nickname={user?.nickname || "익명"}
-            />
-          </ChatWrapper>
+          <BoardBody>
+            <ChatWrapper>
+              {/* 방금 만든 '상단 0, 하단 15px' 라디오 스타일 ChatComponent가 들어감 */}
+              <ChatComponent
+                chatId={auctionId}
+                nickname={user?.nickname || "익명"}
+              />
+            </ChatWrapper>
+          </BoardBody>
         </Board>
 
         <Board>
