@@ -418,7 +418,13 @@ const MajorAuctionDetail = () => {
             <InfoItem>
               <span className="key">남은 시간</span>
               <span className="value" style={{ color: "#d32f2f" }}>
-                <TimerComponent end={auction.endTime} />
+                <TimerComponent
+                  end={
+                    auction.extendedEndTime
+                      ? auction.extendedEndTime
+                      : auction.endTime
+                  }
+                />
               </span>
             </InfoItem>
             <InfoItem>
