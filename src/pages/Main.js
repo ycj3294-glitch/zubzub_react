@@ -179,6 +179,7 @@ const LargeInfoArea = styled.div`
   padding: 25px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
 `;
 
 // 컴포넌트 정의 확인
@@ -192,7 +193,8 @@ const InfoLabel = styled.div`
 
 // 컴포넌트 정의 확인
 const ChatPlaceholder = styled.div`
-  flex: 1;
+  box-sizing: border-box;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
