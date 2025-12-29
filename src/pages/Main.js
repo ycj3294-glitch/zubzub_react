@@ -204,10 +204,17 @@ const ChatPlaceholder = styled.div`
 
 /* --- 섹션 3: 소규모 경매 --- */
 const SmallAuctionGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 20px;
   margin-bottom: 80px;
+
+  & > * {
+    /* 아이템 최소/최대 폭을 설정해 반응형으로 개수 자동 조절 */
+    flex: 1 1 240px; /* 최소 약 240px을 확보, 남으면 균등 확장 */
+    max-width: 1fr; /* flex에서 의미 없으므로 생략 가능 */
+    box-sizing: border-box;
+  }
 `;
 
 const SmallItemCard = styled.div`

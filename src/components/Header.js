@@ -222,7 +222,7 @@ const AdminButton = styled.div`
 모바일용
 ========================= */
 
-const MobileHeaderContainer = styled.div`
+const MobileHeaderContainer = styled.header`
   display: flex;
   align-items: center;
   justify-content: space-between; /* 좌우 공간 분배 */
